@@ -6,21 +6,30 @@ import { existsSync, readFile, readFileSync } from "fs";
 import http from "http"
 import https from "https"
 import expressWs from "express-ws";
-import { CallDocModel } from "../models";
+import { CSPacket, SCPacket } from "../client/types";
 
-const call_docs: Map<String, CallDocModel> = new Map()
+type Room = Map<string, any>
+const rooms: Map<string, Room> = new Map()
 
+function ws_send(ws: any, data: string) {
+    try { ws.send(data) }
+    catch (e) { console.warn("i hate express-ws") }
+}
 
 async function main() {
     const app_e = Express();
     const app = expressWs(app_e).app
 
-    const webpackConfig = require('../../webpack.config');
-    const compiler = Webpack(webpackConfig)
-    const devMiddleware = WebpackDevMiddleware(compiler, {
-        publicPath: webpackConfig.output.publicPath
-    })
-    app.use("/scripts", devMiddleware)
+    if (process.env.PRODUCTION) {
+        app.use("/scripts", estatic(join(__dirname, "../../public/dist")))
+    } else {
+        const webpackConfig = require('../../webpack.config');
+        const compiler = Webpack(webpackConfig)
+        const devMiddleware = WebpackDevMiddleware(compiler, {
+            publicPath: webpackConfig.output.publicPath
+        })
+        app.use("/scripts", devMiddleware)
+    }
 
     app.disable("x-powered-by");
     app.use(json());
@@ -28,70 +37,51 @@ async function main() {
     app.get("/", (req, res) => {
         res.sendFile(join(__dirname, "../../public/index.html"));
     });
+    app.get("/room/:id", (req, res) => {
+        res.sendFile(join(__dirname, "../../public/index.html"));
+    });
 
     app.use("/static", estatic(join(__dirname, "../../public")));
 
-    app.get("/favicon.ico", (req, res) => {
-        res.sendFile(join(__dirname, "../../public/favicon.ico"));
-    });
+    app.ws("/room/:id", (ws, req) => {
+        const room_name = req.params.id
+        const room = rooms.get(req.params.id) ?? new Map()
+        let initialized = false
+        let user_name = ""
 
-    app.ws("/offer/:id", (ws, req) => {
-        const id = req.params.id
-        if (call_docs.get(id)) return ws.close(0, "call already running")
-        console.log(`[${id}] offer websocket open`);
-        ws.onclose = () => console.log(`[${id}] offer websocket close`);
-        const doc: CallDocModel = {
-            answered: false,
-            offer_candidates: [],
-            offer: undefined,
-            on_answer: () => { },
-            on_answer_candidate: () => { },
-            on_offer_candidate: () => { },
+        const init = (n: string) => {
+            initialized = true
+            user_name = n
+            rooms.set(req.params.id, room)
+            room.forEach((_, uws) => ws_send(uws, JSON.stringify({ sender: user_name, join: true })))
+            room.set(user_name, ws)
+            console.log(`[${room_name}] ${user_name} joined`)
+        }
+        ws.onclose = () => {
+            room.delete(user_name)
+            room.forEach((_, uws) => ws_send(uws, JSON.stringify({ sender: user_name, leave: true })))
+            if (room.size == 0) rooms.delete(room_name)
+            console.log(`[${room_name}] ${user_name} left`)
         }
         ws.onmessage = ev => {
-            const s = JSON.parse(ev.data.toString())
-            if (s.offer) {
-                console.log(`[${id}] offer`);
-                doc.offer = s.offer
-                call_docs.set(id, doc)
-            }
-            if (s.candidate) {
-                console.log(`[${id}] offer candidate`);
-                if (doc.answered) doc.on_offer_candidate(s.candidate)
-                else doc.offer_candidates.push(s.candidate)
-            }
-        }
-        doc.on_answer = answer => ws.send(JSON.stringify({ answer }))
-        doc.on_answer_candidate = candidate => ws.send(JSON.stringify({ candidate }))
-    })
+            const message = ev.data.toString()
+            let in_packet: CSPacket;
+            try { in_packet = JSON.parse(message) }
+            catch (e) { return }
+            if (!initialized) return init(message)
 
-    app.ws("/answer/:id", (ws, req) => {
-        const id = req.params.id
-        console.log(`[${id}] answer websocket open`);
-        ws.onclose = () => console.log(`[${id}] answer websocket close`);
-        const doc = call_docs.get(id)
-        if (!doc) return ws.close(0, "call not found")
-        if (doc.answered) return ws.close(0, "call already answered")
-        ws.onmessage = ev => {
-            const s = JSON.parse(ev.data.toString())
-            if (s.answer) {
-                console.log(`[${id}] answer`);
-                doc.on_answer(s.answer)
-            }
-            if (s.candidate) {
-                console.log(`[${id}] answer candidate`);
-                doc.on_answer_candidate(s.candidate)
+            console.log(`[${room_name}] ${user_name} -> ${in_packet.receiver ?? "*"}: ${message}`)
+            const out_packet: SCPacket = { sender: user_name, data: in_packet }
+
+            if (in_packet.receiver) {
+                const rws = room.get(in_packet.receiver)
+                if (rws) ws_send(rws, JSON.stringify(out_packet))
+            } else {
+                room.forEach((uname, uws) => {
+                    if (uname != user_name) ws_send(uws, JSON.stringify(out_packet))
+                })
             }
         }
-        doc.on_offer_candidate = candidate => ws.send(JSON.stringify({ candidate }))
-        // TODO this is evil
-        setTimeout(() => {
-            ws.send(JSON.stringify({ offer: doc.offer }))
-            for (const candidate of doc.offer_candidates) {
-                ws.send(JSON.stringify({ candidate }))
-            }
-            doc.offer_candidates = []
-        }, 100)
     })
 
     app.use((req, res, next) => {
@@ -101,7 +91,7 @@ async function main() {
 
     const port = parseInt(process.env.PORT ?? "8080")
     app.listen(port, process.env.HOST ?? "127.0.0.1", () => {
-        console.log(`Server listening on 127.0.0.1:${port}`);
+        console.log(`Server listening on ${process.env.HOST ?? "127.0.0.1"}:${port}`);
     })
 }
 
