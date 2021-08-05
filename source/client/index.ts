@@ -1,3 +1,4 @@
+import { log } from "./logger"
 import { Room } from "./room"
 
 export const servers = {
@@ -13,7 +14,13 @@ export interface User {
 export const users: Map<string, User> = new Map()
 
 
-window.onload = async () => {
+window.onload = () => main()
+
+export var local_media: MediaStream
+
+
+export async function main() {
+    await init_local_media()
     if (window.location.pathname.startsWith("/room/")) {
         const room_name = window.location.pathname.substr("/room/".length)
         let room = new Room(room_name)
@@ -22,6 +29,13 @@ window.onload = async () => {
         //TODO show ui for joining rooms
     }
 }
+
+export async function init_local_media() {
+    log("media", "requesting user media")
+    local_media = await navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+    log("media", `got ${local_media.getTracks().length} local streams"`, local_media.getTracks())
+}
+
 
 
 

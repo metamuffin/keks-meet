@@ -7,12 +7,13 @@ import http from "http"
 import https from "https"
 import expressWs from "express-ws";
 import { CSPacket, SCPacket } from "../client/types";
+import * as ws from "ws"
 
-type Room = Map<string, any>
+type Room = Map<string, ws>
 const rooms: Map<string, Room> = new Map()
 
-function ws_send(ws: any, data: string) {
-    try { ws.send(data) }
+function ws_send(ws: ws, data: SCPacket) {
+    try { ws.send(JSON.stringify(data)) }
     catch (e) { console.warn("i hate express-ws") }
 }
 
@@ -45,7 +46,7 @@ async function main() {
 
     app.ws("/room/:id", (ws, req) => {
         const room_name = req.params.id
-        const room = rooms.get(req.params.id) ?? new Map()
+        const room: Map<string, ws> = rooms.get(req.params.id) ?? new Map()
         let initialized = false
         let user_name = ""
 
@@ -53,32 +54,33 @@ async function main() {
             initialized = true
             user_name = n
             rooms.set(req.params.id, room)
-            room.forEach((_, uws) => ws_send(uws, JSON.stringify({ sender: user_name, join: true })))
+            room.forEach(uws => ws_send(uws, { sender: user_name, join: true }))
+            room.forEach((_, uname) => ws_send(ws, { sender: uname, join: true, stable: true }))
             room.set(user_name, ws)
             console.log(`[${room_name}] ${user_name} joined`)
         }
         ws.onclose = () => {
             room.delete(user_name)
-            room.forEach((_, uws) => ws_send(uws, JSON.stringify({ sender: user_name, leave: true })))
+            room.forEach(uws => ws_send(uws, { sender: user_name, leave: true }))
             if (room.size == 0) rooms.delete(room_name)
             console.log(`[${room_name}] ${user_name} left`)
         }
         ws.onmessage = ev => {
             const message = ev.data.toString()
+            if (!initialized) return init(message)
             let in_packet: CSPacket;
             try { in_packet = JSON.parse(message) }
             catch (e) { return }
-            if (!initialized) return init(message)
 
-            console.log(`[${room_name}] ${user_name} -> ${in_packet.receiver ?? "*"}: ${message}`)
+            console.log(`[${room_name}] ${user_name} -> ${in_packet.receiver ?? "*"}: ${message.substr(0, 100)}`)
             const out_packet: SCPacket = { sender: user_name, data: in_packet }
 
             if (in_packet.receiver) {
                 const rws = room.get(in_packet.receiver)
-                if (rws) ws_send(rws, JSON.stringify(out_packet))
+                if (rws) ws_send(rws, out_packet)
             } else {
-                room.forEach((uname, uws) => {
-                    if (uname != user_name) ws_send(uws, JSON.stringify(out_packet))
+                room.forEach((uws, uname) => {
+                    if (uname != user_name) ws_send(uws, out_packet)
                 })
             }
         }
