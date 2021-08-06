@@ -1,5 +1,4 @@
 /node_modules
-/mode
-/hostname
 /public/dist
 /public/assets
+/dist

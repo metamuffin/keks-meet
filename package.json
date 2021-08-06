@@ -5,8 +5,8 @@
   "main": "index.ts",
   "scripts": {
     "test": "echo 'All tests passed (0 / 0)'",
-    "start": "node dist/index.js",
-    "build": "tsc",
+    "start": "ENV=production node dist/server/index.js",
+    "build": "tsc --build tsconfig.server.json && webpack --config webpack.prod.js",
     "debug": "nodemon"
   },
   "keywords": [],
@@ -29,6 +29,8 @@
   },
   "devDependencies": {
     "ts-node": "^8.10.2",
-    "typescript": "^3.9.7"
+    "typescript": "^3.9.7",
+    "webpack-cli": "^4.7.2",
+    "webpack-dev-server": "^3.11.2"
   }
 }

@@ -12,11 +12,6 @@ module.exports = {
         options: {
           configFile: "tsconfig.client.json"
         }
-      },
-      {
-        enforce: "pre",
-        test: /\.js$/,
-        loader: "source-map-loader"
       }
     ],
   },
@@ -28,10 +23,5 @@ module.exports = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'public/dist'),
     pathinfo: false
-  },
-  optimization: {
-    removeAvailableModules: true,
-    removeEmptyChunks: true,
-    splitChunks: true,
   },
 };

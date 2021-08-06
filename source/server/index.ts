@@ -21,10 +21,12 @@ async function main() {
     const app_e = Express();
     const app = expressWs(app_e).app
 
-    if (process.env.PRODUCTION) {
+    if (process.env.ENV == "production") {
+        console.log("PRODUCTION MODE!!!");
         app.use("/scripts", estatic(join(__dirname, "../../public/dist")))
     } else {
-        const webpackConfig = require('../../webpack.config');
+        console.log("DEVELOPMENT MODE!!!");
+        const webpackConfig = require('../../webpack.dev');
         const compiler = Webpack(webpackConfig)
         const devMiddleware = WebpackDevMiddleware(compiler, {
             publicPath: webpackConfig.output.publicPath
