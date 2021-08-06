@@ -1,12 +1,16 @@
 import { log } from "./logger";
 import { CSPacket, SCPacket } from "./types";
+import { RemoteUser } from "./remote_user";
 import { User } from "./user";
+import { LocalUser } from "./local_user";
 
 
 export class Room {
     el: HTMLElement
     name: string
     users: Map<string, User> = new Map()
+    remote_users: Map<string, RemoteUser> = new Map()
+    local_user: LocalUser
     websocket: WebSocket
 
     constructor(name: string) {
@@ -19,6 +23,7 @@ export class Room {
         this.websocket.onmessage = (ev) => {
             this.websocket_message(JSON.parse(ev.data))
         }
+        this.local_user = new LocalUser(this, Math.random().toString())
     }
 
     websocket_send(data: CSPacket) {
@@ -28,15 +33,20 @@ export class Room {
     websocket_message(packet: SCPacket) {
         if (packet.join) {
             log("*", `${this.name} ${packet.sender} joined`);
-            this.users.set(packet.sender, new User(this, packet.sender, !packet.stable))
+            const ru = new RemoteUser(this, packet.sender)
+            this.local_user.add_initial_to_remote(ru)
+            if (!packet.stable) ru.offer()
+            this.users.set(packet.sender, ru)
+            this.remote_users.set(packet.sender, ru)
             return
         }
-        const sender = this.users.get(packet.sender)
+        const sender = this.remote_users.get(packet.sender)
         if (!sender) return console.warn(`unknown sender ${packet.sender}`)
         if (packet.leave) {
             log("*", `${this.name} ${packet.sender} left`);
             sender.leave()
             this.users.delete(packet.sender)
+            this.remote_users.delete(packet.sender)
             return
         }
         if (!packet.data) return console.warn("dataless packet")
@@ -50,6 +60,6 @@ export class Room {
     }
     websocket_open() {
         log("ws", "websocket opened");
-        this.websocket.send(Math.random().toString())
+        this.websocket.send(this.local_user.name)
     }
 }

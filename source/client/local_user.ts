@@ -4,31 +4,66 @@ import { User } from "./user";
 
 
 export class LocalUser extends User {
+
+    private audio_track?: MediaStreamTrack
+    private video_track?: MediaStreamTrack
+
     constructor(room: Room, name: string) {
         super(room, name)
-        this.get_streams()
+        this.create_controls()
+        //@ts-ignore
+        window.ea = () => this.enable_audio()
+        //@ts-ignore
+        window.da = () => this.disable_audio()
+        //@ts-ignore
+        window.ev = () => this.enable_video()
+        //@ts-ignore
+        window.dv = () => this.disable_video()
     }
 
-    async get_streams() {
-        const user_media = await window.navigator.mediaDevices.getUserMedia({ audio: true, video: true })
-        await new Promise<void>(r => setTimeout(() => r(), 3000))
-        for (const t of user_media.getTracks()) {
-            this.add_track(t)
-        }
+    create_controls() {
+        setTimeout(() => {
+            this.enable_video()
+        }, 3000)
     }
 
-    add_tracks_to_remote(u: RemoteUser) {
-        this.stream.forEach(t => {
-            u.peer.addTrack(t, new MediaStream())
-        })
+    async add_initial_to_remote(ru: RemoteUser) {
+        if (this.audio_track) ru.peer.addTrack(this.audio_track, new MediaStream())
+        if (this.video_track) ru.peer.addTrack(this.video_track, new MediaStream())
     }
 
-    add_track(t: MediaStreamTrack) {
-        this.update_view()
-        this.stream.push(t)
+    async enable_video() {
+        if (this.video_track) return
+        const user_media = await window.navigator.mediaDevices.getUserMedia({ video: true })
+        console.log(user_media.getVideoTracks());
+        const t = this.video_track = user_media.getVideoTracks()[0]
+        this.room.remote_users.forEach(u => u.peer.addTrack(t))
+    }
+    async enable_audio() {
+        if (this.audio_track) return
+        const user_media = await window.navigator.mediaDevices.getUserMedia({ audio: true })
+        const t = this.audio_track = user_media.getAudioTracks()[0]
+        this.room.remote_users.forEach(u => u.peer.addTrack(t))
+    }
+    async disable_video() {
+        if (!this.video_track) return
+        this.video_track = undefined
         this.room.remote_users.forEach(u => {
-            u.peer.addTrack(t)
+            u.peer.getSenders().forEach(s => {
+                if (s.track == this.video_track) u.peer.removeTrack(s)
+            })
         })
     }
+    async disable_audio() {
+        if (!this.audio_track) return
+        this.audio_track = undefined
+        this.room.remote_users.forEach(u => {
+            u.peer.getSenders().forEach(s => {
+                if (s.track == this.audio_track) u.peer.removeTrack(s)
+            })
+        })
+    }
+
+
 
 }
