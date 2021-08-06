@@ -1,3 +1,4 @@
+import { servers } from "."
 import { log } from "./logger"
 import { Room } from "./room"
 import { User } from "./user"
@@ -10,7 +11,7 @@ export class RemoteUser extends User {
 
     constructor(room: Room, name: string) {
         super(room, name)
-        this.peer = new RTCPeerConnection()
+        this.peer = new RTCPeerConnection(servers)
         this.peer.onicecandidate = ev => {
             if (!ev.candidate) return
             room.websocket_send({ ice_candiate: ev.candidate.toJSON(), receiver: this.name })
