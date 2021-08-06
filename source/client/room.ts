@@ -19,7 +19,7 @@ export class Room {
         this.name = name
         this.el = document.createElement("div")
         this.el.classList.add("room")
-        this.websocket = new WebSocket(`ws://${window.location.host}/signaling/${encodeURIComponent(name)}`)
+        this.websocket = new WebSocket(`${window.location.protocol.endsWith("s") ? "wss" : "ws"}://${window.location.host}/signaling/${encodeURIComponent(name)}`)
         this.websocket.onclose = () => this.websocket_close()
         this.websocket.onopen = () => this.websocket_open()
         this.websocket.onmessage = (ev) => {
