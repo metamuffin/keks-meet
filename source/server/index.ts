@@ -44,7 +44,7 @@ async function main() {
 
     app.use("/static", estatic(join(__dirname, "../../public")));
 
-    app.ws("/room/:id", (ws, req) => {
+    app.ws("/signaling/:id", (ws, req) => {
         const room_name = req.params.id
         const room: Map<string, ws> = rooms.get(req.params.id) ?? new Map()
         let initialized = false
