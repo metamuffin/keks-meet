@@ -6,7 +6,7 @@ A simple webrtc powered conference application
 
 For configuration just add a set of the following options as query parameters to the URL (e.g. `/room/asdfg?username=bob`).
 
-Booleans can be either `1`, `true` or `yes` or their opposites.
+Booleans can be either `1`, `true`, `yes` or their opposites.
 
 | Option name     | Type    | Description                            |
 | --------------- | ------- | -------------------------------------- |
