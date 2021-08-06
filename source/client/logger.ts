@@ -1,10 +1,11 @@
 
-export type LogTag = "webrtc" | "ws" | "media" | "*"
+export type LogTag = "webrtc" | "ws" | "media" | "*" | "misc"
 const log_tag_color: { [key in LogTag]: string } = {
     "*": "#FF0000",
     webrtc: "#990099",
     media: "#999900",
-    ws: "#009999"
+    ws: "#009999",
+    misc: "#000099",
 }
 
 // TODO maybe log time aswell

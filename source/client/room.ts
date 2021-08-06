@@ -4,7 +4,7 @@ import { RemoteUser } from "./remote_user";
 import { User } from "./user";
 import { LocalUser } from "./local_user";
 import { parameters } from ".";
-import { hex_id } from "./helper";
+import { hex_id, parameter_string } from "./helper";
 
 
 export class Room {
@@ -25,7 +25,7 @@ export class Room {
         this.websocket.onmessage = (ev) => {
             this.websocket_message(JSON.parse(ev.data))
         }
-        this.local_user = new LocalUser(this, parameters.username ?? `guest-${hex_id()}`)
+        this.local_user = new LocalUser(this, parameter_string("username", `guest-${hex_id()}`))
     }
 
     websocket_send(data: CSPacket) {
