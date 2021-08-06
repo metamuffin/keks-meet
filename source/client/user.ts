@@ -22,7 +22,7 @@ export abstract class User {
         this.el.classList.add("user")
         this.room.el.append(this.el)
         this.setup_view()
-        this.update_view()
+        setTimeout(() => this.update_view(), 1)
     }
 
     add_track(t: MediaStreamTrack) {
@@ -79,6 +79,7 @@ export abstract class User {
     create_media_view() {
         const has_video = this.stream.getVideoTracks().length > 0
         const has_audio = this.stream.getAudioTracks().length > 0
+        if (this.local && !has_video) return document.createElement("div")
         const media_el = has_video ? document.createElement("video") : document.createElement("audio")
         media_el.classList.add("media")
         media_el.autoplay = true
@@ -87,6 +88,7 @@ export abstract class User {
         if (has_video) media_el.addEventListener("click", () => {
             media_el.classList.remove("maximized")
         })
+        if (this.local) media_el.muted = true
 
         const controls_el = document.createElement("div")
         controls_el.classList.add("media-controls")

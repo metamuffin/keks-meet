@@ -16,6 +16,7 @@ export class LocalUser extends User {
     constructor(room: Room, name: string) {
         super(room, name)
         this.el.classList.add("local")
+        this.local = true
         this.create_controls()
         if (parameter_bool("audio_enabled", false)) this.enable_audio()
         if (parameter_bool("video_enabled", false)) this.enable_video()
@@ -93,6 +94,7 @@ export class LocalUser extends User {
 
         this.audio_track = t
         this.room.remote_users.forEach(u => u.peer.addTrack(t))
+        this.stream.addTrack(t)
         this.update_view_w()
     }
     async disable_video() {
@@ -113,6 +115,7 @@ export class LocalUser extends User {
                 if (s.track == this.audio_track) u.peer.removeTrack(s)
             })
         })
+        this.stream.removeTrack(this.audio_track)
         this.update_view_w()
         this.audio_track = undefined
     }
