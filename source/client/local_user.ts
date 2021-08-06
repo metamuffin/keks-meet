@@ -93,7 +93,6 @@ export class LocalUser extends User {
 
         this.audio_track = t
         this.room.remote_users.forEach(u => u.peer.addTrack(t))
-        this.stream.addTrack(t)
         this.update_view_w()
     }
     async disable_video() {
@@ -114,7 +113,6 @@ export class LocalUser extends User {
                 if (s.track == this.audio_track) u.peer.removeTrack(s)
             })
         })
-        this.stream.removeTrack(this.audio_track)
         this.update_view_w()
         this.audio_track = undefined
     }
