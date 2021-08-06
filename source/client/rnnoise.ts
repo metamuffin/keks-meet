@@ -11,12 +11,11 @@ declare global {
 
 
 // TODO fix leak
-export async function rnnoise_track(track: MediaStreamTrack): Promise<MediaStreamTrack> {
+export async function get_rnnoise_node(context: AudioContext): Promise<RNNoiseNode> {
     log("misc", "rnnoise enabled")
-    const context = new AudioContext()
     //@ts-ignore
     let RNNoiseNode: typeof RNNoiseNode = window.RNNoiseNode;
-    
+
     let script: HTMLScriptElement;
     if (!RNNoiseNode) {
         log("misc", "loading rnnoise...")
@@ -32,13 +31,5 @@ export async function rnnoise_track(track: MediaStreamTrack): Promise<MediaStrea
     }
 
     await RNNoiseNode.register(context)
-    const source_stream = new MediaStream()
-    source_stream.addTrack(track)
-    const source = context.createMediaStreamSource(source_stream)
-    const destination = context.createMediaStreamDestination()
-    const rnnoise = new RNNoiseNode(context)
-    source.connect(rnnoise)
-    rnnoise.connect(destination)
-
-    return destination.stream.getAudioTracks()[0]
+    return new RNNoiseNode(context)
 }

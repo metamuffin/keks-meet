@@ -8,12 +8,13 @@ For configuration just add a set of the following options as query parameters to
 
 Booleans can be either `1`, `true`, `yes` or their opposites.
 
-| Option name     | Type    | Description                            |
-| --------------- | ------- | -------------------------------------- |
-| `username`      | string  | Sets the username                      |
-| `rnnoise`       | boolean | Enables noise suppression with rnnoise |
-| `audio_enabled` | boolean | Enables audio transmission by default  |
-| `video_enabled` | boolean | Enables video transmission by default  |
+| Option name     | Type    | Default | Description                            |
+| --------------- | ------- | ------- |
+| `username`      | string  | "guest" | Sets the username                      |
+| `rnnoise`       | boolean | true    | Enables noise suppression with rnnoise |
+| `audio_enabled` | boolean | false   | Enables audio transmission by default  |
+| `video_enabled` | boolean | false   | Enables video transmission by default  |
+| `mic_gain`      | number  | 1       | Sets the microphone volume             |
 
 ## Licence
 
