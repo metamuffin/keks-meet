@@ -1,0 +1,125 @@
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;700&display=swap");
+
+* {
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 300;
+  color: white;
+}
+
+:root {
+  --bg: #263238;
+  --bg-dark: #000a12;
+  --bg-light: #354b58;
+  --bg-lighter: #4f5b62;
+  --bg-disabled: #720000;
+  --bg-enabled: #097200;
+  --ac: #4a148c;
+  --ac-light: #7c43bd;
+  --ac-dark: #12005e;
+}
+
+body {
+  background-color: var(--bg-dark);
+}
+
+h2 {
+  font-weight: 700;
+  margin: 1em;
+}
+
+input[type="button"] {
+  padding: 0.5em;
+  margin: 0.25em;
+  background-color: var(--bg-light);
+  border: 0px solid transparent;
+  border-radius: 3px;
+}
+input[type="button"]:hover {
+  background-color: var(--bg-lighter);
+}
+input[type="button"].enabled {
+  background-color: var(--bg-enabled);
+}
+input[type="text"] {
+  background-color: var(--bg-dark);
+  border: 1px solid var(--ac-light);
+}
+
+.local-controls {
+  background-color: var(--bg);
+  padding: 0.5em;
+  position: absolute;
+  bottom: 0.5em;
+  border: 0px solid transparent;
+  border-radius: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+.room {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
+.user {
+  background-color: var(--bg);
+  border: 0px soly transparent;
+  border-radius: 5px;
+  padding: 1em;
+  vertical-align: baseline;
+  height: 15em;
+  min-width: 10em;
+  margin: 0.5em;
+}
+
+.user .info .name {
+  font-weight: 400;
+}
+.user.local .info .name {
+  text-decoration: underline;
+}
+
+.info .status {
+  background-color: var(--bg-disabled);
+  padding: 0.25em;
+  margin: 0.1em;
+  border: 0px solid transparent;
+  border-radius: 10px;
+}
+.info .status.enabled {
+  background-color: var(--bg-enabled);
+}
+
+.media {
+  height: 100%;
+  width: auto;
+  border: 0px solid transparent;
+  border-radius: 5px;
+}
+
+.media.maximized {
+  position: absolute;
+  top: 50vh;
+  left: 50vw;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  transform: translate(-50%, -50%);
+}
+
+.start-box {
+  position: absolute;
+  top: 50vh;
+  left: 50vw;
+  transform: translate(-50%, -50%);
+}
+.start-box p {
+  margin-bottom: 0.5em;
+}
+.start-box input[type="text"] {
+  margin: 0.5em;
+  font-size: 32px;
+}

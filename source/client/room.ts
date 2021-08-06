@@ -3,6 +3,8 @@ import { CSPacket, SCPacket } from "./types";
 import { RemoteUser } from "./remote_user";
 import { User } from "./user";
 import { LocalUser } from "./local_user";
+import { parameters } from ".";
+import { hex_id } from "./helper";
 
 
 export class Room {
@@ -16,14 +18,14 @@ export class Room {
     constructor(name: string) {
         this.name = name
         this.el = document.createElement("div")
-
+        this.el.classList.add("room")
         this.websocket = new WebSocket(`ws://${window.location.host}/room/${encodeURIComponent(name)}`)
         this.websocket.onclose = () => this.websocket_close()
         this.websocket.onopen = () => this.websocket_open()
         this.websocket.onmessage = (ev) => {
             this.websocket_message(JSON.parse(ev.data))
         }
-        this.local_user = new LocalUser(this, Math.random().toString())
+        this.local_user = new LocalUser(this, parameters.username ?? `guest-${hex_id()}`)
     }
 
     websocket_send(data: CSPacket) {
