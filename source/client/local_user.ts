@@ -28,8 +28,8 @@ export class LocalUser extends User {
     }
 
     async add_initial_to_remote(ru: RemoteUser) {
-        if (this.audio_track) ru.peer.addTrack(this.audio_track, new MediaStream())
-        if (this.video_track) ru.peer.addTrack(this.video_track, new MediaStream())
+        if (this.audio_track) ru.peer.addTrack(this.audio_track)
+        if (this.video_track) ru.peer.addTrack(this.video_track)
     }
 
     async enable_video() {
@@ -47,21 +47,22 @@ export class LocalUser extends User {
     }
     async disable_video() {
         if (!this.video_track) return
-        this.video_track = undefined
         this.room.remote_users.forEach(u => {
             u.peer.getSenders().forEach(s => {
+                console.log(u, s, this.video_track);
                 if (s.track == this.video_track) u.peer.removeTrack(s)
             })
         })
+        this.video_track = undefined
     }
     async disable_audio() {
         if (!this.audio_track) return
-        this.audio_track = undefined
         this.room.remote_users.forEach(u => {
             u.peer.getSenders().forEach(s => {
                 if (s.track == this.audio_track) u.peer.removeTrack(s)
             })
         })
+        this.audio_track = undefined
     }
 
 

@@ -1,3 +1,4 @@
+import { log } from "./logger"
 import { Room } from "./room"
 
 
@@ -18,6 +19,26 @@ export abstract class User {
         this.el = document.createElement("div")
         this.room.el.append(this.el)
         this.update_view()
+    }
+
+    add_track(t: MediaStreamTrack) {
+        this.stream.addTrack(t)
+        this.update_view()
+        t.onended = () => {
+            log("media", "track ended", t)
+            this.stream.removeTrack(t)
+            this.update_view()
+        }
+        t.onmute = () => {
+            log("media", "track muted", t)
+            this.stream.removeTrack(t)
+            this.update_view()
+        }
+        t.onunmute = () => {
+            log("media", "track unmuted", t)
+            this.stream.addTrack(t)
+            this.update_view()
+        }
     }
 
     update_view() {

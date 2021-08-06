@@ -16,14 +16,9 @@ export class RemoteUser extends User {
             room.websocket_send({ ice_candiate: ev.candidate.toJSON(), receiver: this.name })
         }
         this.peer.ontrack = ev => {
-            log("media", "remote track", ev.streams)
-            console.log(ev.track);
-            this.stream.addTrack(ev.track)
-            // if (!ev.streams.length) return console.warn("no remote tracks")
-            // ev.streams.forEach(s => s.getTracks().forEach(t => {
-            //     this.stream.addTrack(t)
-            // }))
-            this.update_view()
+            const t = ev.track
+            log("media", "remote track", t)
+            this.add_track(t)
         }
         this.peer.onnegotiationneeded = async () => {
             log("webrtc", "negotiation needed")
