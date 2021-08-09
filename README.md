@@ -9,7 +9,7 @@ For configuration just add a set of the following options as query parameters to
 Booleans can be either `1`, `true`, `yes` or their opposites.
 
 | Option name     | Type    | Default | Description                            |
-| --------------- | ------- | ------- |
+| --------------- | ------- | ------- | -------------------------------------- |
 | `username`      | string  | "guest" | Sets the username                      |
 | `rnnoise`       | boolean | true    | Enables noise suppression with rnnoise |
 | `audio_enabled` | boolean | false   | Enables audio transmission by default  |
