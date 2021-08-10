@@ -53,7 +53,7 @@ async function main() {
         let user_name = ""
 
         const init = (n: string) => {
-            if (room.get(n)) return ws.close(1, "username already taken")
+            if (room.get(n)) return ws.close()
             initialized = true
             user_name = n
             rooms.set(req.params.id, room)
