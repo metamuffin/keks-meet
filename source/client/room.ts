@@ -58,6 +58,9 @@ export class Room {
     }
     websocket_close() {
         log("ws", "websocket closed");
+        setTimeout(() => {
+            window.location.reload()
+        }, 1000)
     }
     websocket_open() {
         log("ws", "websocket opened");
