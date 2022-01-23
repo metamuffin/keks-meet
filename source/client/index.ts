@@ -4,7 +4,7 @@ import { get_query_params } from "./helper.ts"
 import { log } from "./logger.ts"
 import { Room } from "./room.ts"
 
-export const servers = {
+export const servers: RTCConfiguration = {
     iceServers: [{ urls: ["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"] }],
     iceCandidatePoolSize: 10,
 }
@@ -18,10 +18,10 @@ export const parameters = get_query_params()
 
 window.onload = () => main()
 
-export function main() {    
+export function main() {
     log("*", "starting up")
     if (window.location.pathname.startsWith("/room/")) {
-        const room_name = window.location.pathname.substr("/room/".length)
+        const room_name = window.location.pathname.substring("/room/".length)
         const room = new Room(room_name)
         document.body.append(room.el)
     } else {

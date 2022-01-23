@@ -10,6 +10,8 @@ let bundleFiles: Record<string, string> = {}
 root.get("/", async c => { await c.send({ path: "index.html", root: `${Deno.cwd()}/public` }) })
 root.get("/room/:id", async c => { await c.send({ path: "index.html", root: `${Deno.cwd()}/public` }) })
 
+root.get("/favicon.ico", c => { c.response.status = 204 })
+
 // deno-lint-ignore no-explicit-any
 function respondWithType(mimeType: string, f: () => string): (c: RouterContext<any, any, any>) => void {
     return c => {

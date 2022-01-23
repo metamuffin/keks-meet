@@ -58,16 +58,29 @@ export abstract class User {
     create_track_element(t: TrackHandle) {
         const is_video = t.kind == "video"
         const media_el = is_video ? document.createElement("video") : document.createElement("audio")
-        media_el.srcObject = new MediaStream([t.track])
+        const stream = new MediaStream([t.track])
+        media_el.srcObject = stream
         media_el.classList.add("media")
         media_el.autoplay = true
         media_el.controls = true
 
         if (this.local) media_el.muted = true
 
-        this.el.append(media_el)
+
+        const el = document.createElement("div")
+        if (t.local) {
+            const end_button = document.createElement("button")
+            end_button.textContent = "end track"
+            end_button.addEventListener("click", () => {
+                t.end()
+            })
+            el.append(end_button)
+        }
+        el.append(media_el)
+        this.el.append(el)
         t.addEventListener("ended", () => {
-            media_el.remove()
+            media_el.srcObject = null
+            el.remove()
         })
     }
 }

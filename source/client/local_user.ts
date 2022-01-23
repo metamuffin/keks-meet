@@ -71,12 +71,12 @@ export class LocalUser extends User {
     async create_camera_track() {
         log("media", "requesting user media (camera)")
         const user_media = await window.navigator.mediaDevices.getUserMedia({ video: true })
-        return new TrackHandle(user_media.getVideoTracks()[0])
+        return new TrackHandle(user_media.getVideoTracks()[0], true)
     }
     async create_screen_track() {
         log("media", "requesting user media (screen)")
         const user_media = await window.navigator.mediaDevices.getDisplayMedia({ video: true })
-        return new TrackHandle(user_media.getVideoTracks()[0])
+        return new TrackHandle(user_media.getVideoTracks()[0], true)
     }
     async create_mic_track() {
         log("media", "requesting user media (audio)")
@@ -106,9 +106,10 @@ export class LocalUser extends User {
         }
         gain.connect(destination)
 
-        const t = new TrackHandle(destination.stream.getAudioTracks()[0])
+        const t = new TrackHandle(destination.stream.getAudioTracks()[0], true)
 
         t.addEventListener("ended", () => {
+            user_media.getTracks().forEach(t => t.stop())
             source.disconnect()
             if (rnnoise) rnnoise.disconnect()
             gain.disconnect()
