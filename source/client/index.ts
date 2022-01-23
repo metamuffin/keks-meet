@@ -1,6 +1,8 @@
-import { get_query_params } from "./helper"
-import { log } from "./logger"
-import { Room } from "./room"
+/// <reference lib="dom" />
+
+import { get_query_params } from "./helper.ts"
+import { log } from "./logger.ts"
+import { Room } from "./room.ts"
 
 export const servers = {
     iceServers: [{ urls: ["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"] }],
@@ -13,14 +15,15 @@ export interface User {
 }
 
 
-export var parameters = get_query_params()
+export const parameters = get_query_params()
 
 window.onload = () => main()
 
-export async function main() {    
+export function main() {    
+    log("*", "starting up")
     if (window.location.pathname.startsWith("/room/")) {
         const room_name = window.location.pathname.substr("/room/".length)
-        let room = new Room(room_name)
+        const room = new Room(room_name)
         document.body.append(room.el)
     } else {
         document.body.append(create_start_screen())

@@ -9,6 +9,7 @@ const log_tag_color: { [key in LogTag]: string } = {
 }
 
 // TODO maybe log time aswell
+// deno-lint-ignore no-explicit-any
 export function log(tag: LogTag, message: string, ...data: any[]) {
     for (let i = 0; i < data.length; i++) {
         const e = data[i];

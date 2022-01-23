@@ -1,13 +1,13 @@
-import { servers } from "."
-import { log } from "./logger"
-import { Room } from "./room"
-import { User } from "./user"
+import { servers } from "./index.ts"
+import { log } from "./logger.ts"
+import { Room } from "./room.ts"
+import { User } from "./user.ts"
 
 
 
 export class RemoteUser extends User {
     peer: RTCPeerConnection
-    negotiation_busy: boolean = false
+    negotiation_busy = false
 
     constructor(room: Room, name: string) {
         super(room, name)

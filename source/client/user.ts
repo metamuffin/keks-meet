@@ -1,5 +1,6 @@
-import { log } from "./logger"
-import { Room } from "./room"
+
+import { log } from "./logger.ts"
+import { Room } from "./room.ts"
 
 
 export abstract class User {
@@ -11,7 +12,7 @@ export abstract class User {
 
     display?: { audio_status_el: HTMLElement, video_status_el: HTMLElement }
 
-    local: boolean = false
+    local = false
 
     stream: MediaStream = new MediaStream()
 
@@ -96,7 +97,7 @@ export abstract class User {
             const pip_el = document.createElement("input")
             pip_el.type = "button"
             pip_el.addEventListener("click", () => {
-                //@ts-ignore
+                // @ts-ignore firefox feature
                 media_el.requestPictureInPicture()
             })
             pip_el.value = "Picture-in-Picture"

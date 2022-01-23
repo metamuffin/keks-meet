@@ -1,10 +1,9 @@
-import { log } from "./logger";
-import { CSPacket, SCPacket } from "./types";
-import { RemoteUser } from "./remote_user";
-import { User } from "./user";
-import { LocalUser } from "./local_user";
-import { parameters } from ".";
-import { hex_id, parameter_string } from "./helper";
+import { log } from "./logger.ts";
+import { RemoteUser } from "./remote_user.ts";
+import { User } from "./user.ts";
+import { LocalUser } from "./local_user.ts";
+import { hex_id, parameter_string } from "./helper.ts";
+import { CSPacket, SCPacket } from "../packets.ts";
 
 
 export class Room {

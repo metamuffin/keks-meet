@@ -1,9 +1,9 @@
-import { parameter_bool, parameter_number, parameter_string } from "./helper";
-import { log } from "./logger";
-import { RemoteUser } from "./remote_user";
-import { get_rnnoise_node } from "./rnnoise";
-import { Room } from "./room";
-import { User } from "./user";
+import { parameter_bool, parameter_number } from "./helper.ts";
+import { log } from "./logger.ts";
+import { RemoteUser } from "./remote_user.ts";
+import { get_rnnoise_node } from "./rnnoise.ts";
+import { Room } from "./room.ts";
+import { User } from "./user.ts";
 
 
 export class LocalUser extends User {
@@ -74,7 +74,7 @@ export class LocalUser extends User {
         else this.controls?.video.classList.remove("enabled")
     }
 
-    async add_initial_to_remote(ru: RemoteUser) {
+    add_initial_to_remote(ru: RemoteUser) {
         if (this.audio_track) ru.peer.addTrack(this.audio_track)
         if (this.video_track) ru.peer.addTrack(this.video_track)
     }
@@ -133,7 +133,7 @@ export class LocalUser extends User {
         this.update_view_w()
     }
 
-    async disable_video() {
+    disable_video() {
         if (!this.video_track) return
         this.room.remote_users.forEach(u => {
             u.peer.getSenders().forEach(s => {
@@ -144,7 +144,7 @@ export class LocalUser extends User {
         this.update_view_w()
         this.video_track = undefined
     }
-    async disable_audio() {
+    disable_audio() {
         if (!this.audio_track) return
         if (this.audio_disable_cleanup) this.audio_disable_cleanup()
         this.room.remote_users.forEach(u => {
