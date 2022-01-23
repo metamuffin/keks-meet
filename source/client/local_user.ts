@@ -10,12 +10,13 @@ export class LocalUser extends User {
 
     private audio_track?: MediaStreamTrack
     private video_track?: MediaStreamTrack
+    private screen_track?: MediaStreamTrack
     private audio_disable_cleanup?: () => void
 
     mic_gain?: GainNode
     default_gain: number = parameter_number("mic_gain", 1)
 
-    controls?: { audio: HTMLElement, video: HTMLElement, mute: HTMLElement }
+    controls?: { audio: HTMLElement, video: HTMLElement, mute: HTMLElement, screen: HTMLElement }
 
     constructor(room: Room, name: string) {
         super(room, name)
@@ -30,13 +31,16 @@ export class LocalUser extends User {
         const audio_toggle = document.createElement("input")
         const video_toggle = document.createElement("input")
         const mute_toggle = document.createElement("input")
-        audio_toggle.type = video_toggle.type = mute_toggle.type = "button"
+        const screen_toggle = document.createElement("input")
+        audio_toggle.type = video_toggle.type = mute_toggle.type = screen_toggle.type = "button"
         audio_toggle.value = "Audio"
         video_toggle.value = "Video"
+        screen_toggle.value = "Screen"
         mute_toggle.value = "Mute"
         let audio = parameter_bool("audio_enabled", false),
             video = parameter_bool("video_enabled", false),
-            mute = parameter_bool("video_enabled", false)
+            mute = parameter_bool("video_enabled", false),
+            screen = parameter_bool("screen_enabled", false)
 
 
         audio_toggle.addEventListener("click", () => {
@@ -49,6 +53,11 @@ export class LocalUser extends User {
             if (video) this.enable_video()
             else this.disable_video()
         })
+        screen_toggle.addEventListener("click", () => {
+            screen = !screen
+            if (screen) this.enable_screen()
+            else this.disable_screen()
+        })
         mute_toggle.addEventListener("click", () => {
             mute = !mute
             this.mic_gain?.gain?.setValueAtTime(mute ? 0 : this.default_gain, 0)
@@ -58,8 +67,8 @@ export class LocalUser extends User {
 
         const el = document.createElement("div")
         el.classList.add("local-controls")
-        el.append(audio_toggle, video_toggle, mute_toggle)
-        this.controls = { video: video_toggle, audio: audio_toggle, mute: mute_toggle }
+        el.append(audio_toggle, video_toggle, mute_toggle, screen_toggle)
+        this.controls = { video: video_toggle, audio: audio_toggle, mute: mute_toggle, screen: screen_toggle }
         document.body.append(el)
     }
 
@@ -77,12 +86,22 @@ export class LocalUser extends User {
     add_initial_to_remote(ru: RemoteUser) {
         if (this.audio_track) ru.peer.addTrack(this.audio_track)
         if (this.video_track) ru.peer.addTrack(this.video_track)
+        if (this.screen_track) ru.peer.addTrack(this.screen_track)
     }
 
     async enable_video() {
         if (this.video_track) return
         log("media", "requesting user media (video)")
         const user_media = await window.navigator.mediaDevices.getUserMedia({ video: true })
+        const t = this.video_track = user_media.getVideoTracks()[0]
+        this.room.remote_users.forEach(u => u.peer.addTrack(t))
+        this.stream.addTrack(t)
+        this.update_view_w()
+    }
+    async enable_screen() {
+        if (this.video_track) return
+        log("media", "requesting user media (screen)")
+        const user_media = await window.navigator.mediaDevices.getDisplayMedia({ video: true })
         const t = this.video_track = user_media.getVideoTracks()[0]
         this.room.remote_users.forEach(u => u.peer.addTrack(t))
         this.stream.addTrack(t)
@@ -143,6 +162,17 @@ export class LocalUser extends User {
         this.stream.removeTrack(this.video_track)
         this.update_view_w()
         this.video_track = undefined
+    }
+    disable_screen() {
+        if (!this.screen_track) return
+        this.room.remote_users.forEach(u => {
+            u.peer.getSenders().forEach(s => {
+                if (s.track == this.screen_track) u.peer.removeTrack(s)
+            })
+        })
+        this.stream.removeTrack(this.screen_track)
+        this.update_view_w()
+        this.screen_track = undefined
     }
     disable_audio() {
         if (!this.audio_track) return
