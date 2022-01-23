@@ -14,7 +14,6 @@ export interface User {
     stream: MediaStream,
 }
 
-
 export const parameters = get_query_params()
 
 window.onload = () => main()

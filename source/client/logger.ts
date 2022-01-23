@@ -17,5 +17,3 @@ export function log(tag: LogTag, message: string, ...data: any[]) {
     }
     console.log(`%c[${tag}] ${message}`, "color:" + log_tag_color[tag], ...data);
 }
-
-

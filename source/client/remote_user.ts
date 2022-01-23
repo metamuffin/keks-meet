@@ -1,9 +1,8 @@
 import { servers } from "./index.ts"
 import { log } from "./logger.ts"
 import { Room } from "./room.ts"
+import { TrackHandle } from "./track_handle.ts";
 import { User } from "./user.ts"
-
-
 
 export class RemoteUser extends User {
     peer: RTCPeerConnection
@@ -19,7 +18,7 @@ export class RemoteUser extends User {
         this.peer.ontrack = ev => {
             const t = ev.track
             log("media", "remote track", t)
-            this.add_track(t)
+            this.add_track(new TrackHandle(t))
         }
         this.peer.onnegotiationneeded = async () => {
             log("webrtc", "negotiation needed")
@@ -29,7 +28,6 @@ export class RemoteUser extends User {
             this.offer()
         }
     }
-
 
     async offer() {
         this.negotiation_busy = true
