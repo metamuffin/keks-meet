@@ -70,7 +70,7 @@ export abstract class User {
         const el = document.createElement("div")
         if (t.local) {
             const end_button = document.createElement("button")
-            end_button.textContent = "end track"
+            end_button.textContent = "End"
             end_button.addEventListener("click", () => {
                 t.end()
             })

@@ -99,7 +99,7 @@ input[type="text"] {
 }
 
 .media {
-  height: 100%;
+  max-height: 30vh;
   width: auto;
   border: 0px solid transparent;
   border-radius: 5px;
