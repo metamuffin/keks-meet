@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+
 import { log } from "./logger.ts"
 
 declare global {

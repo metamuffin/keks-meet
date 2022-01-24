@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+
 import { log } from "./logger.ts";
 import { RemoteUser } from "./remote_user.ts";
 import { User } from "./user.ts";

@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+
 import { parameter_bool, parameter_number } from "./helper.ts";
 import { log } from "./logger.ts";
 import { RemoteUser } from "./remote_user.ts";

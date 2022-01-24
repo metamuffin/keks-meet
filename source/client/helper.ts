@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+
 import { parameters } from "./index.ts"
 
 export function get_query_params(): { [key: string]: string } {

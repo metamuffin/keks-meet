@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+
 import { servers } from "./index.ts"
 import { log } from "./logger.ts"
 import { Room } from "./room.ts"

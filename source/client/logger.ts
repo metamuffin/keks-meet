@@ -1,3 +1,4 @@
+/// <reference lib="dom" />
 
 export type LogTag = "webrtc" | "ws" | "media" | "*" | "misc"
 const log_tag_color: { [key in LogTag]: string } = {
