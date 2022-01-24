@@ -67,5 +67,6 @@ export class Room {
     websocket_open() {
         log("ws", "websocket opened");
         this.websocket.send(this.local_user.name)
+        setInterval(() => this.websocket_send({}), 30000) // stupid workaround for nginx disconnection inactive connections
     }
 }
