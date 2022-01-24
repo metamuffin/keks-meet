@@ -1,0 +1,47 @@
+.logger-container {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  transition: width 1s;
+  
+  background-color: rgba(0, 0, 0, 0.376);
+  border-radius: 0.2em;
+  border: 0px solid transparent;
+  padding: 0.2em;
+
+
+}
+
+.logger-line {
+  font-size: 1em;
+  height: 1.2em;
+
+  animation-name: appear, disappear;
+  animation-timing-function: linear, linear;
+  animation-delay: 0s, 3s;
+  animation-duration: 0.3s, 2s;
+  animation-fill-mode: forwards, forwards;
+}
+
+
+@keyframes appear {
+  from {
+    margin-top: -1.2em;
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+
+
+@keyframes disappear {
+  from {
+    opacity: 1;
+  }
+  to {
+    margin-top: -1.2em;
+    opacity: 0;
+  }
+}

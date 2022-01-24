@@ -37,13 +37,6 @@ export abstract class User {
         t.addEventListener("unmute", () => {
             log("media", "track unmuted", t)
         })
-        //@ts-ignore a
-        window.blub = t
-        // setTimeout(() => {
-        //     console.log("ev");
-        //     t.dispatchEvent(new Event("ended"))
-        //     // t.dispatchEvent(new MediaStreamTrackEvent("ended", { track: t, bubbles: false, cancelable: true, composed: false }))
-        // }, 5000)
     }
 
     setup_view() {

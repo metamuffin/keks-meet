@@ -15,13 +15,13 @@ declare global {
 
 // TODO fix leak
 export async function get_rnnoise_node(context: AudioContext): Promise<RNNoiseNode> {
-    log("misc", "rnnoise enabled")
+    log("rnnoise", "enabled")
     //@ts-ignore asfdasfd
     let RNNoiseNode: typeof RNNoiseNode = window.RNNoiseNode;
 
     let script: HTMLScriptElement;
     if (!RNNoiseNode) {
-        log("misc", "loading rnnoise...")
+        log("rnnoise", "loading wasm...")
         script = document.createElement("script")
         script.src = "/rnnoise/rnnoise-runtime.js"
         script.defer = true
@@ -30,7 +30,7 @@ export async function get_rnnoise_node(context: AudioContext): Promise<RNNoiseNo
         while (!window.RNNoiseNode) await new Promise<void>(r => setTimeout(() => r(), 100))
         //@ts-ignore asfdsadfsafd
         RNNoiseNode = window.RNNoiseNode;
-        log("misc", "rnnoise loaded")
+        log("rnnoise", "loaded")
     }
 
     await RNNoiseNode.register(context)

@@ -41,6 +41,8 @@ api.get("/signaling/:id", c => {
         try { in_packet = JSON.parse(message) }
         catch (_e) { return }
 
+        if (JSON.stringify(in_packet) == "{}") return // drop ping
+
         console.log(`[${room_name}] ${user_name} -> ${in_packet.receiver ?? "*"}: ${message.substr(0, 100)}`)
         const out_packet: SCPacket = { sender: user_name, data: in_packet }
 

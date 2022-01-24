@@ -13,7 +13,7 @@ Booleans can be either `1`, `true`, `yes` or their opposites.
 | `username`      | string  | "guest" | Sets the username                      |
 | `rnnoise`       | boolean | true    | Enables noise suppression with rnnoise |
 | `audio_enabled` | boolean | false   | Enables audio transmission by default  |
-| `video_enabled` | boolean | false   | Enables video transmission by default  |
+| `camera_enabled` | boolean | false   | Enables video transmission by default  |
 | `mic_gain`      | number  | 1       | Sets the microphone volume             |
 
 ## Licence
