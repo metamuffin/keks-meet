@@ -10,6 +10,11 @@ let bundleFiles: Record<string, string> = {}
 root.get("/", async c => { await c.send({ path: "index.html", root: `${Deno.cwd()}/public` }) })
 root.get("/room/:id", async c => { await c.send({ path: "index.html", root: `${Deno.cwd()}/public` }) })
 
+root.get("/licen(c|s)e", async c => {
+    c.response.body = await Deno.readTextFile("LICENCE")
+    c.response.headers.set("Content-Type", "text/plain")
+})
+
 root.get("/favicon.ico", c => { c.response.status = 204 })
 
 // deno-lint-ignore no-explicit-any

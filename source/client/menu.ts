@@ -1,0 +1,26 @@
+import { Room } from "./room.ts";
+
+export function create_menu(room?: Room) {
+    const menu = document.createElement("div")
+    menu.classList.add("menu-overlay")
+    document.body.append(menu)
+
+    const item = (name: string, cb: (() => void) | string) => {
+        const p = document.createElement("p")
+        const a = document.createElement("a")
+        a.classList.add("menu-item")
+        a.textContent = name
+        if (typeof cb == "string") a.href = cb
+        else a.addEventListener("click", cb), a.href = "#"
+        p.append(a)
+        return p
+    }
+
+    if (room) menu.append(
+        item("Settings", () => alert("todo, refer to the url parameters in the docs for now"))
+    )
+    menu.append(
+        item("Licence", "/licence"),
+        item("Sources / Documentation", "https://codeberg.org/metamuffin/keks-meet"),
+    )
+}

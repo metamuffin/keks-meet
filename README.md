@@ -1,20 +1,22 @@
 # keks-meet
 
-A simple webrtc powered conference application
+a online conference application
 
 ## Parameters
 
-For configuration just add a set of the following options as query parameters to the URL (e.g. `/room/asdfg?username=bob`).
+For configuration just add a set of the following options as query parameters to the URL (e.g. `/room/asdfg#username=bob`).
+Note that the page wont automatically reload if the 
 
 Booleans can be either `1`, `true`, `yes` or their opposites.
 
-| Option name     | Type    | Default | Description                            |
-| --------------- | ------- | ------- | -------------------------------------- |
-| `username`      | string  | "guest" | Sets the username                      |
-| `rnnoise`       | boolean | true    | Enables noise suppression with rnnoise |
-| `audio_enabled` | boolean | false   | Enables audio transmission by default  |
-| `camera_enabled` | boolean | false   | Enables video transmission by default  |
-| `mic_gain`      | number  | 1       | Sets the microphone volume             |
+| Option name      | Type    | Default | Description                              |
+| ---------------- | ------- | ------- | ---------------------------------------- |
+| `username`       | string  | "guest" | Sets the username                        |
+| `rnnoise`        | boolean | true    | Enables noise suppression with rnnoise   |
+| `mic_enabled`    | boolean | false   | Adds audio track on startup              |
+| `camera_enabled` | boolean | false   | Adds camera track on startup             |
+| `screen_enabled` | boolean | false   | Adds screen track on startup (wont work) |
+| `mic_gain`       | number  | 1       | Sets the microphone volume               |
 
 ## Licence
 

@@ -7,6 +7,7 @@ const log_tag_color = {
     ws: "#44FFFF",
     rnnoise: "#2222FF",
     usermodel: "#44FF44",
+    error: "#FF0000",
 }
 export type LogTag = keyof typeof log_tag_color
 
@@ -29,7 +30,7 @@ export function log(tag: LogTag, message: string, ...data: any[]) {
         logger_container.append(e)
         setTimeout(() => {
             e.remove()
-        }, 6000)
+        }, tag == "error" ? 60000 : 6000)
     }
 }
 
@@ -42,3 +43,8 @@ globalThis.addEventListener("load", () => {
     // clear the console every hour so logs dont accumulate
     setInterval(() => console.clear(), 1000 * 60 * 60)
 })
+
+globalThis.onerror = (_ev, source, line, col, err) => {
+    log("error", `${err?.name} ${err?.message}`, err)
+    log("error", `on ${source}:${line}:${col}`, err)
+}

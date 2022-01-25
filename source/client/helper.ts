@@ -4,7 +4,7 @@ import { parameters } from "./index.ts"
 
 export function get_query_params(): { [key: string]: string } {
     const q: { [key: string]: string } = {}
-    for (const kv of window.location.search.substring(1).split("&")) {
+    for (const kv of window.location.hash.substring(1).split("&")) {
         const [key, value] = kv.split("=")
         q[decodeURIComponent(key)] = decodeURIComponent(value)
     }
@@ -41,4 +41,3 @@ export function parameter_string(name: string, def: string): string {
     if (!v) return def
     return v
 }
-

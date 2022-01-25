@@ -85,17 +85,6 @@ input[type="text"] {
   text-decoration: underline;
 }
 
-.info .status {
-  background-color: var(--bg-disabled);
-  padding: 0.25em;
-  margin: 0.1em;
-  border: 0px solid transparent;
-  border-radius: 10px;
-}
-.info .status.enabled {
-  background-color: var(--bg-enabled);
-}
-
 .media {
   max-height: 30vh;
   width: auto;
@@ -116,3 +105,12 @@ input[type="text"] {
   margin: 0.5em;
   font-size: 32px;
 }
+
+.menu-overlay {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  display: block;
+  text-align: right;
+}
+
