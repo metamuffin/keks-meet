@@ -5,7 +5,7 @@ import { RemoteUser } from "./remote_user.ts";
 import { User } from "./user.ts";
 import { LocalUser } from "./local_user.ts";
 import { hex_id, parameter_string } from "./helper.ts";
-import { CSPacket, SCPacket } from "../packets.ts";
+import { PacketS, PacketC } from "../packets.ts";
 
 
 export class Room {
@@ -29,11 +29,11 @@ export class Room {
         this.local_user = new LocalUser(this, parameter_string("username", `guest-${hex_id()}`))
     }
 
-    websocket_send(data: CSPacket) {
+    websocket_send(data: PacketS) {
         log("ws", `-> ${data.receiver ?? "*"}`, data)
         this.websocket.send(JSON.stringify(data))
     }
-    websocket_message(packet: SCPacket) {
+    websocket_message(packet: PacketC) {
         if (packet.join) {
             log("*", `${this.name} ${packet.sender} joined`);
             const ru = new RemoteUser(this, packet.sender)

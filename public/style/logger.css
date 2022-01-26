@@ -8,8 +8,6 @@
   border-radius: 0.2em;
   border: 0px solid transparent;
   padding: 0.2em;
-
-
 }
 
 .logger-line {
@@ -19,10 +17,9 @@
   animation-name: appear, disappear;
   animation-timing-function: linear, linear;
   animation-delay: 0s, 3s;
-  animation-duration: 0.3s, 2s;
+  animation-duration: 0.3s, 1s;
   animation-fill-mode: forwards, forwards;
 }
-
 
 @keyframes appear {
   from {
@@ -33,8 +30,6 @@
     opacity: 1;
   }
 }
-
-
 
 @keyframes disappear {
   from {
