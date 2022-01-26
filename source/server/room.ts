@@ -1,12 +1,12 @@
 import { Router } from "https://deno.land/x/oak@v10.1.0/router.ts";
-import { CSPacket, SCPacket } from "../packets.ts";
+import { PacketC, PacketS } from "../packets.ts";
 
 export const api = new Router()
 
 type Room = Map<string, WebSocket>
 const rooms: Map<string, Room> = new Map()
 
-function send_packet(ws: WebSocket, packet: SCPacket) {
+function send_packet(ws: WebSocket, packet: PacketC) {
     ws.send(JSON.stringify(packet))
 }
 
@@ -37,14 +37,14 @@ api.get("/signaling/:id", c => {
     ws.onmessage = ev => {
         const message = ev.data.toString()
         if (!initialized) return init(message)
-        let in_packet: CSPacket;
+        let in_packet: PacketS;
         try { in_packet = JSON.parse(message) }
         catch (_e) { return }
 
         if (JSON.stringify(in_packet) == "{}") return // drop ping
 
         console.log(`[${room_name}] ${user_name} -> ${in_packet.receiver ?? "*"}: ${message.substr(0, 100)}`)
-        const out_packet: SCPacket = { sender: user_name, data: in_packet }
+        const out_packet: PacketC = { sender: user_name, data: in_packet }
 
         if (in_packet.receiver) {
             const rws = room.get(in_packet.receiver)
