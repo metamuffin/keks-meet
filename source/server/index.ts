@@ -1,11 +1,9 @@
-import { Application, Router, RouterContext, send } from "https://deno.land/x/oak/mod.ts";
+import { Application, Router, RouterContext, send } from "https://deno.land/x/oak@v10.4.0/mod.ts";
 import { api } from "./room.ts";
+import { bundle } from "https://deno.land/x/emit@0.1.1/mod.ts";
 
 const app = new Application()
-
 const root = new Router()
-
-let bundleFiles: Record<string, string> = {}
 
 root.get("/", async c => { await c.send({ path: "index.html", root: `${Deno.cwd()}/public` }) })
 root.get("/room/:id", async c => { await c.send({ path: "index.html", root: `${Deno.cwd()}/public` }) })
@@ -25,8 +23,8 @@ function respondWithType(mimeType: string, f: () => string): (c: RouterContext<a
     }
 }
 
-root.get("/bundle.js", respondWithType("application/javascript", () => bundleFiles["deno:///bundle.js"]))
-root.get("/bundle.js.map", respondWithType("application/javascript", () => bundleFiles["deno:///bundle.js.map"]))
+let bundle_code = ""
+root.get("/bundle.js", respondWithType("application/javascript", () => bundle_code))
 
 function mountFilesystem(r: Router, route: string, path: string) {
     r.get(route + "/(.*)", async (context) => {
@@ -62,8 +60,8 @@ async function refresh() {
     refresh_pending = true
 
     try {
-        const { files } = await Deno.emit("source/client/index.ts", { bundle: "module", check: false })
-        bundleFiles = files
+        const { code } = await bundle("source/client/index.ts", { compilerOptions: { checkJs: false } })
+        bundle_code = code
     } catch (e) { console.error(e) }
 
     refresh_pending = false

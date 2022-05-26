@@ -1,4 +1,4 @@
-import { Router } from "https://deno.land/x/oak@v10.1.0/router.ts";
+import { Router } from "https://deno.land/x/oak@v10.4.0/router.ts";
 import { PacketC, PacketS } from "../packets.ts";
 
 export const api = new Router()
