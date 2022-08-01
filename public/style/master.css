@@ -87,7 +87,6 @@ input[type="text"] {
 
 .media {
   max-height: 30vh;
-  width: auto;
   border: 0px solid transparent;
   border-radius: 5px;
 }
