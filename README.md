@@ -4,8 +4,8 @@ a web conference application
 
 ## Parameters
 
-For configuration just add a set of the following options as query parameters to the URL (e.g. `/room/asdfg#username=bob`).
-Note that the page wont automatically reload if the 
+For configuration add options in section of URL in a style that is common for query parameters (e.g. `/room/asdfg#username=bob`).
+Note that the page wont automatically reload if the section changes.
 
 Booleans can be either `1`, `true`, `yes` or their opposites.
 
