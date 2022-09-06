@@ -1,6 +1,6 @@
 # keks-meet
 
-a online conference application
+a web conference application
 
 ## Parameters
 
