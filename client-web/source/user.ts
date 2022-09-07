@@ -6,18 +6,13 @@ import { TrackHandle } from "./track_handle.ts";
 
 
 export abstract class User {
-    name: string
-    room: Room
-
     el: HTMLElement
 
     local = false
 
     protected tracks: Set<TrackHandle> = new Set()
 
-    constructor(room: Room, name: string) {
-        this.name = name
-        this.room = room
+    constructor(public room: Room, public id: number, public name: string) {
         this.el = document.createElement("div")
         this.el.classList.add("user")
         this.room.el.append(this.el)
@@ -59,7 +54,6 @@ export abstract class User {
         media_el.controls = true
 
         if (this.local) media_el.muted = true
-
 
         const el = document.createElement("div")
         if (t.local) {

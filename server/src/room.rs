@@ -7,12 +7,13 @@ use warp::ws::{Message, WebSocket};
 
 #[derive(Debug)]
 pub struct Client {
-    out: mpsc::UnboundedSender<ClientboundPacket>,
+    pub name: String,
+    pub out: mpsc::UnboundedSender<ClientboundPacket>,
 }
 
 #[derive(Debug, Default)]
 pub struct Room {
-    clients: RwLock<HashMap<usize, Client>>,
+    pub clients: RwLock<HashMap<usize, Client>>,
 }
 
 impl Room {
@@ -32,12 +33,20 @@ impl Room {
             }
         });
 
-        let id = {
-            let mut g = self.clients.write().await;
-            let id = g.len();
-            g.insert(id, Client { out: tx });
-            id
-        };
+        let mut g = self.clients.write().await;
+        let id = g.len();
+        let name = format!("user no. {id}");
+        g.insert(
+            id,
+            Client {
+                out: tx,
+                name: name.clone(),
+            },
+        );
+        drop(g);
+
+        self.broadcast(id, ClientboundPacket::ClientJoin { id, name })
+            .await;
 
         while let Some(result) = user_ws_rx.next().await {
             let msg = match result {
@@ -62,10 +71,26 @@ impl Room {
         self.clients.write().await.remove(&id);
     }
 
-    pub async fn client_message(&self, sender: usize, packet: ServerboundPacket) {
+    pub async fn broadcast(&self, sender: usize, packet: ClientboundPacket) {
         for (&id, tx) in self.clients.read().await.iter() {
             if sender != id {
-                let _ = tx.out.send(todo!());
+                let _ = tx.out.send(packet.clone());
+            }
+        }
+    }
+    pub async fn send_to_client(&self, recipient: usize, packet: ClientboundPacket) {
+        if let Some(c) = self.clients.read().await.get(&recipient) {
+            let _ = c.out.send(packet);
+        }
+    }
+
+    pub async fn client_message(&self, sender: usize, packet: ServerboundPacket) {
+        match packet {
+            ServerboundPacket::Relay { recipient, message } => {
+                if let Some(recipient) = recipient {
+                    self.send_to_client(recipient, ClientboundPacket::Message { sender, message })
+                        .await;
+                }
             }
         }
     }

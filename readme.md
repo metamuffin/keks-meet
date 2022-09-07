@@ -1,6 +1,22 @@
 # keks-meet
 
-a web conference application
+a web conferencing application
+
+## Features
+
+-   Rooms
+-   Different stream types
+    -   Camera
+    -   Microphone
+    -   Screen capture
+-   Multiple streams
+
+## Todo-List
+
+-   Chat
+-   Optionally enable video streams
+-   Settings menu
+-   Native client
 
 ## Parameters
 

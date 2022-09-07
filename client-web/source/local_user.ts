@@ -13,8 +13,8 @@ export class LocalUser extends User {
     mic_gain?: GainNode
     default_gain: number = parameter_number("mic_gain", 1)
 
-    constructor(room: Room, name: string) {
-        super(room, name)
+    constructor(room: Room, id: number, name: string) {
+        super(room, id, name)
         this.el.classList.add("local")
         this.local = true
         this.create_controls()

@@ -1,5 +1,3 @@
-#![feature(async_closure)]
-
 pub mod protocol;
 pub mod room;
 
@@ -11,6 +9,7 @@ use room::Room;
 use std::convert::Infallible;
 use std::sync::Arc;
 use warp::hyper::Server;
+use warp::ws::WebSocket;
 use warp::{Filter, Rejection, Reply};
 
 type Rooms = Arc<CHashMap<String, Room>>;
@@ -73,7 +72,7 @@ async fn handle_rejection(err: Rejection) -> Result<impl Reply, Infallible> {
 }
 
 fn signaling_connect(rname: String, rooms: Rooms, ws: warp::ws::Ws) -> impl Reply {
-    ws.on_upgrade(async move |sock| {
+    async fn inner(sock: WebSocket, rname: String, rooms: Rooms) {
         let room = match rooms.get(&rname) {
             Some(r) => r,
             None => {
@@ -85,5 +84,6 @@ fn signaling_connect(rname: String, rooms: Rooms, ws: warp::ws::Ws) -> impl Repl
         if room.should_remove().await {
             rooms.remove(&rname);
         }
-    })
+    }
+    ws.on_upgrade(move |sock| inner(sock, rname, rooms))
 }
