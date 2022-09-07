@@ -5,7 +5,7 @@ import { RemoteUser } from "./remote_user.ts";
 import { User } from "./user.ts";
 import { LocalUser } from "./local_user.ts";
 import { hex_id, parameter_string } from "./helper.ts";
-import { PacketS, PacketC } from "../packets.ts";
+import { PacketS, PacketC } from "../../common/packets.d.ts";
 
 
 export class Room {

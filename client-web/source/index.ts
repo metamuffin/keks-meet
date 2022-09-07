@@ -50,21 +50,6 @@ function create_start_screen() {
         p("To get started, just enter a unique idenfier, click 'Join', then share the URL with your partner.")
     )
 
-    const room_input = document.createElement("input")
-    room_input.type = "text"
-    room_input.id = "room-id-input"
-    room_input.placeholder = "room id"
-
-    const submit = document.createElement("input")
-    submit.type = "button"
-    submit.addEventListener("click", () => {
-        if (room_input.value.length == 0) room_input.value = Math.floor(Math.random() * 10000).toString(16).padStart(5, "0")
-        window.location.pathname = `/room/${encodeURIComponent(room_input.value)}`
-    })
-    submit.value = "Join room"
-
-    el.classList.add("start-box")
-    el.append(room_input, document.createElement("br"), submit)
 
     return el
 }

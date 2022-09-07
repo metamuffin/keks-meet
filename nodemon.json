@@ -1,5 +1,0 @@
-{
-    "watch": "./source/server",
-    "exec": "deno run --allow-read --allow-env --allow-net --unstable source/server/index.ts",
-    "ext": "ts"
-}
