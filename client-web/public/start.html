@@ -4,49 +4,51 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <script defer async type="module" src="/bundle.js"></script>
-        <link rel="stylesheet" href="/style/master.css" />
+        <link rel="stylesheet" href="/_assets/style/master.css" />
 
         <title>keks-meet</title>
     </head>
 
     <body>
-        <h2>keks-meet</h2>
-        <p>A web conferencing application using webrtc</p>
-        <p>
-            keks-meet is free software! It is licenced under the terms of the
-            third version of the GNU Affero General Public Licence only.
-        </p>
-        <p>
-            To get started, just enter a unique idenfier, click 'Join', then
-            share the URL with your partner.
-        </p>
-        <noscript>
-            keks-meet needs evil javascript to be enabled. Don't be afraid
-            though, all the code is free (AGPL-3.0-only)! Look at it on
-            <a href="https://codeberg.org/metamuffin/keks-meet">codeberg</a>
-        </noscript>
-        <script>
-            const room_input = document.createElement("input");
-            room_input.type = "text";
-            room_input.id = "room-id-input";
-            room_input.placeholder = "Room ID (leave blank for random id)";
+        <div class="start-box">
+            <h2>keks-meet</h2>
+            <p>A web conferencing application using webrtc</p>
+            <p>
+                keks-meet is free software! It is licenced under the terms of
+                the third version of the GNU Affero General Public Licence only.
+            </p>
+            <p>
+                To get started, just enter a unique idenfier, click 'Join', then
+                share the URL with your partner.
+            </p>
+            <noscript>
+                keks-meet needs evil javascript to be enabled. Don't be afraid
+                though, all the code is free (AGPL-3.0-only)! Look at it on
+                <a href="https://codeberg.org/metamuffin/keks-meet">codeberg</a>
+            </noscript>
+            <script>
+                const room_input = document.createElement("input");
+                room_input.type = "text";
+                room_input.id = "room-id-input";
+                room_input.placeholder = "Room ID (leave blank for random id)";
 
-            const submit = document.createElement("input");
-            submit.type = "button";
-            submit.addEventListener("click", () => {
-                if (room_input.value.length == 0)
-                    room_input.value = Math.floor(Math.random() * 10000)
-                        .toString(16)
-                        .padStart(5, "0");
-                window.location.pathname = `/${encodeURIComponent(
-                    room_input.value
-                )}`;
-            });
-            submit.value = "Join room!";
+                const submit = document.createElement("input");
+                submit.type = "button";
+                submit.addEventListener("click", () => {
+                    if (room_input.value.length == 0)
+                        room_input.value = Math.floor(Math.random() * 0x100000)
+                            .toString(16)
+                            .padStart(5, "0");
+                    window.location.pathname = `/${encodeURIComponent(
+                        room_input.value
+                    )}`;
+                });
+                submit.value = "Join room!";
 
-            el.classList.add("start-box");
-            el.append(room_input, document.createElement("br"), submit);
-        </script>
+                document
+                    .querySelector("div.start-box")
+                    ?.append(room_input, document.createElement("br"), submit);
+            </script>
+        </div>
     </body>
 </html>

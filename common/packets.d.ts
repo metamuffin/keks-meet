@@ -13,9 +13,8 @@ export interface PacketC {
 }
 export interface PacketS {
     receiver?: string
-    ice_candiate?: F_RTCIceCandidateInit
+    ice_candidate?: F_RTCIceCandidateInit
     offer?: F_RTCSessionDescriptionInit
     answer?: F_RTCSessionDescriptionInit
 }
-
 

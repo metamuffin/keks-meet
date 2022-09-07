@@ -11,3 +11,6 @@ env_logger = "0.8"
 futures-util = "0.3.24"
 listenfd = "1.0.0"
 hyper = "0.14.20"
+serde = { version = "1.0.144", features = ["derive"] }
+serde_json = "*"
+chashmap = "2.2.2"
