@@ -46,8 +46,8 @@ function create_start_screen() {
     el.append(
         h2("keks-meet"),
         p("A web conferencing application using webrtc"),
-        p("keks-meet is free! It is licenced under the terms of the third version of the GNU Affero General Public Licence only."),
-        p("To get started, just enter a unique idenfier, then share the URL with your partner.")
+        p("keks-meet is free software! It is licenced under the terms of the third version of the GNU Affero General Public Licence only."),
+        p("To get started, just enter a unique idenfier, click 'Join', then share the URL with your partner.")
     )
 
     const room_input = document.createElement("input")

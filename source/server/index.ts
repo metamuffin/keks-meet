@@ -5,6 +5,7 @@ import { bundle } from "https://deno.land/x/emit@0.1.1/mod.ts";
 const app = new Application()
 const root = new Router()
 
+
 root.get("/", async c => { await c.send({ path: "index.html", root: `${Deno.cwd()}/public` }) })
 root.get("/room/:id", async c => { await c.send({ path: "index.html", root: `${Deno.cwd()}/public` }) })
 
@@ -26,17 +27,17 @@ function respondWithType(mimeType: string, f: () => string): (c: RouterContext<a
 let bundle_code = ""
 root.get("/bundle.js", respondWithType("application/javascript", () => bundle_code))
 
+root.use(api.routes())
+
 function mountFilesystem(r: Router, route: string, path: string) {
     r.get(route + "/(.*)", async (context) => {
-        await send(context, context.request.url.pathname, { root: Deno.cwd() + path });
+        console.log(context.request.url.pathname.substring(route.length));
+        await send(context, context.request.url.pathname.substring(route.length), { root: Deno.cwd() + path });
     })
-
 }
 
-mountFilesystem(root, "/style", "/public")
-mountFilesystem(root, "/rnnoise", "/public")
-
-root.use(api.routes())
+mountFilesystem(root, "/_style", "/public/style")
+mountFilesystem(root, "/_rnnoise", "/public/rnnoise")
 
 app.use(root.routes())
 app.use(root.allowedMethods())
