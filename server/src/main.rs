@@ -1,18 +1,19 @@
 pub mod protocol;
 pub mod room;
 
-use chashmap::CHashMap;
 use hyper::StatusCode;
 use listenfd::ListenFd;
 use log::error;
 use room::Room;
+use std::collections::HashMap;
 use std::convert::Infallible;
 use std::sync::Arc;
+use tokio::sync::RwLock;
 use warp::hyper::Server;
 use warp::ws::WebSocket;
 use warp::{Filter, Rejection, Reply};
 
-type Rooms = Arc<CHashMap<String, Arc<Room>>>;
+type Rooms = Arc<RwLock<HashMap<String, Arc<Room>>>>;
 
 fn main() {
     tokio::runtime::Builder::new_multi_thread()
@@ -82,16 +83,20 @@ async fn handle_rejection(err: Rejection) -> Result<impl Reply, Infallible> {
 
 fn signaling_connect(rname: String, rooms: Rooms, ws: warp::ws::Ws) -> impl Reply {
     async fn inner(sock: WebSocket, rname: String, rooms: Rooms) {
-        let room = match rooms.get(&rname) {
-            Some(r) => r,
+        let guard = rooms.read().await;
+        let room = match guard.get(&rname) {
+            Some(r) => r.to_owned(),
             None => {
-                rooms.insert(rname.to_owned(), Default::default());
-                rooms.get(&rname).unwrap() // TODO never expect this to always work!!
+                drop(guard); // make sure read-lock is dropped to avoid deadlock
+                let mut guard = rooms.write().await;
+                guard.insert(rname.to_owned(), Default::default());
+                guard.get(&rname).unwrap().to_owned() // TODO never expect this to always work!!
             }
         };
+
         room.client_connect(sock).await;
         if room.should_remove().await {
-            rooms.remove(&rname);
+            rooms.write().await.remove(&rname);
         }
     }
     ws.on_upgrade(move |sock| inner(sock, rname, rooms))

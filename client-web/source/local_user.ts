@@ -8,7 +8,6 @@ import { Room } from "./room.ts";
 import { TrackHandle } from "./track_handle.ts";
 import { User } from "./user.ts";
 
-
 export class LocalUser extends User {
     mic_gain?: GainNode
     default_gain: number = parameter_number("mic_gain", 1)

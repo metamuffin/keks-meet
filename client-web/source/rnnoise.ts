@@ -23,7 +23,7 @@ export async function get_rnnoise_node(context: AudioContext): Promise<RNNoiseNo
     if (!RNNoiseNode) {
         log("rnnoise", "loading wasm...")
         script = document.createElement("script")
-        script.src = "/_rnnoise/rnnoise-runtime.js"
+        script.src = "/_assets/rnnoise/rnnoise-runtime.js"
         script.defer = true
         document.head.appendChild(script)
         //@ts-ignore asdfsfad
