@@ -27,7 +27,7 @@ For self-hosting, this script should do:
 ```
 git clone https://codeberg.org/metamuffin/keks-meet.git
 cd keks-meet
-deno bundle --no-check client-web/source/index > client-web/public/assets/bundle.js
+make -C client-web
 cd server
 cargo run --release
 ```
