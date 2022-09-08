@@ -1,7 +1,7 @@
 /// <reference lib="dom" />
 
-import { parameter_bool, parameter_number } from "./helper.ts";
 import { log } from "./logger.ts";
+import { PREFS } from "./preferences.ts";
 import { RemoteUser } from "./remote_user.ts";
 import { get_rnnoise_node } from "./rnnoise.ts";
 import { Room } from "./room.ts";
@@ -10,7 +10,7 @@ import { User } from "./user.ts";
 
 export class LocalUser extends User {
     mic_gain?: GainNode
-    default_gain: number = parameter_number("mic_gain", 1)
+    default_gain: number = PREFS.microphone_gain
 
     constructor(room: Room, id: number, name: string) {
         super(room, id, name)
@@ -22,9 +22,9 @@ export class LocalUser extends User {
     }
 
     async add_initial_tracks() {
-        if (parameter_bool("mic_enabled", false)) this.publish_track(await this.create_mic_track())
-        if (parameter_bool("camera_enabled", false)) this.publish_track(await this.create_camera_track())
-        if (parameter_bool("screen_enabled", false)) this.publish_track(await this.create_screen_track())
+        if (PREFS.microphone_enabled) this.publish_track(await this.create_mic_track())
+        if (PREFS.camera_enabled) this.publish_track(await this.create_camera_track())
+        if (PREFS.screencast_enabled) this.publish_track(await this.create_screencast_track())
     }
 
     publish_track(t: TrackHandle) {
@@ -50,7 +50,7 @@ export class LocalUser extends User {
         mic_toggle.type = camera_toggle.type = screen_toggle.type = "button"
         mic_toggle.value = "Microphone"
         camera_toggle.value = "Camera"
-        screen_toggle.value = "Screen"
+        screen_toggle.value = "Screencast"
 
         const create = async (_e: HTMLElement, tp: Promise<TrackHandle>) => {
             log("media", "awaiting track")
@@ -61,7 +61,7 @@ export class LocalUser extends User {
 
         mic_toggle.addEventListener("click", () => create(mic_toggle, this.create_mic_track()))
         camera_toggle.addEventListener("click", () => create(camera_toggle, this.create_camera_track()))
-        screen_toggle.addEventListener("click", () => create(screen_toggle, this.create_screen_track()))
+        screen_toggle.addEventListener("click", () => create(screen_toggle, this.create_screencast_track()))
 
         const el = document.createElement("div")
         el.classList.add("local-controls")
@@ -75,20 +75,24 @@ export class LocalUser extends User {
         const user_media = await window.navigator.mediaDevices.getUserMedia({ video: true })
         return new TrackHandle(user_media.getVideoTracks()[0], true)
     }
-    async create_screen_track() {
+    async create_screencast_track() {
         log("media", "requesting user media (screen)")
         const user_media = await window.navigator.mediaDevices.getDisplayMedia({ video: true })
         return new TrackHandle(user_media.getVideoTracks()[0], true)
     }
     async create_mic_track() {
         log("media", "requesting user media (audio)")
-        const use_rnnoise = parameter_bool("rnnoise", true)
-        const audio_contraints = use_rnnoise ? {
+        const audio_contraints = PREFS.rnnoise ? {
             channelCount: { ideal: 1 },
             noiseSuppression: { ideal: false },
             echoCancellation: { ideal: true },
-            autoGainControl: { ideal: false },
-        } : true;
+            autoGainControl: { ideal: true },
+        } : {
+            channelCount: { ideal: 1 },
+            noiseSuppression: { ideal: false },
+            echoCancellation: { ideal: true },
+            autoGainControl: { ideal: true },
+        };
 
         const user_media = await window.navigator.mediaDevices.getUserMedia({ audio: audio_contraints })
         const context = new AudioContext()
@@ -99,7 +103,7 @@ export class LocalUser extends User {
         this.mic_gain = gain
 
         let rnnoise: RNNoiseNode;
-        if (use_rnnoise) {
+        if (PREFS.rnnoise) {
             rnnoise = await get_rnnoise_node(context)
             source.connect(rnnoise)
             rnnoise.connect(gain)

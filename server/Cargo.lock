@@ -397,6 +397,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6c8af84674fe1f223a982c933a0ee1086ac4d4052aa0fb8060c12c6ad838e754"
 
 [[package]]
+name = "keks-meet"
+version = "0.1.0"
+dependencies = [
+ "env_logger",
+ "futures-util",
+ "hyper",
+ "listenfd",
+ "log",
+ "serde",
+ "serde_json",
+ "tokio",
+ "warp",
+]
+
+[[package]]
 name = "libc"
 version = "0.2.132"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -733,21 +748,6 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
-]
-
-[[package]]
-name = "server"
-version = "0.1.0"
-dependencies = [
- "env_logger",
- "futures-util",
- "hyper",
- "listenfd",
- "log",
- "serde",
- "serde_json",
- "tokio",
- "warp",
 ]
 
 [[package]]

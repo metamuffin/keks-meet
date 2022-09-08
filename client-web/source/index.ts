@@ -1,6 +1,5 @@
 /// <reference lib="dom" />
 
-import { get_query_params } from "./helper.ts"
 import { log } from "./logger.ts"
 import { create_menu } from "./menu.ts";
 import { Room } from "./room.ts"
@@ -16,8 +15,6 @@ export interface User {
     stream: MediaStream,
 }
 
-export const parameters = get_query_params()
-
 window.onload = () => main()
 
 export function main() {
@@ -25,6 +22,6 @@ export function main() {
     log("*", "starting up")
     const room_name = window.location.pathname.substring("/".length)
     const room = new Room(room_name)
-    create_menu(room)
+    create_menu()
     document.body.append(room.el)
 }

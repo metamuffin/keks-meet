@@ -10,6 +10,7 @@ a web conferencing application
     -   Microphone
     -   Screen capture
 -   Multiple streams
+-   Noise suppression (rnnoise)
 
 ## Todo-List
 
@@ -18,21 +19,37 @@ a web conferencing application
 -   Settings menu
 -   Native client
 
+## Usage
+
+For trying it out, a hosted version is available on [my server](https://meet.metamuffin.org/).
+For self-hosting, this script should do:
+
+```
+git clone https://codeberg.org/metamuffin/keks-meet.git
+cd keks-meet
+deno bundle --no-check client-web/source/index > client-web/public/assets/bundle.js
+cd server
+cargo run --release
+```
+
 ## Parameters
 
-For configuration add options in section of URL in a style that is common for query parameters (e.g. `/room/asdfg#username=bob`).
-Note that the page wont automatically reload if the section changes.
+For configuration options must be added either
 
+1. in options in the query parameters (e.g. `/myroom?username=alice`)
+2. in options in section of URL (e.g. `/myroom#rnnoise=no`).
+
+The page will not automatically reload if the section changes.
 Booleans can be either `1`, `true`, `yes` or their opposites.
 
-| Option name      | Type    | Default | Description                              |
-| ---------------- | ------- | ------- | ---------------------------------------- |
-| `username`       | string  | "guest" | Sets the username                        |
-| `rnnoise`        | boolean | true    | Enables noise suppression with rnnoise   |
-| `mic_enabled`    | boolean | false   | Adds audio track on startup              |
-| `camera_enabled` | boolean | false   | Adds camera track on startup             |
-| `screen_enabled` | boolean | false   | Adds screen track on startup (wont work) |
-| `mic_gain`       | number  | 1       | Sets the microphone volume               |
+| Option name       | Type    | Default | Description                              |
+| ----------------- | ------- | ------- | ---------------------------------------- |
+| `?username`       | string  | "guest" | Sets the username                        |
+| `#rnnoise`        | boolean | true    | Enables noise suppression with rnnoise   |
+| `#mic_enabled`    | boolean | false   | Adds audio track on startup              |
+| `#camera_enabled` | boolean | false   | Adds camera track on startup             |
+| `#screen_enabled` | boolean | false   | Adds screen track on startup (wont work) |
+| `#mic_gain`       | number  | 1       | Amplifies the microphone volume          |
 
 ## Protocol
 

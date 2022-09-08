@@ -1,6 +1,6 @@
-import { Room } from "./room.ts";
+/// <reference lib="dom" />
 
-export function create_menu(room?: Room) {
+export function create_menu() {
     const menu = document.createElement("div")
     menu.classList.add("menu-overlay")
     document.body.append(menu)
@@ -16,10 +16,8 @@ export function create_menu(room?: Room) {
         return p
     }
 
-    if (room) menu.append(
-        item("Settings", () => alert("todo, refer to the url parameters in the docs for now"))
-    )
     menu.append(
+        item("Settings", () => alert("todo, refer to the url parameters in the docs for now")),
         item("Licence", "/licence"),
         item("Sources / Documentation", "https://codeberg.org/metamuffin/keks-meet"),
     )
