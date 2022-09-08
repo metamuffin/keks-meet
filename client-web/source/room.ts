@@ -4,7 +4,6 @@ import { log } from "./logger.ts";
 import { RemoteUser } from "./remote_user.ts";
 import { User } from "./user.ts";
 import { LocalUser } from "./local_user.ts";
-import { hex_id, parameter_string } from "./helper.ts";
 import { ServerboundPacket, ClientboundPacket } from "../../common/packets.d.ts";
 
 
@@ -20,7 +19,7 @@ export class Room {
         this.name = name
         this.el = document.createElement("div")
         this.el.classList.add("room")
-        this.websocket = new WebSocket(`${window.location.protocol.endsWith("s:") ? "wss" : "ws"}://${window.location.host}/signaling/${encodeURIComponent(name)}`)
+        this.websocket = new WebSocket(`${window.location.protocol.endsWith("s:") ? "wss" : "ws"}://${window.location.host}/${encodeURIComponent(name)}/signaling`)
         this.websocket.onclose = () => this.websocket_close()
         this.websocket.onopen = () => this.websocket_open()
         this.websocket.onmessage = (ev) => {
@@ -70,7 +69,6 @@ export class Room {
     }
     websocket_open() {
         log("ws", "websocket opened");
-        this.websocket.send(this.local_user.name)
-        setInterval(() => this.websocket_send({}), 30000) // stupid workaround for nginx disconnection inactive connections
+        setInterval(() => this.websocket_send({ ping: null }), 30000) // stupid workaround for nginx disconnecting inactive connections
     }
 }

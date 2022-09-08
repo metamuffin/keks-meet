@@ -12,6 +12,7 @@ export interface ClientboundPacket {
 }
 
 export interface ServerboundPacket {
+    ping: null,
     relay?: { recipient?: number, message: RelayMessage },
 }
 

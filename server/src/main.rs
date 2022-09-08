@@ -12,29 +12,38 @@ use warp::hyper::Server;
 use warp::ws::WebSocket;
 use warp::{Filter, Rejection, Reply};
 
-type Rooms = Arc<CHashMap<String, Room>>;
+type Rooms = Arc<CHashMap<String, Arc<Room>>>;
 
-#[tokio::main]
-async fn main() {
+fn main() {
+    tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()
+        .unwrap()
+        .block_on(run());
+}
+
+async fn run() {
     env_logger::init_from_env("LOG");
 
     let rooms = Rooms::default();
     let rooms = warp::any().map(move || rooms.clone());
 
-    let signaling = warp::path("signaling")
-        .and(warp::path::param::<String>())
+    let app = warp::path!(String)
+        .map(|_| ())
+        .untuple_one()
+        .and(warp::fs::file("../client-web/public/app.html"));
+    let signaling = warp::path!(String / "signaling")
         .and(rooms)
         .and(warp::ws())
         .map(signaling_connect);
 
-    let static_routes = {
-        let index = warp::path::end().and(warp::fs::file("../client-web/public/start.html"));
-        let assets = warp::path("_assets").and(warp::fs::dir("../client-web/public/assets"));
+    let index = warp::path!().and(warp::fs::file("../client-web/public/start.html"));
+    let assets = warp::path("_assets").and(warp::fs::dir("../client-web/public/assets"));
 
-        warp::get().and(index.or(assets))
-    };
-
-    let routes = static_routes.or(signaling).recover(handle_rejection);
+    let routes = warp::get()
+        .and(assets.or(app).or(index).or(signaling))
+        .recover(handle_rejection)
+        .with(warp::log("stuff"));
 
     // if listender fd is passed from the outside world, use it.
     let mut listenfd = ListenFd::from_env();
@@ -76,7 +85,7 @@ fn signaling_connect(rname: String, rooms: Rooms, ws: warp::ws::Ws) -> impl Repl
         let room = match rooms.get(&rname) {
             Some(r) => r,
             None => {
-                rooms.insert(rname.to_owned(), Room::default());
+                rooms.insert(rname.to_owned(), Default::default());
                 rooms.get(&rname).unwrap() // TODO never expect this to always work!!
             }
         };

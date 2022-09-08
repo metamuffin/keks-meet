@@ -86,6 +86,7 @@ impl Room {
 
     pub async fn client_message(&self, sender: usize, packet: ServerboundPacket) {
         match packet {
+            ServerboundPacket::Ping => (),
             ServerboundPacket::Relay { recipient, message } => {
                 if let Some(recipient) = recipient {
                     self.send_to_client(recipient, ClientboundPacket::Message { sender, message })
