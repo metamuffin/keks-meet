@@ -89,7 +89,11 @@ export class LocalUser extends User {
     async create_camera_track() {
         log("media", "requesting user media (camera)")
         const user_media = await window.navigator.mediaDevices.getUserMedia({
-            video: { facingMode: { ideal: PREFS.camera_facing_mode } }
+            video: {
+                facingMode: { ideal: PREFS.camera_facing_mode },
+                frameRate: { ideal: PREFS.video_fps },
+                width: { ideal: PREFS.video_resolution }
+            }
         })
         return new TrackHandle(user_media.getVideoTracks()[0], true)
     }
@@ -109,9 +113,9 @@ export class LocalUser extends User {
             autoGainControl: { ideal: true },
         } : {
             channelCount: { ideal: 1 },
-            noiseSuppression: { ideal: false },
-            echoCancellation: { ideal: true },
-            autoGainControl: { ideal: true },
+            noiseSuppression: { ideal: PREFS.native_noise_suppression },
+            echoCancellation: { ideal: PREFS.echo_cancellation },
+            autoGainControl: { ideal: PREFS.auto_gain_control },
         };
 
         const user_media = await window.navigator.mediaDevices.getUserMedia({ audio: audio_contraints })

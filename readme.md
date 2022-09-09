@@ -47,16 +47,21 @@ Configuration parameters are added like query params but **after** the section. 
 The page will not automatically reload if the section changes.
 Booleans can be either `1`, `true`, `yes` or their opposites.
 
-| Option name                | Default   | Description                                                    |
-| -------------------------- | --------- | -------------------------------------------------------------- |
-| `rnnoise`                  | `true`    | Use RNNoise for noise suppression                              |
-| `native_noise_suppression` | `false`   | Suggest the browser to do noise suppression                    |
-| `username`                 | `guest-…` | "Username                                                      |
-| `microphone_gain`          | `1`       | Amplify microphone volume                                      |
-| `microphone_enabled`       | `false`   | Add one microphone track on startup                            |
-| `camera_enabled`           | `false`   | Add one camera track on startup                                |
-| `screencast_enabled`       | `false`   | Add one screencast track on startup                            |
-| `camera_facing_mode`       | undefined | Prefer user-facing or env-facing camera (`environment`/`user`) |
+| Option name                | Type    | Default     | Description                                                          |
+| -------------------------- | ------- | ----------- | -------------------------------------------------------------------- |
+| `username`                 | string  | `"guest-…"` | Username                                                             |
+| `warn_redirect`            | boolean | `false`     | Interal option that is set by a server redirect.                     |
+| `microphone_enabled`       | boolean | `false`     | Add one microphone track on startup                                  |
+| `screencast_enabled`       | boolean | `false`     | Add one screencast track on startup                                  |
+| `camera_enabled`           | boolean | `false`     | Add one camera track on startup                                      |
+| `rnnoise`                  | boolean | `true`      | Use RNNoise for noise suppression                                    |
+| `native_noise_suppression` | boolean | `false`     | Suggest the browser to do noise suppression                          |
+| `microphone_gain`          | number  | `1`         | Amplify microphone volume                                            |
+| `video_fps`                | number  | -           | Preferred framerate (in 1/s) for screencast and camera               |
+| `video_resolution`         | number  | -           | Preferred width for screencast and camera                            |
+| `camera_facing_mode`       | string  | -           | Prefer user-facing or env-facing camera (`"environment"` / `"user"`) |
+| `auto_gain_control`        | boolean | -           | Automatically adjust mic gain                                        |
+| `echo_cancellation`        | boolean | -           | Cancel echo                                                          |
 
 ## Todo-List
 
