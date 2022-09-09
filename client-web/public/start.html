@@ -33,7 +33,6 @@
                 const submit = document.createElement("input");
                 submit.type = "button";
                 function go() {
-                    room_input.disabled = true;
                     if (room_input.value.length == 0) {
                         const random = window.crypto.getRandomValues(
                             new Uint8Array(32)
