@@ -44,7 +44,6 @@ export class Room {
             this.users.delete(p.id)
             this.remote_users.delete(p.id)
         }
-
     }
     relay_handler(sender_id: number, message: RelayMessage) {
         const sender = this.users.get(sender_id)
