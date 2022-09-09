@@ -103,9 +103,11 @@ impl Room {
         match packet {
             ServerboundPacket::Ping => (),
             ServerboundPacket::Relay { recipient, message } => {
+                let packet = ClientboundPacket::Message { sender, message };
                 if let Some(recipient) = recipient {
-                    self.send_to_client(recipient, ClientboundPacket::Message { sender, message })
-                        .await;
+                    self.send_to_client(recipient, packet).await;
+                } else {
+                    self.broadcast(Some(sender), packet).await
                 }
             }
         }
