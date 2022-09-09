@@ -1,12 +1,12 @@
 /// <reference lib="dom" />
 
-import { log } from "./logger.ts";
-import { PREFS } from "./preferences.ts";
-import { RemoteUser } from "./remote_user.ts";
-import { get_rnnoise_node } from "./rnnoise.ts";
-import { Room } from "./room.ts";
-import { TrackHandle } from "./track_handle.ts";
-import { User } from "./user.ts";
+import { log } from "../logger.ts";
+import { PREFS } from "../preferences.ts";
+import { RemoteUser } from "./remote.ts";
+import { get_rnnoise_node } from "../rnnoise.ts";
+import { Room } from "../room.ts";
+import { TrackHandle } from "../track_handle.ts";
+import { User } from "./mod.ts";
 
 export class LocalUser extends User {
     mic_gain?: GainNode

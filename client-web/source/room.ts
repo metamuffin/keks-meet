@@ -1,9 +1,9 @@
 /// <reference lib="dom" />
 
 import { log } from "./logger.ts";
-import { RemoteUser } from "./remote_user.ts";
-import { User } from "./user.ts";
-import { LocalUser } from "./local_user.ts";
+import { RemoteUser } from "./user/remote.ts";
+import { User } from "./user/mod.ts";
+import { LocalUser } from "./user/local.ts";
 import { ClientboundPacket, RelayMessage } from "../../common/packets.d.ts";
 import { SignalingConnection } from "./protocol/mod.ts";
 import { ediv } from "./helper.ts";

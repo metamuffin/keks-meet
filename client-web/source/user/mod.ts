@@ -1,8 +1,8 @@
 /// <reference lib="dom" />
 
-import { log } from "./logger.ts"
-import { Room } from "./room.ts"
-import { TrackHandle } from "./track_handle.ts";
+import { log } from "../logger.ts"
+import { Room } from "../room.ts"
+import { TrackHandle } from "../track_handle.ts";
 
 
 export abstract class User {

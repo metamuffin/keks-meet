@@ -1,10 +1,10 @@
 /// <reference lib="dom" />
 
-import { servers } from "./index.ts"
-import { log } from "./logger.ts"
-import { Room } from "./room.ts"
-import { TrackHandle } from "./track_handle.ts";
-import { User } from "./user.ts"
+import { servers } from "../index.ts"
+import { log } from "../logger.ts"
+import { Room } from "../room.ts"
+import { TrackHandle } from "../track_handle.ts";
+import { User } from "./mod.ts"
 
 export class RemoteUser extends User {
     peer: RTCPeerConnection
