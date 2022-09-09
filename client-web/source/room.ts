@@ -5,43 +5,23 @@ import { RemoteUser } from "./remote_user.ts";
 import { User } from "./user.ts";
 import { LocalUser } from "./local_user.ts";
 import { ServerboundPacket, ClientboundPacket } from "../../common/packets.d.ts";
-import { PREFS } from "./preferences.ts";
-import { ep } from "./helper.ts";
+import { SignalingConnection } from "./protocol/mod.ts";
 
 export class Room {
     el: HTMLElement
-    name: string
     users: Map<number, User> = new Map()
     remote_users: Map<number, RemoteUser> = new Map()
     local_user!: LocalUser
     my_id!: number
-    websocket: WebSocket
 
-    constructor(name: string) {
-        this.name = name
+    constructor(public signaling: SignalingConnection) {
         this.el = document.createElement("div")
         this.el.classList.add("room")
-
-        const ws_url = new URL(`${window.location.protocol.endsWith("s:") ? "wss" : "ws"}://${window.location.host}/${encodeURIComponent(name)}/signaling`)
-        ws_url.searchParams.set("username", PREFS.username)
-        this.websocket = new WebSocket(ws_url)
-        this.websocket.onclose = () => this.websocket_close()
-
-        // const connecting_text = ep("Upgrading to a websocket connection…")
-        // this.el.append(connecting_text)
-
-        this.websocket.onopen = () => {
-            // connecting_text.remove()
-            this.websocket_open()
-        }
-        this.websocket.onmessage = (ev) => {
-            this.websocket_message(JSON.parse(ev.data))
-        }
     }
 
     websocket_send(data: ServerboundPacket) {
         log("ws", `-> ${data.relay?.recipient ?? "*"}`, data)
-        this.websocket.send(JSON.stringify(data))
+        // this.websocket.send(JSON.stringify(data))
     }
     websocket_message(packet: ClientboundPacket) {
         log("ws", `<- ${packet.message?.sender ?? "control packet"}: `, packet);
@@ -51,7 +31,7 @@ export class Room {
             log("*", `server: ${packet.init.version}`)
         } else if (packet.client_join) {
             const p = packet.client_join
-            log("*", `${this.name} ${p.id} joined`);
+            log("*", `${p.id} joined`);
             if (p.id == this.my_id) {
                 this.local_user = new LocalUser(this, p.id, p.name);
             } else {
@@ -63,7 +43,7 @@ export class Room {
             }
         } else if (packet.client_leave) {
             const p = packet.client_leave;
-            log("*", `${this.name} ${p.id} left`);
+            log("*", `${p.id} left`);
             this.remote_users.get(p.id)!.leave()
             this.users.delete(p.id)
             this.remote_users.delete(p.id)
@@ -72,9 +52,9 @@ export class Room {
             const p = packet.message;
             const sender = this.users.get(p.sender)
             if (sender instanceof RemoteUser) {
-                if (p.message.ice_candidate) sender.add_ice_candidate(p.message.ice_candidate)
-                if (p.message.offer) sender.on_offer(p.message.offer)
-                if (p.message.answer) sender.on_answer(p.message.answer)
+                // if (p.message.ice_candidate) sender.add_ice_candidate(p.message.ice_candidate)
+                // if (p.message.offer) sender.on_offer(p.message.offer)
+                // if (p.message.answer) sender.on_answer(p.message.answer)
             } else {
                 console.log("!", p, sender);
             }

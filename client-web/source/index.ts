@@ -2,6 +2,7 @@
 
 import { log } from "./logger.ts"
 import { create_menu } from "./menu.ts";
+import { SignalingConnection } from "./protocol/mod.ts";
 import { Room } from "./room.ts"
 
 export const servers: RTCConfiguration = {
@@ -17,11 +18,12 @@ export interface User {
 
 window.onload = () => main()
 
-export function main() {
+export async function main() {
     document.body.querySelector("p")?.remove()
     log("*", "starting up")
     const room_name = window.location.pathname.substring("/".length)
-    const room = new Room(room_name)
+    const conn = await (new SignalingConnection().connect(room_name))
+    const room = new Room(conn)
     create_menu()
     document.body.append(room.el)
 }

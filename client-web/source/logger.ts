@@ -1,14 +1,16 @@
 /// <reference lib="dom" />
 
 const log_tag_color = {
-    "*": "#FF4444",
-    webrtc: "#FF44FF",
-    media: "#FFFF44",
-    ws: "#44FFFF",
-    rnnoise: "#2222FF",
-    usermodel: "#44FF44",
+    "*": "#ff4a7c",
+    crypto: "#c14aff",
+    webrtc: "#ff4ade",
+    ws: "#544aff",
+    media: "#4af5ff",
+    rnnoise: "#4aff7e",
+    usermodel: "#a6ff4a",
     error: "#FF0000",
 }
+
 export type LogTag = keyof typeof log_tag_color
 
 let logger_container: HTMLDivElement

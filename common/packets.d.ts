@@ -8,15 +8,16 @@ export interface ClientboundPacket {
     init?: { your_id: number, version: string },
     client_join?: { id: number, name: string },
     client_leave?: { id: number },
-    message?: { sender: number, message: RelayMessage },
+    message?: { sender: number, message: string },
 }
 
 export interface ServerboundPacket {
     ping?: null,
-    relay?: { recipient?: number, message: RelayMessage },
+    relay?: { recipient?: number, message: string },
 }
 
 export interface RelayMessage {
+    identify?: { name: string }
     offer?: F_RTCSessionDescriptionInit,
     answer?: F_RTCSessionDescriptionInit,
     ice_candidate?: F_RTCIceCandidateInit,
