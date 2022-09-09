@@ -11,9 +11,9 @@ const elem_with_content = (s: string) => (c: string) => {
     e.textContent = c
     return e
 }
-const elem_with_children = (s: string) => (opts: { classes?: string[] }, ...cs: (HTMLElement | string)[]) => {
+const elem_with_children = (s: string) => (opts: { class?: string[] }, ...cs: (HTMLElement | string)[]) => {
     const e = elem(s)
-    if (opts.classes) e.classList.add(...opts.classes)
+    if (opts.class) e.classList.add(...opts.class)
     for (const c of cs) {
         e.append(c)
     }

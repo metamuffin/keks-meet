@@ -3,6 +3,8 @@ import { log } from "../logger.ts";
 //! I am not a crypto expert at all! Please read carefully and report any issues to me. 
 
 export async function crypto_seeded_key(seed: string): Promise<CryptoKey> {
+    if (seed.length < 8) log({ scope: "crypto", warn: true }, "Room name is very short. e2ee is insecure!")
+
     log("crypto", "importing seed…")
     const seed_key = await window.crypto.subtle.importKey(
         "raw",

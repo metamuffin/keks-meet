@@ -41,7 +41,7 @@ export class SignalingConnection {
         setInterval(() => this.send_control({ ping: null }), 30000) // stupid workaround for nginx disconnecting inactive connections
     }
     on_error() {
-        log("error", "websocket error occurred!")
+        log({ scope: "ws", error: true }, "websocket error occurred!")
     }
     async on_message(data: string) {
         const packet: ClientboundPacket = JSON.parse(data) // TODO dont crash if invalid

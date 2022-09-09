@@ -7,6 +7,7 @@ import { get_rnnoise_node } from "../rnnoise.ts";
 import { Room } from "../room.ts";
 import { TrackHandle } from "../track_handle.ts";
 import { User } from "./mod.ts";
+import { BOTTOM_CONTAINER } from "../index.ts";
 
 export class LocalUser extends User {
     mic_gain?: GainNode
@@ -66,7 +67,7 @@ export class LocalUser extends User {
         const el = document.createElement("div")
         el.classList.add("local-controls")
         el.append(mic_toggle, camera_toggle, screen_toggle)
-        document.body.append(el)
+        BOTTOM_CONTAINER.append(el)
     }
 
     async create_camera_track() {

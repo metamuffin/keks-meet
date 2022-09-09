@@ -10,9 +10,9 @@
 }
 
 :root {
-    --bg: #151515;
+    --bg: #151315;
     --bg-dark: #070707;
-    --bg-light: #494949;
+    --bg-light: #417143;
     --bg-lighter: #949494;
     --bg-disabled: #720000;
     --bg-enabled: #097200;
@@ -47,10 +47,10 @@ input[type="text"] {
     border: 1px solid var(--ac-light);
 }
 
-.local-controls {
+.bottom-container {
     background-color: var(--bg);
     padding: 0.5em;
-    position: absolute;
+    position: fixed;
     bottom: 0.5em;
     border: 0px solid transparent;
     border-radius: 5px;

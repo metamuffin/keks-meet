@@ -9,6 +9,7 @@ export function create_menu() {
         const p = document.createElement("p")
         const a = document.createElement("a")
         a.classList.add("menu-item")
+        a.target = "_blank" // dont unload this meeting
         a.textContent = name
         if (typeof cb == "string") a.href = cb
         else a.addEventListener("click", cb), a.href = "#"

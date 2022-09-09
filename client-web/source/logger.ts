@@ -1,6 +1,6 @@
 /// <reference lib="dom" />
 
-const log_tag_color = {
+const log_scope_color = {
     "*": "#ff4a7c",
     crypto: "#c14aff",
     webrtc: "#ff4ade",
@@ -8,31 +8,39 @@ const log_tag_color = {
     media: "#4af5ff",
     rnnoise: "#4aff7e",
     usermodel: "#a6ff4a",
-    error: "#FF0000",
 }
 
-export type LogTag = keyof typeof log_tag_color
+export type LogScope = keyof typeof log_scope_color
+export interface LogDesc { scope: LogScope, error?: boolean, warn?: boolean }
 
 let logger_container: HTMLDivElement
 
-// TODO maybe log time aswell
-// deno-lint-ignore no-explicit-any
-export function log(tag: LogTag, message: string, ...data: any[]) {
+
+export function log(k: LogScope | LogDesc, message: string, ...data: unknown[]) {
     for (let i = 0; i < data.length; i++) {
         const e = data[i];
         if (e instanceof MediaStreamTrack) data[i] = `(${e.kind}) ${e.id}`
     }
-    console.log(`%c[${tag}] ${message}`, "color:" + log_tag_color[tag], ...data);
+    let d: LogDesc
+    if (typeof k == "string") d = { scope: k }
+    else d = k;
+
+    (d.error ? console.error : d.warn ? console.warn : console.log)(`%c[${d.scope}] ${message}`, `color:${log_scope_color[d.scope]}`, ...data);
 
     if (logger_container) {
         const e = document.createElement("p")
         e.classList.add("logger-line")
-        e.textContent = `[${tag}] ${message}`
-        e.style.color = log_tag_color[tag]
+        if (d.error) e.classList.add(".logger-error")
+        if (d.warn) e.classList.add(".logger-warn")
+        e.textContent = `[${d.scope}] ${message}`
+        if (!d.error && !d.warn) e.style.color = log_scope_color[d.scope]
         logger_container.append(e)
         setTimeout(() => {
-            e.remove()
-        }, tag == "error" ? 60000 : 6000)
+            e.classList.add("logger-line-disappear")
+            setTimeout(() => {
+                e.remove()
+            }, 1000 + 500)
+        }, (d.error || d.warn) ? 60000 : 3000)
     }
 }
 
@@ -47,6 +55,6 @@ globalThis.addEventListener("load", () => {
 })
 
 globalThis.onerror = (_ev, source, line, col, err) => {
-    log("error", `${err?.name} ${err?.message}`, err)
-    log("error", `on ${source}:${line}:${col}`, err)
+    log({ scope: "*", error: true }, `${err?.name} ${err?.message}`, err)
+    log({ scope: "*", error: true }, `on ${source}:${line}:${col}`, err)
 }

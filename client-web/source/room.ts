@@ -6,10 +6,8 @@ import { User } from "./user/mod.ts";
 import { LocalUser } from "./user/local.ts";
 import { ClientboundPacket, RelayMessage } from "../../common/packets.d.ts";
 import { SignalingConnection } from "./protocol/mod.ts";
-import { ediv } from "./helper.ts";
 
 export class Room {
-    public el: HTMLElement = ediv({ classes: ["room"] })
     public users: Map<number, User> = new Map()
     public remote_users: Map<number, RemoteUser> = new Map()
     public local_user!: LocalUser
@@ -18,7 +16,6 @@ export class Room {
     constructor(public signaling: SignalingConnection) {
         this.signaling.control_handler = (a) => this.control_handler(a)
         this.signaling.relay_handler = (a, b) => this.relay_handler(a, b)
-        console.log("room", this.el)
     }
 
     control_handler(packet: ClientboundPacket) {

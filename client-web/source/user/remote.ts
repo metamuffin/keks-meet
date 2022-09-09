@@ -1,6 +1,6 @@
 /// <reference lib="dom" />
 
-import { servers } from "../index.ts"
+import { ROOM_CONTAINER, RTC_CONFIG } from "../index.ts"
 import { log } from "../logger.ts"
 import { Room } from "../room.ts"
 import { TrackHandle } from "../track_handle.ts";
@@ -13,7 +13,7 @@ export class RemoteUser extends User {
     constructor(room: Room, id: number) {
         super(room, id)
         log("usermodel", `added remote user: ${id}`)
-        this.peer = new RTCPeerConnection(servers)
+        this.peer = new RTCPeerConnection(RTC_CONFIG)
         this.peer.onicecandidate = ev => {
             if (!ev.candidate) return
             room.signaling.send_relay({ ice_candidate: ev.candidate.toJSON() }, this.id)
@@ -69,6 +69,6 @@ export class RemoteUser extends User {
     leave() {
         log("usermodel", `remove remote user: ${this.display_name}`)
         this.peer.close()
-        this.room.el.removeChild(this.el)
+        ROOM_CONTAINER.removeChild(this.el)
     }
 }

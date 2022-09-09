@@ -1,5 +1,6 @@
 /// <reference lib="dom" />
 
+import { ROOM_CONTAINER } from "../index.ts";
 import { log } from "../logger.ts"
 import { Room } from "../room.ts"
 import { TrackHandle } from "../track_handle.ts";
@@ -14,7 +15,7 @@ export abstract class User {
     constructor(public room: Room, public id: number) {
         this.el = document.createElement("div")
         this.el.classList.add("user")
-        this.room.el.append(this.el)
+        ROOM_CONTAINER.append(this.el)
         this.setup_view()
     }
 
