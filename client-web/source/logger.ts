@@ -1,6 +1,8 @@
 /// <reference lib="dom" />
 
-import { LOGGER_CONTAINER } from "./index.ts";
+import { ediv } from "./helper.ts";
+
+export const LOGGER_CONTAINER = ediv({ class: "logger-container" })
 
 const log_scope_color = {
     "*": "#ff4a7c",
@@ -14,7 +16,6 @@ const log_scope_color = {
 
 export type LogScope = keyof typeof log_scope_color
 export interface LogDesc { scope: LogScope, error?: boolean, warn?: boolean }
-
 
 export function log(k: LogScope | LogDesc, message: string, ...data: unknown[]) {
     for (let i = 0; i < data.length; i++) {

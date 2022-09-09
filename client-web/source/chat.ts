@@ -1,20 +1,10 @@
-import { ediv, espan } from "./helper.ts";
-import { CHAT } from "./index.ts";
+import { ediv, espan, OverlayUi } from "./helper.ts";
 import { Room } from "./room.ts";
 import { User } from "./user/mod.ts";
 
-export class Chat {
-    private _shown = false;
-
-    messages = ediv({ class: "messages" })
-    controls = ediv({ class: "controls" })
-
-    get shown() { return this._shown }
-    set shown(value: boolean) {
-        if (value && !this._shown) document.body.prepend(CHAT)
-        if (!value && this._shown) document.body.removeChild(CHAT)
-        this._shown = value
-    }
+export class Chat extends OverlayUi {
+    messages: HTMLElement
+    controls: HTMLElement
 
     constructor(public room: Room) {
         const send = document.createElement("input")
@@ -26,9 +16,13 @@ export class Chat {
                 send.value = ""
             }
         }
-        this.controls.append(send)
-        this.messages.append(document.createElement("hr"))
-        CHAT.append(this.messages, this.controls)
+        const messages = ediv({ class: "messages" })
+        const controls = ediv({ class: "controls" })
+        controls.append(send)
+        messages.append(document.createElement("hr"))
+        super(ediv({ class: "chat" }, messages, controls))
+        this.messages = messages
+        this.controls = controls
     }
 
     send_message(sender: User, message: string) {

@@ -15,6 +15,8 @@ export class Room {
     public my_id!: number
     public chat: Chat = new Chat(this)
 
+    public on_ready = () => { };
+
     constructor(public signaling: SignalingConnection) {
         this.signaling.control_handler = (a) => this.control_handler(a)
         this.signaling.relay_handler = (a, b) => this.relay_handler(a, b)
@@ -33,6 +35,7 @@ export class Room {
             log("*", `${p.id} joined`);
             if (p.id == this.my_id) {
                 this.local_user = new LocalUser(this, p.id);
+                this.on_ready()
             } else {
                 const ru = new RemoteUser(this, p.id)
                 this.local_user.add_initial_to_remote(ru)

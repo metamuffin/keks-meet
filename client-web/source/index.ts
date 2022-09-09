@@ -1,18 +1,14 @@
 /// <reference lib="dom" />
 
-import { ediv } from "./helper.ts";
-import { log } from "./logger.ts"
-import { setup_menus } from "./menu.ts";
-import { load_params, PREFS } from "./preferences.ts";
+import { ediv, OVERLAYS } from "./helper.ts";
+import { log, LOGGER_CONTAINER } from "./logger.ts"
+import { BottomMenu, MenuBr } from "./menu.ts";
+import { load_params, PREFS } from "./preferences/mod.ts";
 import { SignalingConnection } from "./protocol/mod.ts";
 import { Room } from "./room.ts"
 
 export const VERSION = "0.1.8"
-export const BOTTOM_CONTAINER = ediv({ class: "bottom-container" })
 export const ROOM_CONTAINER = ediv({ class: "room" })
-export const MENU_BR = ediv({ class: "menu-br" })
-export const CHAT = ediv({ class: "chat" })
-export const LOGGER_CONTAINER = ediv({ class: "logger-container" })
 
 export const RTC_CONFIG: RTCConfiguration = {
     // google stun!?
@@ -41,6 +37,10 @@ export async function main() {
 
     const conn = await (new SignalingConnection().connect(room_name))
     const r = new Room(conn)
-    setup_menus(r)
-    document.body.append(ROOM_CONTAINER, BOTTOM_CONTAINER, MENU_BR, LOGGER_CONTAINER)
+
+    r.on_ready = () => {
+        new BottomMenu(r).shown = true
+        new MenuBr().shown = true
+    }
+    document.body.append(ROOM_CONTAINER, OVERLAYS, LOGGER_CONTAINER)
 }

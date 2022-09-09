@@ -1,13 +1,14 @@
 /// <reference lib="dom" />
 
 import { log } from "../logger.ts";
-import { PREFS } from "../preferences.ts";
+import { PREFS } from "../preferences/mod.ts";
 import { RemoteUser } from "./remote.ts";
 import { get_rnnoise_node } from "../rnnoise.ts";
 import { Room } from "../room.ts";
 import { TrackHandle } from "../track_handle.ts";
 import { User } from "./mod.ts";
-import { BOTTOM_CONTAINER, ROOM_CONTAINER } from "../index.ts";
+import { ROOM_CONTAINER } from "../index.ts";
+import { ediv } from "../helper.ts";
 
 export class LocalUser extends User {
     mic_gain?: GainNode
@@ -80,10 +81,7 @@ export class LocalUser extends User {
         camera_toggle.addEventListener("click", () => create(camera_toggle, this.create_camera_track()))
         screen_toggle.addEventListener("click", () => create(screen_toggle, this.create_screencast_track()))
 
-        const el = document.createElement("div")
-        el.classList.add("local-controls")
-        el.append(mic_toggle, camera_toggle, screen_toggle)
-        BOTTOM_CONTAINER.append(el)
+        return ediv({ class: "local-controls" }, mic_toggle, camera_toggle, screen_toggle)
     }
 
     async create_camera_track() {

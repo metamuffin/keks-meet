@@ -1,6 +1,7 @@
 /// <reference lib="dom" />
 
 
+
 const elem = (s: string) => document.createElement(s)
 
 interface Opts { class?: string[] | string, id?: string }
@@ -36,4 +37,20 @@ export const eh6 = elem_with_content("h6")
 export const ediv = elem_with_children("div")
 export const espan = elem_with_content("span")
 export const elabel = elem_with_content("label")
+
+export const OVERLAYS = ediv({ class: "overlays" })
+
+
+export class OverlayUi {
+    _shown = false
+    constructor(public el: HTMLElement, initial = false) {
+        this.shown = initial
+    }
+    get shown() { return this._shown }
+    set shown(v: boolean) {
+        if (v && !this._shown) OVERLAYS.append(this.el)
+        if (!v && this._shown) OVERLAYS.removeChild(this.el)
+        this._shown = v
+    }
+}
 
