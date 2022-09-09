@@ -37,7 +37,7 @@ export async function main() {
     if (!globalThis.crypto.subtle) return log({ scope: "crypto", error: true }, "SubtleCrypto not availible")
     if (room_name.length < 8) log({ scope: "crypto", warn: true }, "Room name is very short. e2ee is insecure!")
     if (room_name.length == 0) return window.location.href = "/" // send them back to the start page
-    if (PREFS.warn_redirect) log({ scope: "crypto", warn: true }, "You were redirected from the old URL format. The server knows you room name now - e2ee is insecure!")
+    if (PREFS.warn_redirect) log({ scope: "crypto", warn: true }, "You were redirected from the old URL format. The server knows the room name now - e2ee is insecure!")
 
     const conn = await (new SignalingConnection().connect(room_name))
     const r = new Room(conn)
