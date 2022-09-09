@@ -12,8 +12,8 @@ export class LocalUser extends User {
     mic_gain?: GainNode
     default_gain: number = PREFS.microphone_gain
 
-    constructor(room: Room, id: number, name: string) {
-        super(room, id, name)
+    constructor(room: Room, id: number) {
+        super(room, id)
         this.el.classList.add("local")
         this.local = true
         this.create_controls()

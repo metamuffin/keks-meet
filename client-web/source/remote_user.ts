@@ -10,13 +10,13 @@ export class RemoteUser extends User {
     peer: RTCPeerConnection
     negotiation_busy = false
 
-    constructor(room: Room, id: number, name: string) {
-        super(room, id, name)
-        log("usermodel", `added remote user: ${id} ${JSON.stringify(name)}`)
+    constructor(room: Room, id: number) {
+        super(room, id)
+        log("usermodel", `added remote user: ${id}`)
         this.peer = new RTCPeerConnection(servers)
         this.peer.onicecandidate = ev => {
             if (!ev.candidate) return
-            room.websocket_send({ relay: { recipient: this.id, message: { ice_candidate: ev.candidate.toJSON() } } })
+            room.signaling.send_relay({ ice_candidate: ev.candidate.toJSON() }, this.id)
         }
         this.peer.ontrack = ev => {
             const t = ev.track
@@ -38,7 +38,7 @@ export class RemoteUser extends User {
         await this.peer.setLocalDescription(offer_description)
         const offer = { type: offer_description.type, sdp: offer_description.sdp }
         log("webrtc", `sent offer: ${this.name}`, { a: offer })
-        this.room.websocket_send({ relay: { recipient: this.id, message: { offer } } })
+        this.room.signaling.send_relay({ offer }, this.id)
     }
     async on_offer(offer: RTCSessionDescriptionInit) {
         this.negotiation_busy = true
@@ -52,7 +52,7 @@ export class RemoteUser extends User {
         await this.peer.setLocalDescription(answer_description)
         const answer = { type: answer_description.type, sdp: answer_description.sdp }
         log("webrtc", `sent answer: ${this.name}`, { a: answer })
-        this.room.websocket_send({ relay: { recipient: this.id, message: { answer } } })
+        this.room.signaling.send_relay({ answer }, this.id)
         this.negotiation_busy = false
     }
     async on_answer(answer: RTCSessionDescriptionInit) {

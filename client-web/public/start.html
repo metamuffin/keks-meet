@@ -18,8 +18,9 @@
                 the third version of the GNU Affero General Public Licence only.
             </p>
             <p>
-                To get started, just enter a unique idenfier, click 'Join', then
-                share the URL with your partner.
+                To get started, click 'Join' and share the URL with your
+                partner. You can also optionally customize the url by entering a
+                <b>secure/unguessable(!!!)</b> identifier below.
             </p>
             <noscript>
                 keks-meet needs evil javascript to be enabled. Don't be afraid
@@ -30,18 +31,21 @@
                 const room_input = document.createElement("input");
                 room_input.type = "text";
                 room_input.id = "room-id-input";
-                room_input.placeholder = "Room ID (leave blank for random id)";
+                room_input.placeholder = "Room ID";
 
                 const submit = document.createElement("input");
                 submit.type = "button";
                 submit.addEventListener("click", () => {
-                    if (room_input.value.length == 0)
-                        room_input.value = Math.floor(Math.random() * 0x100000)
-                            .toString(16)
-                            .padStart(5, "0");
-                    window.location.pathname = `/${encodeURIComponent(
-                        room_input.value
-                    )}`;
+                    if (room_input.value.length == 0) {
+                        const random = window.crypto.getRandomValues(
+                            new Uint8Array(32)
+                        );
+                        room_input.value = Array.from(random)
+                            .map((b) => b.toString(16).padStart(2, "0"))
+                            .join("");
+                    }
+                    const url = `/room#${encodeURIComponent(room_input.value)}`;
+                    window.location.href = url;
                 });
                 submit.value = "Join room!";
 

@@ -6,13 +6,12 @@ import { TrackHandle } from "./track_handle.ts";
 
 
 export abstract class User {
-    el: HTMLElement
-
-    local = false
-
+    protected el: HTMLElement
+    public local = false
+    public name?: string
     protected tracks: Set<TrackHandle> = new Set()
 
-    constructor(public room: Room, public id: number, public name: string) {
+    constructor(public room: Room, public id: number,) {
         this.el = document.createElement("div")
         this.el.classList.add("user")
         this.room.el.append(this.el)
@@ -34,11 +33,13 @@ export abstract class User {
         })
     }
 
+    get display_name() { return this.name ?? `guest (${this.id})` }
+
     setup_view() {
         const info_el = document.createElement("div")
         info_el.classList.add("info")
         const name_el = document.createElement("span")
-        name_el.textContent = this.name
+        name_el.textContent = this.display_name
         name_el.classList.add("name")
         info_el.append(name_el)
         this.el.append(info_el)

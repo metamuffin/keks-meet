@@ -6,7 +6,7 @@ interface F_RTCIceCandidateInit { candidate?: string; sdpMLineIndex?: number | n
 
 export interface ClientboundPacket {
     init?: { your_id: number, version: string },
-    client_join?: { id: number, name: string },
+    client_join?: { id: number },
     client_leave?: { id: number },
     message?: { sender: number, message: string },
 }

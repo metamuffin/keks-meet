@@ -29,22 +29,21 @@ async fn run() {
     let rooms = Rooms::default();
     let rooms = warp::any().map(move || rooms.clone());
 
-    let app = warp::path!(String)
-        .map(|_| ())
-        .untuple_one()
-        .and(warp::fs::file("../client-web/public/app.html"));
-    let signaling = warp::path!(String / "signaling")
+    let signaling = warp::path!("signaling" / String)
         .and(rooms)
         .and(warp::ws())
         .map(signaling_connect);
 
-    let index = warp::path!().and(warp::fs::file("../client-web/public/start.html"));
-    let assets = warp::path("_assets").and(warp::fs::dir("../client-web/public/assets"));
+    let index: _ = warp::path!().and(warp::fs::file("../client-web/public/start.html"));
+    let room: _ = warp::path!("room").and(warp::fs::file("../client-web/public/app.html"));
+    let assets: _ = warp::path("assets").and(warp::fs::dir("../client-web/public/assets"));
+    let favicon: _ = warp::path!("favicon.ico").map(|| "");
 
     let routes = assets
-        .or(app)
+        .or(room)
         .or(index)
         .or(signaling)
+        .or(favicon)
         .recover(handle_rejection)
         .with(warp::log("stuff"));
 

@@ -19,7 +19,7 @@ export interface User {
 window.onload = () => main()
 
 export async function main() {
-    document.body.querySelector("p")?.remove()
+    document.body.querySelectorAll("p").forEach(e => e.remove())
     log("*", "starting up")
     const room_name = window.location.pathname.substring("/".length)
     const conn = await (new SignalingConnection().connect(room_name))

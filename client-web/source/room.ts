@@ -4,7 +4,7 @@ import { log } from "./logger.ts";
 import { RemoteUser } from "./remote_user.ts";
 import { User } from "./user.ts";
 import { LocalUser } from "./local_user.ts";
-import { ServerboundPacket, ClientboundPacket } from "../../common/packets.d.ts";
+import { ClientboundPacket, RelayMessage } from "../../common/packets.d.ts";
 import { SignalingConnection } from "./protocol/mod.ts";
 
 export class Room {
@@ -17,14 +17,13 @@ export class Room {
     constructor(public signaling: SignalingConnection) {
         this.el = document.createElement("div")
         this.el.classList.add("room")
+        this.signaling.control_handler = this.control_handler
+        this.signaling.relay_handler = this.relay_handler
     }
 
-    websocket_send(data: ServerboundPacket) {
-        log("ws", `-> ${data.relay?.recipient ?? "*"}`, data)
-        // this.websocket.send(JSON.stringify(data))
-    }
-    websocket_message(packet: ClientboundPacket) {
-        log("ws", `<- ${packet.message?.sender ?? "control packet"}: `, packet);
+    control_handler(packet: ClientboundPacket) {
+        if (packet.message) return // let the relay handler do that
+        log("ws", `<- [control packet]: `, packet);
         if (packet.init) {
             this.my_id = packet.init.your_id
             // no need to check compat for now because this is hosted in the same place
@@ -33,9 +32,9 @@ export class Room {
             const p = packet.client_join
             log("*", `${p.id} joined`);
             if (p.id == this.my_id) {
-                this.local_user = new LocalUser(this, p.id, p.name);
+                this.local_user = new LocalUser(this, p.id);
             } else {
-                const ru = new RemoteUser(this, p.id, p.name)
+                const ru = new RemoteUser(this, p.id)
                 this.local_user.add_initial_to_remote(ru)
                 ru.offer()
                 this.users.set(p.id, ru)
@@ -48,26 +47,17 @@ export class Room {
             this.users.delete(p.id)
             this.remote_users.delete(p.id)
             return
-        } else if (packet.message) {
-            const p = packet.message;
-            const sender = this.users.get(p.sender)
-            if (sender instanceof RemoteUser) {
-                // if (p.message.ice_candidate) sender.add_ice_candidate(p.message.ice_candidate)
-                // if (p.message.offer) sender.on_offer(p.message.offer)
-                // if (p.message.answer) sender.on_answer(p.message.answer)
-            } else {
-                console.log("!", p, sender);
-            }
         }
+
     }
-    websocket_close() {
-        log("ws", "websocket closed");
-        setTimeout(() => {
-            window.location.reload()
-        }, 1000)
-    }
-    websocket_open() {
-        log("ws", "websocket opened");
-        setInterval(() => this.websocket_send({ ping: null }), 30000) // stupid workaround for nginx disconnecting inactive connections
+    relay_handler(sender_id: number, message: RelayMessage) {
+        const sender = this.users.get(sender_id)
+        if (sender instanceof RemoteUser) {
+            if (message.ice_candidate) sender.add_ice_candidate(message.ice_candidate)
+            if (message.offer) sender.on_offer(message.offer)
+            if (message.answer) sender.on_answer(message.answer)
+        } else {
+            console.log("!", message, sender);
+        }
     }
 }

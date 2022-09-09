@@ -18,6 +18,8 @@ a web conferencing application
 -   Optionally enable video streams
 -   Settings menu
 -   Native client
+-   Prevent server from changing message sender
+-   Have a security professional look at the code
 
 ## Usage
 
