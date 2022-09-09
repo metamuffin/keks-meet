@@ -76,6 +76,7 @@ Booleans can be either `1`, `true`, `yes` or their opposites.
 -   Built-in storage for known keys
 -   Prevent a client from sendin differing user names to other clients
 -   Fix chat CSS (impossible™)
+-   Relay RTC when there are a lot of clients
 
 ## Protocol
 

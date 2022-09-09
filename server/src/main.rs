@@ -102,24 +102,12 @@ async fn handle_rejection(err: Rejection) -> Result<impl Reply, Infallible> {
 fn signaling_connect(rname: String, rooms: Rooms, ws: warp::ws::Ws) -> impl Reply {
     async fn inner(sock: WebSocket, rname: String, rooms: Rooms) {
         debug!("ws upgrade");
-        let guard = rooms.read().await;
-        let room = match guard.get(&rname) {
-            Some(r) => {
-                let x = r.to_owned();
-                drop(guard);
-                x
-            }
-            None => {
-                debug!("aquire lock for insertion");
-                drop(guard); // make sure read-lock is dropped to avoid deadlock
-                let mut guard = rooms.write().await;
-                debug!("create new room");
-                guard.insert(rname.to_owned(), Default::default());
-                let x = guard.get(&rname).unwrap().to_owned();
-                drop(guard);
-                x
-            }
-        };
+        let mut guard = rooms.write().await;
+        let room = guard
+            .entry(rname.clone())
+            .or_insert_with(|| Default::default())
+            .to_owned();
+        drop(guard);
 
         room.client_connect(sock).await;
         if room.should_remove().await {
