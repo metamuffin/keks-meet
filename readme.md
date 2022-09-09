@@ -13,18 +13,9 @@ a web conferencing application
 -   Noise suppression (rnnoise)
 -   End-to-end-encryption
 
-## Todo-List
+## Licence
 
--   Chat
--   Optionally enable video streams
--   Settings menu
--   Native client
--   Prevent server from changing message sender
--   Have a security professional look at the code
--   Test some options like `camera_facing_mode`
--   Signing key for each user
--   Built-in storage for known keys
--   Prevent a client from sendin differing user names to other clients
+GNU Affero General Public License version 3 only; See [COPYING](./COPYING).
 
 ## Security
 
@@ -67,6 +58,20 @@ Booleans can be either `1`, `true`, `yes` or their opposites.
 | `screencast_enabled`       | `false`   | Add one screencast track on startup                            |
 | `camera_facing_mode`       | undefined | Prefer user-facing or env-facing camera (`environment`/`user`) |
 
+## Todo-List
+
+-   Chat
+-   Optionally enable video streams
+-   Settings menu
+-   Native client
+-   Prevent server from changing message sender
+-   Have a security professional look at the code
+-   Test some options like `camera_facing_mode`
+-   Signing key for each user
+-   Built-in storage for known keys
+-   Prevent a client from sendin differing user names to other clients
+-   Fix chat CSS (impossible™)
+
 ## Protocol
 
 The protocol packets are defined in [packets.d.ts](./common/packets.d.ts). Here is an (simplified) example of how the protocol is used.
@@ -86,7 +91,3 @@ S->C    { message: { sender: 3, message: { offer: <RTCSessionDescriptionInit> } 
 ----    # In case the server uses a reverse-proxy that disconnects inactive connections: Ping every 30s
 C->S    { ping: null }
 ```
-
-## Licence
-
-See `LICENCE` file.
