@@ -2,6 +2,8 @@ import { log } from "../logger.ts";
 
 //! I am not a crypto expert at all! Please read carefully and report any issues to me. 
 
+const IV_LENGTH = 12
+
 export async function crypto_seeded_key(seed: string): Promise<CryptoKey> {
     log("crypto", "importing seed…")
     const seed_key = await window.crypto.subtle.importKey(
@@ -11,7 +13,7 @@ export async function crypto_seeded_key(seed: string): Promise<CryptoKey> {
         false,
         ["deriveKey"]
     )
-    //? TODO is it possible to use a unique seed per session here? 
+    //? TODO is it possible to use a unique seed per session here?
     // const salt = window.crypto.getRandomValues(new Uint8Array(16));
     const salt = base64_to_buf("thisisagoodsaltAAAAAAA==") // valid "unique" 16-byte base-64 string
     log("crypto", "deriving key…")
@@ -40,7 +42,7 @@ export async function crypt_hash(input: string): Promise<string> {
 }
 
 export async function crypto_encrypt(key: CryptoKey, data: string): Promise<string> {
-    const iv = window.crypto.getRandomValues(new Uint8Array(12));
+    const iv = window.crypto.getRandomValues(new Uint8Array(IV_LENGTH));
     const ciphertext = new Uint8Array(await window.crypto.subtle.encrypt(
         { name: "AES-GCM", iv },
         key,
@@ -55,8 +57,8 @@ export async function crypto_encrypt(key: CryptoKey, data: string): Promise<stri
 
 export async function crypt_decrypt(key: CryptoKey, data: string): Promise<string> {
     const buf = base64_to_buf(data);
-    const iv = buf.slice(0, 12);
-    const ciphertext = buf.slice(12);
+    const iv = buf.slice(0, IV_LENGTH);
+    const ciphertext = buf.slice(IV_LENGTH);
     const decryptedContent = await window.crypto.subtle.decrypt(
         { name: "AES-GCM", iv },
         key,

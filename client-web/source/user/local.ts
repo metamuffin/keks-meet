@@ -7,7 +7,7 @@ import { get_rnnoise_node } from "../rnnoise.ts";
 import { Room } from "../room.ts";
 import { TrackHandle } from "../track_handle.ts";
 import { User } from "./mod.ts";
-import { BOTTOM_CONTAINER } from "../index.ts";
+import { BOTTOM_CONTAINER, ROOM_CONTAINER } from "../index.ts";
 
 export class LocalUser extends User {
     mic_gain?: GainNode
@@ -17,9 +17,15 @@ export class LocalUser extends User {
         super(room, id)
         this.el.classList.add("local")
         this.local = true
+        this.name = PREFS.username
         this.create_controls()
         this.add_initial_tracks()
         log("usermodel", `added local user: ${this.display_name}`)
+    }
+    leave() { // we might never need this but ok
+        this.room.local_user = undefined as unknown as LocalUser
+        super.leave()
+        ROOM_CONTAINER.removeChild(this.el)
     }
 
     async add_initial_tracks() {
@@ -42,6 +48,9 @@ export class LocalUser extends User {
 
     add_initial_to_remote(u: RemoteUser) {
         this.tracks.forEach(t => u.peer.addTrack(t.track))
+    }
+    identify(recipient?: number) {
+        if (this.name) this.room.signaling.send_relay({ identify: { username: this.name } }, recipient)
     }
 
     create_controls() {

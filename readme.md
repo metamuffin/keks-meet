@@ -11,6 +11,7 @@ a web conferencing application
     -   Screen capture
 -   Multiple streams
 -   Noise suppression (rnnoise)
+-   End-to-end-encryption
 
 ## Todo-List
 
@@ -23,6 +24,7 @@ a web conferencing application
 -   Test some options like `camera_facing_mode`
 -   Signing key for each user
 -   Built-in storage for known keys
+-   Prevent a client from sendin differing user names to other clients
 
 ## Security
 
@@ -31,7 +33,6 @@ keks-meet _tries_ to be secure. However I am not a security expert. The current 
 -   The room name is set in the section of the URL (-> not sent to the server)
 -   The server receives a salted hash of the room name to group client of a room
 -   We use PBKDF2 (constant salt; 250000 iterations) to derive a 256-bit AES-GCM key
--   
 -   All relayed message contents are encrypted with this key.
     -   Message recipient is visible to the server
     -   The server assigns user ids

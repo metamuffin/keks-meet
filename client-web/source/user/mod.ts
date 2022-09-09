@@ -9,14 +9,24 @@ import { TrackHandle } from "../track_handle.ts";
 export abstract class User {
     protected el: HTMLElement
     public local = false
-    public name?: string
     protected tracks: Set<TrackHandle> = new Set()
 
+    private name_el = document.createElement("span")
+    private _name?: string
+    get name() { return this._name }
+    set name(n: string | undefined) { this._name = n; this.name_el.textContent = this.display_name }
+    get display_name() { return this.name ?? `guest (${this.id})` }
+
     constructor(public room: Room, public id: number) {
+        room.users.set(this.id, this)
+
         this.el = document.createElement("div")
         this.el.classList.add("user")
         ROOM_CONTAINER.append(this.el)
         this.setup_view()
+    }
+    leave() {
+        this.room.users.delete(this.id)
     }
 
     add_track(t: TrackHandle) {
@@ -34,15 +44,12 @@ export abstract class User {
         })
     }
 
-    get display_name() { return this.name ?? `guest (${this.id})` }
-
     setup_view() {
         const info_el = document.createElement("div")
         info_el.classList.add("info")
-        const name_el = document.createElement("span")
-        name_el.textContent = this.display_name
-        name_el.classList.add("name")
-        info_el.append(name_el)
+        this.name_el.textContent = this.display_name
+        this.name_el.classList.add("name")
+        info_el.append(this.name_el)
         this.el.append(info_el)
     }
 

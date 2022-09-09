@@ -33,26 +33,21 @@ export class Room {
             } else {
                 const ru = new RemoteUser(this, p.id)
                 this.local_user.add_initial_to_remote(ru)
+                this.local_user.identify(ru.id)
                 ru.offer()
-                this.users.set(p.id, ru)
-                this.remote_users.set(p.id, ru)
             }
         } else if (packet.client_leave) {
             const p = packet.client_leave;
             log("*", `${p.id} left`);
-            this.remote_users.get(p.id)!.leave()
-            this.users.delete(p.id)
-            this.remote_users.delete(p.id)
+            this.users.get(p.id)!.leave()
         }
     }
     relay_handler(sender_id: number, message: RelayMessage) {
         const sender = this.users.get(sender_id)
         if (sender instanceof RemoteUser) {
-            if (message.ice_candidate) sender.add_ice_candidate(message.ice_candidate)
-            if (message.offer) sender.on_offer(message.offer)
-            if (message.answer) sender.on_answer(message.answer)
+            sender.on_relay(message)
         } else {
-            console.log("!", message, sender);
+            console.warn("we received a message for ourselves, the server might be broken");
         }
     }
 }

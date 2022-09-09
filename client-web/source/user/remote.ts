@@ -1,5 +1,6 @@
 /// <reference lib="dom" />
 
+import { RelayMessage } from "../../../common/packets.d.ts";
 import { ROOM_CONTAINER, RTC_CONFIG } from "../index.ts"
 import { log } from "../logger.ts"
 import { Room } from "../room.ts"
@@ -12,6 +13,8 @@ export class RemoteUser extends User {
 
     constructor(room: Room, id: number) {
         super(room, id)
+        room.remote_users.set(this.id, this)
+
         log("usermodel", `added remote user: ${id}`)
         this.peer = new RTCPeerConnection(RTC_CONFIG)
         this.peer.onicecandidate = ev => {
@@ -30,6 +33,20 @@ export class RemoteUser extends User {
             }
             this.offer()
         }
+    }
+    leave() {
+        log("usermodel", `remove remote user: ${this.display_name}`)
+        this.peer.close()
+        this.room.remote_users.delete(this.id)
+        super.leave()
+        ROOM_CONTAINER.removeChild(this.el)
+    }
+
+    on_relay(message: RelayMessage) {
+        if (message.ice_candidate) this.add_ice_candidate(message.ice_candidate)
+        if (message.offer) this.on_offer(message.offer)
+        if (message.answer) this.on_answer(message.answer)
+        if (message.identify) this.name = message.identify.username
     }
 
     async offer() {
@@ -64,11 +81,5 @@ export class RemoteUser extends User {
 
     add_ice_candidate(candidate: RTCIceCandidateInit) {
         this.peer.addIceCandidate(new RTCIceCandidate(candidate))
-    }
-
-    leave() {
-        log("usermodel", `remove remote user: ${this.display_name}`)
-        this.peer.close()
-        ROOM_CONTAINER.removeChild(this.el)
     }
 }

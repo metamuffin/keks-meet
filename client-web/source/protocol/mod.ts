@@ -19,6 +19,7 @@ export class SignalingConnection {
         const ws_url = new URL(`${window.location.protocol.endsWith("s:") ? "wss" : "ws"}://${window.location.host}/signaling/${encodeURIComponent(this.signaling_id)}`)
         this.websocket = new WebSocket(ws_url)
         this.websocket.onerror = () => this.on_error()
+        this.websocket.onclose = () => this.on_close()
         this.websocket.onmessage = e => {
             if (typeof e.data == "string") this.on_message(e.data)
         }

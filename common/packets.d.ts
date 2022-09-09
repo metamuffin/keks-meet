@@ -17,7 +17,7 @@ export interface ServerboundPacket {
 }
 
 export interface RelayMessage {
-    identify?: { name: string }
+    identify?: { username: string }
     offer?: F_RTCSessionDescriptionInit,
     answer?: F_RTCSessionDescriptionInit,
     ice_candidate?: F_RTCIceCandidateInit,

@@ -1,13 +1,12 @@
 pub mod protocol;
 pub mod room;
 
-use hyper::{header, StatusCode, Uri};
+use hyper::{header, StatusCode};
 use listenfd::ListenFd;
 use log::error;
 use room::Room;
 use std::collections::HashMap;
 use std::convert::Infallible;
-use std::str::FromStr;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use warp::hyper::Server;

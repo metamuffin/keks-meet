@@ -40,7 +40,7 @@ export function log(k: LogScope | LogDesc, message: string, ...data: unknown[]) 
             setTimeout(() => {
                 e.remove()
             }, 1000 + 500)
-        }, (d.error || d.warn) ? 20000 : 3000)
+        }, (d.error || d.warn) ? 30000 : 3000)
     }
 }
 
