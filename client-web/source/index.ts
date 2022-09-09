@@ -36,7 +36,7 @@ export async function main() {
     if (!globalThis.isSecureContext) log({ scope: "*", warn: true }, "This page is not in a 'Secure Context'")
     if (!globalThis.crypto.subtle) return log({ scope: "crypto", error: true }, "SubtleCrypto not availible")
     if (room_name.length < 8) log({ scope: "crypto", warn: true }, "Room name is very short. e2ee is insecure!")
-    if (room_name.length == 0) window.location.href = "/" // send them back to the start page
+    if (room_name.length == 0) return window.location.href = "/" // send them back to the start page
     if (PREFS.warn_redirect) log({ scope: "crypto", warn: true }, "You were redirected from the old URL format. The server knows you room name now - e2ee is insecure!")
 
     const conn = await (new SignalingConnection().connect(room_name))

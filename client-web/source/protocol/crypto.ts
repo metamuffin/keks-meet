@@ -56,16 +56,21 @@ export async function crypto_encrypt(key: CryptoKey, data: string): Promise<stri
 }
 
 export async function crypt_decrypt(key: CryptoKey, data: string): Promise<string> {
-    const buf = base64_to_buf(data);
-    const iv = buf.slice(0, IV_LENGTH);
-    const ciphertext = buf.slice(IV_LENGTH);
-    const decryptedContent = await window.crypto.subtle.decrypt(
-        { name: "AES-GCM", iv },
-        key,
-        ciphertext
-    );
-    const plain = new TextDecoder().decode(decryptedContent);
-    return plain
+    try {
+        const buf = base64_to_buf(data);
+        const iv = buf.slice(0, IV_LENGTH);
+        const ciphertext = buf.slice(IV_LENGTH);
+        const decryptedContent = await window.crypto.subtle.decrypt(
+            { name: "AES-GCM", iv },
+            key,
+            ciphertext
+        );
+        const plain = new TextDecoder().decode(decryptedContent);
+        return plain
+    } catch (_e) {
+        log({ scope: "crypto", warn: true }, "unable to decrypt")
+        return "{}" // :)
+    }
 }
 
 export function base64_to_buf(data: string): Uint8Array {

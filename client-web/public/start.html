@@ -6,7 +6,6 @@
         <link rel="stylesheet" href="/assets/style/master.css" />
         <title>keks-meet</title>
     </head>
-
     <body>
         <div class="start-box">
             <h2>keks-meet</h2>
@@ -33,7 +32,8 @@
 
                 const submit = document.createElement("input");
                 submit.type = "button";
-                submit.addEventListener("click", () => {
+                function go() {
+                    room_input.disabled = true;
                     if (room_input.value.length == 0) {
                         const random = window.crypto.getRandomValues(
                             new Uint8Array(32)
@@ -44,6 +44,12 @@
                     }
                     const url = `/room#${encodeURIComponent(room_input.value)}`;
                     window.location.href = url;
+                }
+                submit.addEventListener("click", () => {
+                    go();
+                });
+                room_input.addEventListener("keydown", (ev) => {
+                    if (ev.code == "Enter") go();
                 });
                 submit.value = "Join room!";
 
