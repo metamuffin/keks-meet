@@ -5,16 +5,10 @@ use std::{collections::HashMap, sync::atomic::AtomicUsize};
 use tokio::sync::{mpsc, RwLock};
 use warp::ws::{Message, WebSocket};
 
-#[derive(Debug)]
-pub struct Client {
-    pub name: String,
-    pub out: mpsc::UnboundedSender<ClientboundPacket>,
-}
-
 #[derive(Debug, Default)]
 pub struct Room {
     pub id_counter: AtomicUsize,
-    pub clients: RwLock<HashMap<usize, Client>>,
+    pub clients: RwLock<HashMap<usize, mpsc::UnboundedSender<ClientboundPacket>>>,
 }
 
 impl Room {
@@ -29,14 +23,7 @@ impl Room {
         let id = self
             .id_counter
             .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-        let name = format!("user no. {id}");
-        g.insert(
-            id,
-            Client {
-                out: tx,
-                name: name.clone(),
-            },
-        );
+        g.insert(id, tx);
         drop(g);
         debug!("assigned id={id}, init connection");
 
@@ -62,20 +49,14 @@ impl Room {
         .await;
 
         // send join of this client to all clients
-        self.broadcast(None, ClientboundPacket::ClientJoin { id, name })
+        self.broadcast(None, ClientboundPacket::ClientJoin { id })
             .await;
         // send join of all other clients to this one
-        for (&cid, c) in self.clients.read().await.iter() {
+        for (&cid, _) in self.clients.read().await.iter() {
             // skip self
             if cid != id {
-                self.send_to_client(
-                    id,
-                    ClientboundPacket::ClientJoin {
-                        id: cid,
-                        name: c.name.clone(),
-                    },
-                )
-                .await;
+                self.send_to_client(id, ClientboundPacket::ClientJoin { id: cid })
+                    .await;
             }
         }
         debug!("client should be ready!");
@@ -108,13 +89,13 @@ impl Room {
     pub async fn broadcast(&self, sender: Option<usize>, packet: ClientboundPacket) {
         for (&id, tx) in self.clients.read().await.iter() {
             if sender != Some(id) {
-                let _ = tx.out.send(packet.clone());
+                let _ = tx.send(packet.clone());
             }
         }
     }
     pub async fn send_to_client(&self, recipient: usize, packet: ClientboundPacket) {
         if let Some(c) = self.clients.read().await.get(&recipient) {
-            let _ = c.out.send(packet);
+            let _ = c.send(packet);
         }
     }
 

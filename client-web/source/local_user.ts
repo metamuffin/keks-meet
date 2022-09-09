@@ -69,17 +69,20 @@ export class LocalUser extends User {
         document.body.append(el)
     }
 
-
     async create_camera_track() {
         log("media", "requesting user media (camera)")
-        const user_media = await window.navigator.mediaDevices.getUserMedia({ video: true })
+        const user_media = await window.navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: PREFS.camera_facing_mode } }
+        })
         return new TrackHandle(user_media.getVideoTracks()[0], true)
     }
+
     async create_screencast_track() {
         log("media", "requesting user media (screen)")
         const user_media = await window.navigator.mediaDevices.getDisplayMedia({ video: true })
         return new TrackHandle(user_media.getVideoTracks()[0], true)
     }
+
     async create_mic_track() {
         log("media", "requesting user media (audio)")
         const audio_contraints = PREFS.rnnoise ? {

@@ -41,8 +41,10 @@ async fn run() {
     let index = warp::path!().and(warp::fs::file("../client-web/public/start.html"));
     let assets = warp::path("_assets").and(warp::fs::dir("../client-web/public/assets"));
 
-    let routes = warp::get()
-        .and(assets.or(app).or(index).or(signaling))
+    let routes = assets
+        .or(app)
+        .or(index)
+        .or(signaling)
         .recover(handle_rejection)
         .with(warp::log("stuff"));
 

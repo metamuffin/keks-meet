@@ -5,7 +5,8 @@ import { RemoteUser } from "./remote_user.ts";
 import { User } from "./user.ts";
 import { LocalUser } from "./local_user.ts";
 import { ServerboundPacket, ClientboundPacket } from "../../common/packets.d.ts";
-
+import { PREFS } from "./preferences.ts";
+import { ep } from "./helper.ts";
 
 export class Room {
     el: HTMLElement
@@ -20,9 +21,19 @@ export class Room {
         this.name = name
         this.el = document.createElement("div")
         this.el.classList.add("room")
-        this.websocket = new WebSocket(`${window.location.protocol.endsWith("s:") ? "wss" : "ws"}://${window.location.host}/${encodeURIComponent(name)}/signaling`)
+
+        const ws_url = new URL(`${window.location.protocol.endsWith("s:") ? "wss" : "ws"}://${window.location.host}/${encodeURIComponent(name)}/signaling`)
+        ws_url.searchParams.set("username", PREFS.username)
+        this.websocket = new WebSocket(ws_url)
         this.websocket.onclose = () => this.websocket_close()
-        this.websocket.onopen = () => this.websocket_open()
+
+        // const connecting_text = ep("Upgrading to a websocket connection…")
+        // this.el.append(connecting_text)
+
+        this.websocket.onopen = () => {
+            // connecting_text.remove()
+            this.websocket_open()
+        }
         this.websocket.onmessage = (ev) => {
             this.websocket_message(JSON.parse(ev.data))
         }
