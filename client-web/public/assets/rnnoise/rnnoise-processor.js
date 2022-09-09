@@ -25,14 +25,14 @@
               : ((this.alive = !1), b.deleteState(this.state)));
         };
       }
-      process(a, c, e) { 
+      process(a, c, _e) {
         if (!a[0][0]) return 1
         if (this.alive)
           return (
             d.set(a[0][0], b.getInput(this.state) / 4),
             (a = c[0][0]),
             (c = b.pipe(this.state, a.length) / 4) &&
-              a.set(d.subarray(c, c + a.length)),
+            a.set(d.subarray(c, c + a.length)),
             !0
           );
       }

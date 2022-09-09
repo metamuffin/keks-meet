@@ -21,7 +21,8 @@ window.onload = () => main()
 export async function main() {
     document.body.querySelectorAll("p").forEach(e => e.remove())
     log("*", "starting up")
-    const room_name = window.location.pathname.substring("/".length)
+    const room_name = window.location.hash.substring(1)
+    if (room_name.length == 0) window.location.href = "/" // send them back to the start page
     const conn = await (new SignalingConnection().connect(room_name))
     const room = new Room(conn)
     create_menu()

@@ -18,7 +18,7 @@ export class LocalUser extends User {
         this.local = true
         this.create_controls()
         this.add_initial_tracks()
-        log("usermodel", `added local user: ${this.name}`)
+        log("usermodel", `added local user: ${this.display_name}`)
     }
 
     async add_initial_tracks() {

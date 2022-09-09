@@ -11,7 +11,7 @@ export abstract class User {
     public name?: string
     protected tracks: Set<TrackHandle> = new Set()
 
-    constructor(public room: Room, public id: number,) {
+    constructor(public room: Room, public id: number) {
         this.el = document.createElement("div")
         this.el.classList.add("user")
         this.room.el.append(this.el)
