@@ -10,6 +10,15 @@
     padding: 0.2em;
 }
 
+.logger-error {
+    font-size: 1.5em !important;
+    color: red;
+}
+.logger-warn {
+    font-size: 1.5em !important;
+    color: yellow;
+}
+
 .logger-line {
     font-size: 1em;
     height: 1.2em;
@@ -24,15 +33,6 @@
     animation-timing-function: linear;
     animation-duration: 1s;
     animation-fill-mode: forwards;
-}
-
-.logger-error {
-    font-size: 2em;
-    color: red;
-}
-.logger-warn {
-    font-size: 2em;
-    color: yellow;
 }
 
 @keyframes appear {

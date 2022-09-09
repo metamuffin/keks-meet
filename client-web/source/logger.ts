@@ -30,17 +30,17 @@ export function log(k: LogScope | LogDesc, message: string, ...data: unknown[]) 
     if (logger_container) {
         const e = document.createElement("p")
         e.classList.add("logger-line")
-        if (d.error) e.classList.add(".logger-error")
-        if (d.warn) e.classList.add(".logger-warn")
+        if (d.error) e.classList.add("logger-error")
+        else if (d.warn) e.classList.add("logger-warn")
+        else e.style.color = log_scope_color[d.scope]
         e.textContent = `[${d.scope}] ${message}`
-        if (!d.error && !d.warn) e.style.color = log_scope_color[d.scope]
         logger_container.append(e)
         setTimeout(() => {
             e.classList.add("logger-line-disappear")
             setTimeout(() => {
                 e.remove()
             }, 1000 + 500)
-        }, (d.error || d.warn) ? 60000 : 3000)
+        }, (d.error || d.warn) ? 20000 : 3000)
     }
 }
 

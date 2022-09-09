@@ -20,6 +20,7 @@ a web conferencing application
 -   Native client
 -   Prevent server from changing message sender
 -   Have a security professional look at the code
+-   Test some options like `camera_facing_mode`
 
 ## Usage
 
@@ -36,22 +37,20 @@ cargo run --release
 
 ## Parameters
 
-For configuration options must be added either
-
-1. in options in the query parameters (e.g. `/myroom?username=alice`)
-2. in options in section of URL (e.g. `/myroom#rnnoise=no`).
-
+Configuration parameters are added like query params but **after** the section. (e.g `/room#mymeeting?username=alice`)
 The page will not automatically reload if the section changes.
 Booleans can be either `1`, `true`, `yes` or their opposites.
 
-| Option name       | Type    | Default | Description                              |
-| ----------------- | ------- | ------- | ---------------------------------------- |
-| `?username`       | string  | "guest" | Sets the username                        |
-| `#rnnoise`        | boolean | true    | Enables noise suppression with rnnoise   |
-| `#mic_enabled`    | boolean | false   | Adds audio track on startup              |
-| `#camera_enabled` | boolean | false   | Adds camera track on startup             |
-| `#screen_enabled` | boolean | false   | Adds screen track on startup (wont work) |
-| `#mic_gain`       | number  | 1       | Amplifies the microphone volume          |
+| Option name                | Default   | Description                                                    |
+| -------------------------- | --------- | -------------------------------------------------------------- |
+| `rnnoise`                  | `true`    | Use RNNoise for noise suppression                              |
+| `native_noise_suppression` | `false`   | Suggest the browser to do noise suppression                    |
+| `username`                 | `guest-…` | "Username                                                      |
+| `microphone_gain`          | `1`       | Amplify microphone volume                                      |
+| `microphone_enabled`       | `false`   | Add one microphone track on startup                            |
+| `camera_enabled`           | `false`   | Add one camera track on startup                                |
+| `screencast_enabled`       | `false`   | Add one screencast track on startup                            |
+| `camera_facing_mode`       | undefined | Prefer user-facing or env-facing camera (`environment`/`user`) |
 
 ## Protocol
 
