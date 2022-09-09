@@ -12,18 +12,19 @@ a web conferencing application
 -   Multiple streams
 -   Noise suppression (rnnoise)
 -   End-to-end-encryption
+-   Chat
 
 ## Licence
 
-GNU Affero General Public License version 3 only; See [COPYING](./COPYING).
+Licensed under the terms of the GNU Affero General Public License version 3 only. See [COPYING](./COPYING).
 
 ## Security
 
 keks-meet _tries_ to be secure. However I am not a security expert. The current system works as follows:
 
--   The room name is set in the section of the URL (-> not sent to the server)
--   The server receives a salted SHA-256 hash of the room name to group client of a room
--   We use PBKDF2 (constant salt; 250000 iterations) to derive a 256-bit AES-GCM key
+-   The room name is set in the section of the URL which is not sent to the server.
+-   The server receives a salted SHA-256 hash of the room name to group clients of a room.
+-   The client uses PBKDF2 (constant salt; 250000 iterations) to derive a 256-bit AES-GCM key from the room name.
 -   All relayed message contents are encrypted with this key.
     -   Message recipient is visible to the server
     -   The server assigns user ids
@@ -40,6 +41,8 @@ make -C client-web
 cd server
 cargo run --release
 ```
+
+Because of a current compiler bug, the nightly rustc crashes during codegen - use the stable channel instead.
 
 ## Parameters
 
@@ -65,7 +68,6 @@ Booleans can be either `1`, `true`, `yes` or their opposites.
 
 ## Todo-List
 
--   Chat
 -   Optionally enable video streams
 -   Settings menu
 -   Native client
