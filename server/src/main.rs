@@ -104,14 +104,20 @@ fn signaling_connect(rname: String, rooms: Rooms, ws: warp::ws::Ws) -> impl Repl
         debug!("ws upgrade");
         let guard = rooms.read().await;
         let room = match guard.get(&rname) {
-            Some(r) => r.to_owned(),
+            Some(r) => {
+                let x = r.to_owned();
+                drop(guard);
+                x
+            }
             None => {
                 debug!("aquire lock for insertion");
                 drop(guard); // make sure read-lock is dropped to avoid deadlock
                 let mut guard = rooms.write().await;
                 debug!("create new room");
                 guard.insert(rname.to_owned(), Default::default());
-                guard.get(&rname).unwrap().to_owned() // TODO never expect this to always work!!
+                let x = guard.get(&rname).unwrap().to_owned();
+                drop(guard);
+                x
             }
         };
 
