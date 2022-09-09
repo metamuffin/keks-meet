@@ -25,17 +25,17 @@ export function register_prefs<T extends Record<string, PrefDecl<unknown>>>(ds: 
     return p
 }
 
-const raw_params = load_query_params();
-export function load_query_params(): { [key: string]: string } {
-    const q: { [key: string]: string } = {}
-    const params = window.location.hash.substring(1).split("?")[1]
-    if (!params) return {}
+const raw_params = load_params().p;
+export function load_params(): { p: { [key: string]: string }, rname: string } {
+    const q: Record<string, string> = {}
+    const [rname, params] = window.location.hash.substring(1).split("?")
+    if (!params) return { rname, p: {} }
     for (const kv of params.split("&")) {
         const [key, value] = kv.split("=")
         if (key == "prototype") continue
         q[decodeURIComponent(key)] = decodeURIComponent(value)
     }
-    return q
+    return { p: q, rname }
 }
 
 export function get_param<T>(ty: string, key: string): T | undefined {

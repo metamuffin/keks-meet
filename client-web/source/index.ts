@@ -3,7 +3,7 @@
 import { ediv } from "./helper.ts";
 import { log } from "./logger.ts"
 import { create_menu } from "./menu.ts";
-import { PREFS } from "./preferences.ts";
+import { get_param, load_params, PREFS } from "./preferences.ts";
 import { SignalingConnection } from "./protocol/mod.ts";
 import { Room } from "./room.ts"
 
@@ -27,7 +27,7 @@ window.onload = () => main()
 export async function main() {
     log("*", "starting up")
     document.body.querySelectorAll("p").forEach(e => e.remove())
-    const room_name = window.location.hash.substring(1)
+    const room_name = load_params().rname
 
     if (!globalThis.RTCPeerConnection) return log({ scope: "webrtc", error: true }, "WebRTC not supported.")
     if (!globalThis.isSecureContext) log({ scope: "*", warn: true }, "This page is not in a 'Secure Context'")
