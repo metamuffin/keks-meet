@@ -68,7 +68,10 @@ export class LocalUser extends User {
 
         const create = async (_e: HTMLElement, tp: Promise<TrackHandle>) => {
             log("media", "awaiting track")
-            const t = await tp
+            let t;
+            try { t = await tp }
+            catch (_) { log("media", "request failed") }
+            if (!t) return
             log("media", "got track")
             this.publish_track(t)
         }
