@@ -1,10 +1,16 @@
-/* TODO all of these rules are totally stupid */
 .chat {
-    overflow: scroll;
+    position: fixed;
+    z-index: 70;
+
+    right: 1em;
+    bottom: 5em;
+
+    width: min(30em, 50vw);
+    height: min(50em, 70vh);
 
     background-color: var(--bg);
-    padding: 1em;
     border-radius: 1em;
+    padding: 2em;
 }
 
 .chat .message {
@@ -17,7 +23,7 @@
     color: white;
 }
 .chat .messages {
-    height: calc(100% - 5em);
+    height: calc(100% - 3em);
     width: 100%;
     overflow: scroll;
 }
@@ -25,5 +31,6 @@
     padding: 1em;
 }
 .chat input {
+    font-size: x-large;
     width: 100%;
 }

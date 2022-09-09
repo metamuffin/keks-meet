@@ -32,7 +32,7 @@ export class BottomMenu extends OverlayUi {
         // TODO this should ideally be a checkbox 
         const chat_toggle = document.createElement("input")
         chat_toggle.type = "button"
-        chat_toggle.value = "Toggle chat"
+        chat_toggle.value = "Chat"
         chat_toggle.onclick = () => {
             room.chat.shown = !room.chat.shown
             if (room.chat.shown) chat_toggle.classList.add("active")

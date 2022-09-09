@@ -3,6 +3,7 @@
 @import url("./chat.css");
 @import url("./room.css");
 @import url("./prefs.css");
+@import url("./menu.css");
 
 * {
     font-family: "Ubuntu", sans-serif;
@@ -25,24 +26,6 @@ body {
     height: 100vh;
     width: 100vw;
     justify-content: left;
-}
-
-/* layout magic, dont touch */
-.room {
-    display: table-cell;
-    white-space: nowrap;
-}
-.room:nth-child(2) {
-    width: 64vw;
-}
-.room:nth-child(1) {
-    width: 100vw;
-}
-.chat {
-    display: table-cell;
-    width: 35vw;
-    height: calc(100vh - 3em);
-    white-space: nowrap;
 }
 
 h2 {
@@ -71,18 +54,6 @@ input[type="text"] {
     border: 1px solid var(--ac-light);
 }
 
-.bottom-menu {
-    background-color: var(--bg);
-    padding: 0.5em;
-    position: fixed;
-    bottom: 0.5em;
-    border: 0px solid transparent;
-    border-radius: 5px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 100;
-}
-
 .start-box {
     position: absolute;
     top: 50vh;
@@ -94,19 +65,10 @@ input[type="text"] {
 }
 .start-box input[type="text"] {
     margin: 0.5em;
-    font-size: 32px;
+    font-size: xx-large;
 }
-
-.menu-br {
-    position: fixed;
-    bottom: 0px;
-    right: 0px;
-    display: block;
-    text-align: right;
-}
-.menu-br .version {
-    font-size: medium;
-    font-weight: bold;
-    color: var(--ac-light);
-    padding: 0.5em;
+.start-box input[type="button"] {
+    margin: 0.5em;
+    font-size: x-large;
+    width: calc(100% - 1em);
 }
