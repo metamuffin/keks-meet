@@ -20,11 +20,11 @@ export class RemoteUser extends User {
         }
         this.peer.ontrack = ev => {
             const t = ev.track
-            log("media", `remote track: ${this.name}`, t)
+            log("media", `remote track: ${this.display_name}`, t)
             this.add_track(new TrackHandle(t))
         }
         this.peer.onnegotiationneeded = async () => {
-            log("webrtc", `negotiation needed: ${this.name}`)
+            log("webrtc", `negotiation needed: ${this.display_name}`)
             while (this.negotiation_busy) {
                 await new Promise<void>(r => setTimeout(() => r(), 100))
             }
@@ -37,12 +37,12 @@ export class RemoteUser extends User {
         const offer_description = await this.peer.createOffer()
         await this.peer.setLocalDescription(offer_description)
         const offer = { type: offer_description.type, sdp: offer_description.sdp }
-        log("webrtc", `sent offer: ${this.name}`, { a: offer })
+        log("webrtc", `sent offer: ${this.display_name}`, { offer })
         this.room.signaling.send_relay({ offer }, this.id)
     }
     async on_offer(offer: RTCSessionDescriptionInit) {
         this.negotiation_busy = true
-        log("webrtc", `got offer: ${this.name}`, { a: offer })
+        log("webrtc", `got offer: ${this.display_name}`, { offer })
         const offer_description = new RTCSessionDescription(offer)
         await this.peer.setRemoteDescription(offer_description)
         this.answer()
@@ -51,12 +51,12 @@ export class RemoteUser extends User {
         const answer_description = await this.peer.createAnswer()
         await this.peer.setLocalDescription(answer_description)
         const answer = { type: answer_description.type, sdp: answer_description.sdp }
-        log("webrtc", `sent answer: ${this.name}`, { a: answer })
+        log("webrtc", `sent answer: ${this.display_name}`, { answer })
         this.room.signaling.send_relay({ answer }, this.id)
         this.negotiation_busy = false
     }
     async on_answer(answer: RTCSessionDescriptionInit) {
-        log("webrtc", `got answer: ${this.name}`, { a: answer })
+        log("webrtc", `got answer: ${this.display_name}`, { answer })
         const answer_description = new RTCSessionDescription(answer)
         await this.peer.setRemoteDescription(answer_description)
         this.negotiation_busy = false
@@ -67,7 +67,7 @@ export class RemoteUser extends User {
     }
 
     leave() {
-        log("usermodel", `remove remote user: ${this.name}`)
+        log("usermodel", `remove remote user: ${this.display_name}`)
         this.peer.close()
         this.room.el.removeChild(this.el)
     }
