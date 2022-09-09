@@ -28,7 +28,9 @@ export function register_prefs<T extends Record<string, PrefDecl<unknown>>>(ds: 
 const raw_params = load_query_params();
 export function load_query_params(): { [key: string]: string } {
     const q: { [key: string]: string } = {}
-    for (const kv of window.location.hash.substring(1).split("&")) {
+    const params = window.location.hash.substring(1).split("?")[1]
+    if (!params) return {}
+    for (const kv of params.split("&")) {
         const [key, value] = kv.split("=")
         if (key == "prototype") continue
         q[decodeURIComponent(key)] = decodeURIComponent(value)
@@ -62,6 +64,7 @@ const PREF_DECLS = {
     microphone_enabled: { name: "microphone_enabled", default: false, description: "Add one microphone track on startup" },
     camera_enabled: { name: "camera_enabled", default: false, description: "Add one camera track on startup" },
     screencast_enabled: { name: "screencast_enabled", default: false, description: "Add one screencast track on startup" },
-    camera_facing_mode: { name: "camera_facing_mode", default: undefined as undefined | string, type: "string" as const, possible_values: ["environment", "user", undefined], description: "Prefer user-facing or env-facing camera" }
+    camera_facing_mode: { name: "camera_facing_mode", default: undefined as undefined | string, type: "string" as const, possible_values: ["environment", "user", undefined], description: "Prefer user-facing or env-facing camera" },
+    warn_redirect: { name: "warn_redirect", default: false, description: "Interal option that is set by a server redirect." },
 }
 export const PREFS = register_prefs(PREF_DECLS)
