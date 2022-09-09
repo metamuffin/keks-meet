@@ -15,7 +15,7 @@ export abstract class User {
     private _name?: string
     get name() { return this._name }
     set name(n: string | undefined) { this._name = n; this.name_el.textContent = this.display_name }
-    get display_name() { return this.name ?? `guest (${this.id})` }
+    get display_name() { return this.name ?? `unknown (${this.id})` }
 
     constructor(public room: Room, public id: number) {
         room.users.set(this.id, this)

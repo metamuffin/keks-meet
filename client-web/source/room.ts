@@ -22,12 +22,13 @@ export class Room {
 
     control_handler(packet: ClientboundPacket) {
         if (packet.message) return // let the relay handler do that
-        log("ws", `<- [control packet]: `, packet);
         if (packet.init) {
+            log("ws", `<- [init packet]: `, packet);
             this.my_id = packet.init.your_id
             // no need to check compat for now because this is hosted in the same place
             log("*", `server: ${packet.init.version}`)
         } else if (packet.client_join) {
+            log("ws", `<- [client join]: `, packet);
             const p = packet.client_join
             log("*", `${p.id} joined`);
             if (p.id == this.my_id) {
@@ -39,6 +40,7 @@ export class Room {
                 ru.offer()
             }
         } else if (packet.client_leave) {
+            log("ws", `<- [client leave]: `, packet);
             const p = packet.client_leave;
             log("*", `${p.id} left`);
             this.users.get(p.id)!.leave()
@@ -46,6 +48,7 @@ export class Room {
     }
     relay_handler(sender_id: number, message: RelayMessage) {
         const sender = this.users.get(sender_id)
+        log("ws", `<- [relay for ${sender?.display_name}]: `, message);
         if (sender instanceof RemoteUser) {
             sender.on_relay(message)
         } else {

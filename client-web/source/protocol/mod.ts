@@ -55,7 +55,6 @@ export class SignalingConnection {
     }
 
     send_control(data: ServerboundPacket) {
-        log("ws", `-> ${data.relay?.recipient ?? "*"}`, data)
         this.websocket.send(JSON.stringify(data))
     }
     async send_relay(data: RelayMessage, recipient?: number | null) {

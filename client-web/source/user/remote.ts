@@ -15,7 +15,7 @@ export class RemoteUser extends User {
         super(room, id)
         room.remote_users.set(this.id, this)
 
-        log("usermodel", `added remote user: ${id}`)
+        log("usermodel", `added remote user: ${this.display_name}`)
         this.peer = new RTCPeerConnection(RTC_CONFIG)
         this.peer.onicecandidate = ev => {
             if (!ev.candidate) return
