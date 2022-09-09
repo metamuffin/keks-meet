@@ -32,6 +32,13 @@ export async function crypto_seeded_key(seed: string): Promise<CryptoKey> {
     return key
 }
 
+export async function crypt_hash(input: string): Promise<string> {
+    const buf = new TextEncoder().encode("also-a-very-good-salt" + input)
+    const h = await window.crypto.subtle.digest({ name: "SHA-256" }, buf)
+    const hex = buf_to_hex(new Uint8Array(h))
+    return hex
+}
+
 export async function crypto_encrypt(key: CryptoKey, data: string): Promise<string> {
     const iv = window.crypto.getRandomValues(new Uint8Array(12));
     const ciphertext = new Uint8Array(await window.crypto.subtle.encrypt(
@@ -59,9 +66,6 @@ export async function crypt_decrypt(key: CryptoKey, data: string): Promise<strin
     return plain
 }
 
-// const buf_to_base64 = (buf: Uint8Array) => btoa(String.fromCharCode.apply(null, buf));
-// const base64_to_buf = (b64: string) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
-
 export function base64_to_buf(data: string): Uint8Array {
     const binary_string = globalThis.atob(data);
     const bytes = new Uint8Array(binary_string.length);
@@ -77,4 +81,8 @@ export function buf_to_base64(bytes: Uint8Array): string {
         binary += String.fromCharCode(bytes[i]);
     }
     return globalThis.btoa(binary);
+}
+
+export function buf_to_hex(bytes: Uint8Array): string {
+    return Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
