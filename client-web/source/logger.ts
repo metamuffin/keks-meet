@@ -1,5 +1,7 @@
 /// <reference lib="dom" />
 
+import { LOGGER_CONTAINER } from "./index.ts";
+
 const log_scope_color = {
     "*": "#ff4a7c",
     crypto: "#c14aff",
@@ -13,8 +15,6 @@ const log_scope_color = {
 export type LogScope = keyof typeof log_scope_color
 export interface LogDesc { scope: LogScope, error?: boolean, warn?: boolean }
 
-let logger_container: HTMLDivElement
-
 
 export function log(k: LogScope | LogDesc, message: string, ...data: unknown[]) {
     for (let i = 0; i < data.length; i++) {
@@ -27,14 +27,14 @@ export function log(k: LogScope | LogDesc, message: string, ...data: unknown[]) 
 
     (d.error ? console.error : d.warn ? console.warn : console.log)(`%c[${d.scope}] ${message}`, `color:${log_scope_color[d.scope]}`, ...data);
 
-    if (logger_container) {
+    if (LOGGER_CONTAINER) {
         const e = document.createElement("p")
         e.classList.add("logger-line")
         if (d.error) e.classList.add("logger-error")
         else if (d.warn) e.classList.add("logger-warn")
         else e.style.color = log_scope_color[d.scope]
         e.textContent = `[${d.scope}] ${message}`
-        logger_container.append(e)
+        LOGGER_CONTAINER.append(e)
         setTimeout(() => {
             e.classList.add("logger-line-disappear")
             setTimeout(() => {
@@ -45,11 +45,6 @@ export function log(k: LogScope | LogDesc, message: string, ...data: unknown[]) 
 }
 
 globalThis.addEventListener("load", () => {
-    const d = document.createElement("div")
-    d.classList.add("logger-container")
-    document.body.append(d)
-    logger_container = d
-
     // clear the console every hour so logs dont accumulate
     setInterval(() => console.clear(), 1000 * 60 * 60)
 })

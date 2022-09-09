@@ -46,6 +46,10 @@ export class LocalUser extends User {
         })
     }
 
+    chat(content: string) {
+        this.room.signaling.send_relay({ chat: { content } })
+    }
+
     add_initial_to_remote(u: RemoteUser) {
         this.tracks.forEach(t => u.peer.addTrack(t.track))
     }

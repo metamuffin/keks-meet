@@ -1,0 +1,29 @@
+/* TODO all of these rules are totally stupid */
+.chat {
+    overflow: scroll;
+
+    background-color: var(--bg);
+    padding: 1em;
+    border-radius: 1em;
+}
+
+.chat .message {
+    margin: 0.2em;
+}
+.chat .author {
+    font-weight: bold;
+}
+.chat .content {
+    color: white;
+}
+.chat .messages {
+    height: calc(100% - 5em);
+    width: 100%;
+    overflow: scroll;
+}
+.chat .controls {
+    padding: 1em;
+}
+.chat input {
+    width: 100%;
+}

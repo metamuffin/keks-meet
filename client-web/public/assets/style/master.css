@@ -1,5 +1,7 @@
 @import url("https://s.metamuffin.org/static/font-ubuntu/include.css");
 @import url("./logger.css");
+@import url("./chat.css");
+@import url("./room.css");
 
 * {
     font-family: "Ubuntu", sans-serif;
@@ -12,10 +14,6 @@
 :root {
     --bg: #151315;
     --bg-dark: #070707;
-    --bg-light: #417143;
-    --bg-lighter: #949494;
-    --bg-disabled: #720000;
-    --bg-enabled: #097200;
     --ac: #5e3f84;
     --ac-light: #7c43bd;
     --ac-dark: #12005e;
@@ -23,6 +21,27 @@
 
 body {
     background-color: var(--bg-dark);
+    height: 100vh;
+    width: 100vw;
+    justify-content: left;
+}
+
+/* layout magic, dont touch */
+.room {
+    display: table-cell;
+    white-space: nowrap;
+}
+.room:nth-child(2) {
+    width: 64vw;
+}
+.room:nth-child(1) {
+    width: 100vw;
+}
+.chat {
+    display: table-cell;
+    width: 35vw;
+    height: calc(100vh - 3em);
+    white-space: nowrap;
 }
 
 h2 {
@@ -42,6 +61,10 @@ input[type="button"]:hover,
 button:hover {
     filter: brightness(130%);
 }
+input[type="button"].active,
+button.active {
+    filter: hue-rotate(20deg);
+}
 input[type="text"] {
     background-color: var(--bg-dark);
     border: 1px solid var(--ac-light);
@@ -59,37 +82,6 @@ input[type="text"] {
     z-index: 100;
 }
 
-.room {
-    width: 100%;
-    height: 100%;
-}
-
-.user {
-    background-color: var(--bg);
-    border: 0px soly transparent;
-    border-radius: 5px;
-    padding: 1em;
-    vertical-align: baseline;
-    min-width: 10em;
-    margin: 0.5em;
-}
-
-.user .info .name {
-    font-weight: 400;
-}
-.user.local .info .name {
-    text-decoration: underline;
-}
-.user .info {
-    margin-bottom: 1em;
-}
-
-.media {
-    max-height: 30vh;
-    border: 0px solid transparent;
-    border-radius: 5px;
-}
-
 .start-box {
     position: absolute;
     top: 50vh;
@@ -104,10 +96,16 @@ input[type="text"] {
     font-size: 32px;
 }
 
-.menu-overlay {
-    position: absolute;
+.menu-br {
+    position: fixed;
     bottom: 0px;
     right: 0px;
     display: block;
     text-align: right;
+}
+.menu-br .version {
+    font-size: medium;
+    font-weight: bold;
+    color: var(--ac-light);
+    padding: 0.5em;
 }

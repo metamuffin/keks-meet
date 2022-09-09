@@ -1,10 +1,10 @@
 /// <reference lib="dom" />
 
-export function create_menu() {
-    const menu = document.createElement("div")
-    menu.classList.add("menu-overlay")
-    document.body.append(menu)
+import { ep } from "./helper.ts"
+import { BOTTOM_CONTAINER, MENU_BR, VERSION } from "./index.ts"
+import { Room } from "./room.ts"
 
+export function setup_menus(room: Room) {
     const item = (name: string, cb: (() => void) | string) => {
         const p = document.createElement("p")
         const a = document.createElement("a")
@@ -17,9 +17,23 @@ export function create_menu() {
         return p
     }
 
-    menu.append(
+    MENU_BR.append(
+        ep(`keks-meet ${VERSION}`, { class: "version" }),
         item("Settings", () => alert("todo, refer to the url parameters in the docs for now")),
         item("Licence", "/licence"),
         item("Sources / Documentation", "https://codeberg.org/metamuffin/keks-meet"),
     )
+
+
+    // TODO this should ideally be a checkbox 
+    const chat_toggle = document.createElement("input")
+    chat_toggle.type = "button"
+    chat_toggle.id = "chat_toggle"
+    chat_toggle.value = "Toggle chat"
+    chat_toggle.onclick = () => {
+        room.chat.shown = !room.chat.shown
+        if (room.chat.shown) chat_toggle.classList.add("active")
+        else chat_toggle.classList.remove("active")
+    }
+    BOTTOM_CONTAINER.append(chat_toggle)
 }

@@ -2,13 +2,17 @@
 
 import { ediv } from "./helper.ts";
 import { log } from "./logger.ts"
-import { create_menu } from "./menu.ts";
+import { setup_menus } from "./menu.ts";
 import { load_params, PREFS } from "./preferences.ts";
 import { SignalingConnection } from "./protocol/mod.ts";
 import { Room } from "./room.ts"
 
-export const BOTTOM_CONTAINER = ediv({ class: ["bottom-container"] })
-export const ROOM_CONTAINER = ediv({ class: ["room"] })
+export const VERSION = "0.1.8"
+export const BOTTOM_CONTAINER = ediv({ class: "bottom-container" })
+export const ROOM_CONTAINER = ediv({ class: "room" })
+export const MENU_BR = ediv({ class: "menu-br" })
+export const CHAT = ediv({ class: "chat" })
+export const LOGGER_CONTAINER = ediv({ class: "logger-container" })
 
 export const RTC_CONFIG: RTCConfiguration = {
     // google stun!?
@@ -36,7 +40,7 @@ export async function main() {
     if (PREFS.warn_redirect) log({ scope: "crypto", warn: true }, "You were redirected from the old URL format. The server knows you room name now - e2ee is insecure!")
 
     const conn = await (new SignalingConnection().connect(room_name))
-    new Room(conn)
-    create_menu()
-    document.body.append(ROOM_CONTAINER, BOTTOM_CONTAINER)
+    const r = new Room(conn)
+    setup_menus(r)
+    document.body.append(ROOM_CONTAINER, BOTTOM_CONTAINER, MENU_BR, LOGGER_CONTAINER)
 }
