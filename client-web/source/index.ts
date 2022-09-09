@@ -3,10 +3,9 @@
 import { ediv } from "./helper.ts";
 import { log } from "./logger.ts"
 import { create_menu } from "./menu.ts";
-import { get_param, load_params, PREFS } from "./preferences.ts";
+import { load_params, PREFS } from "./preferences.ts";
 import { SignalingConnection } from "./protocol/mod.ts";
 import { Room } from "./room.ts"
-
 
 export const BOTTOM_CONTAINER = ediv({ class: ["bottom-container"] })
 export const ROOM_CONTAINER = ediv({ class: ["room"] })

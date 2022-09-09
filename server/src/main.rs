@@ -3,7 +3,7 @@ pub mod room;
 
 use hyper::{header, StatusCode};
 use listenfd::ListenFd;
-use log::error;
+use log::{debug, error};
 use room::Room;
 use std::collections::HashMap;
 use std::convert::Infallible;
@@ -93,12 +93,15 @@ async fn handle_rejection(err: Rejection) -> Result<impl Reply, Infallible> {
 
 fn signaling_connect(rname: String, rooms: Rooms, ws: warp::ws::Ws) -> impl Reply {
     async fn inner(sock: WebSocket, rname: String, rooms: Rooms) {
+        debug!("ws upgrade");
         let guard = rooms.read().await;
         let room = match guard.get(&rname) {
             Some(r) => r.to_owned(),
             None => {
+                debug!("aquire lock for insertion");
                 drop(guard); // make sure read-lock is dropped to avoid deadlock
                 let mut guard = rooms.write().await;
+                debug!("create new room");
                 guard.insert(rname.to_owned(), Default::default());
                 guard.get(&rname).unwrap().to_owned() // TODO never expect this to always work!!
             }
