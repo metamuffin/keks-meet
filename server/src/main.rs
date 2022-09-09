@@ -61,7 +61,15 @@ async fn run() {
     let server = if let Some(l) = listenfd.take_tcp_listener(0).unwrap() {
         Server::from_tcp(l).unwrap()
     } else {
-        Server::bind(&([127, 0, 0, 1], 8080).into())
+        Server::bind(
+            &(
+                [127, 0, 0, 1],
+                std::env::var("PORT")
+                    .map(|p| p.parse().unwrap())
+                    .unwrap_or(8080),
+            )
+                .into(),
+        )
     };
     let service = warp::service(routes);
     server
