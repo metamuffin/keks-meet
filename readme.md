@@ -85,6 +85,8 @@ Booleans can be either `1`, `true`, `yes` or their opposites.
 
 The protocol packets are defined in [packets.d.ts](./common/packets.d.ts). Here is an (simplified) example of how the protocol is used.
 
+**THIS IS OBSOLETE! The new protocol is quite similar but uses encryption**
+
 ```
 S->C    { init: { your_id: 5, version: "..." } }
 ----    # Your join packet will be the first one.
