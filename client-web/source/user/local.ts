@@ -1,7 +1,7 @@
 /// <reference lib="dom" />
 
 import { log } from "../logger.ts";
-import { PREFS } from "../preferences/mod.ts";
+import { on_pref_changed, PREFS } from "../preferences/mod.ts";
 import { RemoteUser } from "./remote.ts";
 import { get_rnnoise_node } from "../rnnoise.ts";
 import { Room } from "../room.ts";
@@ -12,8 +12,6 @@ import { ediv } from "../helper.ts";
 import { ChatMessage } from "../../../common/packets.d.ts";
 
 export class LocalUser extends User {
-    mic_gain?: GainNode
-    default_gain: number = PREFS.microphone_gain
 
     constructor(room: Room, id: number) {
         super(room, id)
@@ -110,25 +108,22 @@ export class LocalUser extends User {
 
     async create_mic_track() {
         log("media", "requesting user media (audio)")
-        const audio_contraints = PREFS.rnnoise ? {
-            channelCount: { ideal: 1 },
-            noiseSuppression: { ideal: false },
-            echoCancellation: { ideal: true },
-            autoGainControl: { ideal: true },
-        } : {
-            channelCount: { ideal: 1 },
-            noiseSuppression: { ideal: PREFS.native_noise_suppression },
-            echoCancellation: { ideal: PREFS.echo_cancellation },
-            autoGainControl: { ideal: PREFS.auto_gain_control },
-        };
-
-        const user_media = await window.navigator.mediaDevices.getUserMedia({ audio: audio_contraints })
+        const user_media = await window.navigator.mediaDevices.getUserMedia({
+            audio: {
+                channelCount: { ideal: 1 },
+                noiseSuppression: { ideal: PREFS.rnnoise ? false : PREFS.native_noise_suppression },
+                echoCancellation: { ideal: PREFS.echo_cancellation },
+                autoGainControl: { ideal: PREFS.auto_gain_control },
+            }
+        })
         const context = new AudioContext()
         const source = context.createMediaStreamSource(user_media)
         const destination = context.createMediaStreamDestination()
         const gain = context.createGain()
-        gain.gain.value = this.default_gain
-        this.mic_gain = gain
+        gain.gain.value = PREFS.microphone_gain
+        const clear_gain_cb = on_pref_changed("microphone_gain", () => {
+            gain.gain.value = PREFS.microphone_gain
+        })
 
         let rnnoise: RNNoiseNode;
         if (PREFS.rnnoise) {
@@ -146,8 +141,8 @@ export class LocalUser extends User {
             source.disconnect()
             if (rnnoise) rnnoise.disconnect()
             gain.disconnect()
+            clear_gain_cb()
             destination.disconnect()
-            this.mic_gain = undefined
         })
         return t
     }

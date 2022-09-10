@@ -17,14 +17,17 @@ type PrefMap<T extends { [key: string]: { type: unknown } }> = { [Key in keyof T
 type Optional<T extends { [key: string]: unknown }> = { [Key in keyof T]?: T[Key] }
 export const { prefs: PREFS, explicit: PREFS_EXPLICIT } = register_prefs(PREF_DECLS)
 const pref_change_handlers: Map<keyof typeof PREFS, Set<() => unknown>> = new Map()
-export const on_pref_changed = (key: keyof typeof PREFS, cb: () => unknown) =>
-    (pref_change_handlers.get(key)
+export const on_pref_changed = (key: keyof typeof PREFS, cb: () => unknown): (() => void) => {
+    const m = (pref_change_handlers.get(key)
         ?? (() => {
             const n = new Set<() => unknown>();
             pref_change_handlers.set(key, n);
             return n
         })()
-    ).add(cb)
+    )
+    m.add(cb)
+    return () => m.delete(cb)
+}
 
 export function register_prefs<T extends Record<string, PrefDecl<unknown>>>(ds: T): { prefs: PrefMap<T>, explicit: Optional<PrefMap<T>> } {
     const prefs: PrefMap<T> = {} as PrefMap<T>
