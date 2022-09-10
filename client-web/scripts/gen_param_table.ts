@@ -1,4 +1,5 @@
-import { PrefDecl, PREF_DECLS } from "../source/preferences.ts";
+import { PREF_DECLS } from "../source/preferences/decl.ts";
+import { PrefDecl } from "../source/preferences/mod.ts";
 
 console.log(`Option name|Type|Default|Description`);
 console.log(`---|---|---|---`);

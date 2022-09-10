@@ -121,9 +121,7 @@ export class LocalUser extends User {
         const destination = context.createMediaStreamDestination()
         const gain = context.createGain()
         gain.gain.value = PREFS.microphone_gain
-        const clear_gain_cb = on_pref_changed("microphone_gain", () => {
-            gain.gain.value = PREFS.microphone_gain
-        })
+        const clear_gain_cb = on_pref_changed("microphone_gain", () => gain.gain.value = PREFS.microphone_gain)
 
         let rnnoise: RNNoiseNode;
         if (PREFS.rnnoise) {

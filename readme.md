@@ -54,6 +54,7 @@ Booleans can be either `1`, `true`, `yes` or their opposites.
 | -------------------------- | ------- | ----------- | -------------------------------------------------------------------- |
 | `username`                 | string  | `"guest-…"` | Username                                                             |
 | `warn_redirect`            | boolean | `false`     | Interal option that is set by a server redirect.                     |
+| `image_view_popup`         | boolean | `true`      | Open image in popup instead of new tab                               |
 | `microphone_enabled`       | boolean | `false`     | Add one microphone track on startup                                  |
 | `screencast_enabled`       | boolean | `false`     | Add one screencast track on startup                                  |
 | `camera_enabled`           | boolean | `false`     | Add one camera track on startup                                      |
@@ -65,6 +66,9 @@ Booleans can be either `1`, `true`, `yes` or their opposites.
 | `camera_facing_mode`       | string  | -           | Prefer user-facing or env-facing camera (`"environment"` / `"user"`) |
 | `auto_gain_control`        | boolean | -           | Automatically adjust mic gain                                        |
 | `echo_cancellation`        | boolean | -           | Cancel echo                                                          |
+| `notify_chat`              | boolean | `true`      | Send notifications for incoming chat messages                        |
+| `notify_join`              | boolean | `true`      | Send notifications when users join                                   |
+| `notify_leave`             | boolean | `true`      | Send notifications when users leave                                  |
 
 ## Todo-List
 
