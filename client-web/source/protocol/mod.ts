@@ -1,4 +1,4 @@
-import { ClientboundPacket, RelayMessage, ServerboundPacket } from "../../../common/packets.d.ts"
+import { ClientboundPacket, RelayMessage, RelayMessageWrapper, ServerboundPacket } from "../../../common/packets.d.ts"
 import { log } from "../logger.ts"
 import { crypto_encrypt, crypto_seeded_key, crypt_decrypt, crypt_hash } from "./crypto.ts"
 
@@ -7,6 +7,7 @@ export class SignalingConnection {
     websocket!: WebSocket
     signaling_id!: string
     key!: CryptoKey
+    my_id?: number // needed for outgoing relay messages
 
     control_handler: (_packet: ClientboundPacket) => void = () => { }
     relay_handler: (_sender: number, _message: RelayMessage) => void = () => { }
@@ -47,10 +48,15 @@ export class SignalingConnection {
     async on_message(data: string) {
         const packet: ClientboundPacket = JSON.parse(data) // TODO dont crash if invalid
         this.control_handler(packet)
+        if (packet.init) this.my_id = packet.init.your_id;
         if (packet.message) {
-            const inner_json = await crypt_decrypt(this.key, packet.message.message)
-            const inner: RelayMessage = JSON.parse(inner_json) // TODO make sure that protocol spec is met
-            this.relay_handler(packet.message.sender, inner)
+            const plain_json = await crypt_decrypt(this.key, packet.message.message)
+            const plain: RelayMessageWrapper = JSON.parse(plain_json) // TODO make sure that protocol spec is met
+            if (plain.sender == packet.message.sender)
+                this.relay_handler(packet.message.sender, plain.inner)
+            else {
+                log({ scope: "crypto", warn: true }, `message dropped: sender inconsistent (${plain.sender} != ${packet.message.sender})`)
+            }
         }
     }
 
@@ -59,7 +65,8 @@ export class SignalingConnection {
     }
     async send_relay(data: RelayMessage, recipient?: number | null) {
         recipient ??= undefined // null -> undefined
-        const message = await crypto_encrypt(this.key, JSON.stringify(data))
+        const packet: RelayMessageWrapper = { inner: data, sender: this.my_id! }
+        const message = await crypto_encrypt(this.key, JSON.stringify(packet))
         this.send_control({ relay: { recipient, message } })
     }
 }

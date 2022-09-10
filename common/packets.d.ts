@@ -8,12 +8,17 @@ export interface ClientboundPacket {
     init?: { your_id: number, version: string },
     client_join?: { id: number },
     client_leave?: { id: number },
-    message?: { sender: number, message: string },
+    message?: { sender: number, message: string /* encrypted RelayMessageWrapper */ },
 }
 
 export interface ServerboundPacket {
     ping?: null,
-    relay?: { recipient?: number, message: string },
+    relay?: { recipient?: number, message: string /* encrypted RelayMessageWrapper */ },
+}
+
+export interface RelayMessageWrapper {
+    sender: number, // redundant, but ensures the server didnt cheat
+    inner: RelayMessage
 }
 
 export interface RelayMessage {

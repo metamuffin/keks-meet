@@ -73,6 +73,40 @@ export async function crypt_decrypt(key: CryptoKey, data: string): Promise<strin
     }
 }
 
+//* Code that might be useful in the future for signing
+// const ECDSA_PARAMS = { name: "ECDSA", namedCurve: "P-521", hash: { name: "SHA-384" } }
+// export async function crypto_sign(key: CryptoKey, message: string): Promise<string> {
+//     const signature = await crypto.subtle.sign(
+//         ECDSA_PARAMS,
+//         key,
+//         new TextEncoder().encode(message)
+//     )
+//     return buf_to_base64(new Uint8Array(signature))
+// }
+// export async function crypto_generate_signing_key(): Promise<CryptoKeyPair> {
+//     return await crypto.subtle.generateKey(
+//         ECDSA_PARAMS,
+//         false,
+//         ["sign", "verify"]
+//     )
+// }
+// export async function crypto_verify(key: CryptoKey, message: string, signature: string): Promise<boolean> {
+//     return await crypto.subtle.verify(
+//         ECDSA_PARAMS,
+//         key,
+//         base64_to_buf(signature).buffer,
+//         new TextEncoder().encode(message)
+//     )
+// }
+// export async function export_public_signing_key(key: CryptoKey): Promise<string> {
+//     const buf = await crypto.subtle.exportKey("spki", key)
+//     return buf_to_base64(new Uint8Array(buf))
+// }
+// export async function import_public_signing_key(der: string): Promise<CryptoKey | undefined> {
+//     const bin_der = base64_to_buf(der).buffer; // TODO safety
+//     return await crypto.subtle.importKey("spki", bin_der, ECDSA_PARAMS, true, ["verify"]) // TODO safety
+// }
+
 export function base64_to_buf(data: string): Uint8Array {
     const binary_string = globalThis.atob(data);
     const bytes = new Uint8Array(binary_string.length);

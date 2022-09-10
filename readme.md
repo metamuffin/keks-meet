@@ -75,11 +75,10 @@ Booleans can be either `1`, `true`, `yes` or their opposites.
 -   Have a security professional look at the code
 -   Test some options like `camera_facing_mode`
 -   Signing key for each user
--   Built-in storage for known keys
--   Prevent a client from sendin differing user names to other clients
--   Fix chat CSS (impossible™)
+    -   Built-in storage for known keys
 -   Relay RTC when there are a lot of clients
 -   Mitigate security issues caused by `*_enabled` params
+-   Images in chat
 
 ## Protocol
 
