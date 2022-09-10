@@ -1,5 +1,7 @@
 /// <reference lib="dom" />
 
+import { PREFS } from "./preferences/mod.ts";
+
 const elem = (s: string) => document.createElement(s)
 
 interface Opts { class?: string[] | string, id?: string, src?: string, onclick?: () => void }
@@ -60,7 +62,7 @@ export function image_view(url: string, opts?: Opts): HTMLElement {
     img.src = url
     img.alt = `Image (click to open)`
     img.addEventListener("click", () => {
-        window.open(url, "_blank", "noreferrer=true,noopener=true,popup=true")
+        window.open(url, "_blank", `noreferrer=true,noopener=true,popup=${PREFS.image_view_popup}`)
     })
     return img
 }

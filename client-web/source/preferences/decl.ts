@@ -10,6 +10,7 @@ const string = "", bool = false, number = 0; // example types for ts
 export const PREF_DECLS = {
     username: { type: string, default: "guest-" + hex_id(), description: "Username" },
     warn_redirect: { type: bool, default: false, description: "Interal option that is set by a server redirect." },
+    image_view_popup: { type: bool, default: true, description: "Open image in popup instead of new tab" },
 
     /* MEDIA */
     microphone_enabled: { type: bool, default: false, description: "Add one microphone track on startup" },
