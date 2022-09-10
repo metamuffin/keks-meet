@@ -1,8 +1,10 @@
 /// <reference lib="dom" />
 
 import { RelayMessage } from "../../../common/packets.d.ts";
+import { notify } from "../helper.ts";
 import { ROOM_CONTAINER, RTC_CONFIG } from "../index.ts"
 import { log } from "../logger.ts"
+import { PREFS } from "../preferences/mod.ts";
 import { Room } from "../room.ts"
 import { TrackHandle } from "../track_handle.ts";
 import { User } from "./mod.ts"
@@ -40,6 +42,7 @@ export class RemoteUser extends User {
         this.room.remote_users.delete(this.id)
         super.leave()
         ROOM_CONTAINER.removeChild(this.el)
+        if (PREFS.notify_leave) notify(`${this.display_name} left`)
     }
 
     on_relay(message: RelayMessage) {
@@ -47,7 +50,10 @@ export class RemoteUser extends User {
         if (message.ice_candidate) this.add_ice_candidate(message.ice_candidate)
         if (message.offer) this.on_offer(message.offer)
         if (message.answer) this.on_answer(message.answer)
-        if (message.identify) this.name = message.identify.username
+        if (message.identify) {
+            this.name = message.identify.username
+            if (PREFS.notify_join) notify(`${this.display_name} joined`)
+        }
     }
 
     async offer() {

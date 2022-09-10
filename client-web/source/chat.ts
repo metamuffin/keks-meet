@@ -1,6 +1,7 @@
 import { ChatMessage } from "../../common/packets.d.ts";
-import { ediv, espan, image_view, OverlayUi } from "./helper.ts";
+import { ediv, espan, image_view, notify, OverlayUi } from "./helper.ts";
 import { log } from "./logger.ts";
+import { PREFS } from "./preferences/mod.ts";
 import { Room } from "./room.ts";
 import { User } from "./user/mod.ts";
 
@@ -60,14 +61,10 @@ export class Chat extends OverlayUi {
             espan(sender.display_name, { class: "author" }), ": ", ...els
         ))
         this.shown = true
-        this.notify(sender, message)
-    }
-    notify(sender: User, message: ChatMessage) {
-        if (sender.local || document.hasFocus()) return
-        if (Notification.permission != "granted") return
-        let body = "(empty message)"
-        if (message.text) body = message.text
-        if (message.image) body = "(image)"
-        new Notification(`keks-meet: ${sender.display_name}`, { body })
+
+        let body_str = "(empty message)"
+        if (message.text) body_str = message.text
+        if (message.image) body_str = "(image)"
+        if (!sender.local && PREFS.notify_chat) notify(body_str, sender.display_name)
     }
 }

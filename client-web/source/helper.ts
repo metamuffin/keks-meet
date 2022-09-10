@@ -64,3 +64,12 @@ export function image_view(url: string, opts?: Opts): HTMLElement {
     })
     return img
 }
+
+export function notify(body: string, author?: string) {
+    if (document.hasFocus()) return
+    if (Notification.permission != "granted") return
+    if (author)
+        new Notification(`keks-meet: ${author}`, { body })
+    else
+        new Notification(`keks-meet`, { body })
+}

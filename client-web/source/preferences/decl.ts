@@ -23,4 +23,8 @@ export const PREF_DECLS = {
     camera_facing_mode: { type: string, possible_values: ["environment", "user"], description: "Prefer user-facing or env-facing camera" },
     auto_gain_control: { type: bool, description: "Automatically adjust mic gain" },
     echo_cancellation: { type: bool, description: "Cancel echo" },
+
+    notify_chat: { type: bool, default: true, description: "Send notifications for incoming chat messages" },
+    notify_join: { type: bool, default: true, description: "Send notifications when users join" },
+    notify_leave: { type: bool, default: true, description: "Send notifications when users leave" },
 }

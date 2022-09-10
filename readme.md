@@ -78,6 +78,8 @@ Booleans can be either `1`, `true`, `yes` or their opposites.
     -   Built-in storage for known keys
 -   Relay RTC when there are a lot of clients
 -   Mitigate security issues caused by `*_enabled` params
+-   Save permissions to locale storage
+-   Prevent join notification bypass by not identifying
 
 ## Protocol
 
