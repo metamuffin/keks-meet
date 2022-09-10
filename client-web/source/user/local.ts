@@ -99,7 +99,12 @@ export class LocalUser extends User {
 
     async create_screencast_track() {
         log("media", "requesting user media (screen)")
-        const user_media = await window.navigator.mediaDevices.getDisplayMedia({ video: true })
+        const user_media = await window.navigator.mediaDevices.getDisplayMedia({
+            video: {
+                frameRate: { ideal: PREFS.video_fps },
+                width: { ideal: PREFS.video_resolution }
+            },
+        })
         return new TrackHandle(user_media.getVideoTracks()[0], true)
     }
 
