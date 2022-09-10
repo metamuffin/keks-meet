@@ -35,6 +35,9 @@ export class RemoteUser extends User {
             }
             this.offer()
         }
+        this.peer.onicecandidateerror = () => {
+            log({ scope: "webrtc", warn: true }, "ICE error")
+        }
     }
     leave() {
         log("usermodel", `remove remote user: ${this.display_name}`)
