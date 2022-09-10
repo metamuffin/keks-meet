@@ -9,6 +9,7 @@ import { TrackHandle } from "../track_handle.ts";
 import { User } from "./mod.ts";
 import { ROOM_CONTAINER } from "../index.ts";
 import { ediv } from "../helper.ts";
+import { ChatMessage } from "../../../common/packets.d.ts";
 
 export class LocalUser extends User {
     mic_gain?: GainNode
@@ -47,8 +48,8 @@ export class LocalUser extends User {
         })
     }
 
-    chat(content: string) {
-        this.room.signaling.send_relay({ chat: { content } })
+    chat(message: ChatMessage) {
+        this.room.signaling.send_relay({ chat: message })
     }
 
     add_initial_to_remote(u: RemoteUser) {

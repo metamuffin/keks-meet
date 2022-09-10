@@ -19,9 +19,13 @@
 .chat .author {
     font-weight: bold;
 }
-.chat .content {
+.chat .text {
     color: white;
 }
+.chat .image {
+    width: min(20em, 30vw);
+}
+
 .chat .messages {
     height: calc(100% - 3em);
     width: 100%;

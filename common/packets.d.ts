@@ -22,9 +22,10 @@ export interface RelayMessageWrapper {
 }
 
 export interface RelayMessage {
-    chat?: { content: string },
+    chat?: ChatMessage,
     identify?: { username: string }
     offer?: F_RTCSessionDescriptionInit,
     answer?: F_RTCSessionDescriptionInit,
     ice_candidate?: F_RTCIceCandidateInit,
 }
+export interface ChatMessage { text?: string, image?: string }

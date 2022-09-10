@@ -1,14 +1,13 @@
 /// <reference lib="dom" />
 
-
-
 const elem = (s: string) => document.createElement(s)
 
-interface Opts { class?: string[] | string, id?: string }
+interface Opts { class?: string[] | string, id?: string, src?: string, onclick?: () => void }
 
 function apply_opts(e: HTMLElement, o: Opts | undefined) {
     if (!o) return
     if (o.id) e.id = o.id
+    if (o.onclick) e.onclick = o.onclick
     if (typeof o?.class == "string") e.classList.add(o.class)
     if (typeof o?.class == "object") e.classList.add(...o.class)
 }
@@ -40,7 +39,6 @@ export const elabel = elem_with_content("label")
 
 export const OVERLAYS = ediv({ class: "overlays" })
 
-
 export class OverlayUi {
     _shown = false
     constructor(public el: HTMLElement, initial = false) {
@@ -54,3 +52,13 @@ export class OverlayUi {
     }
 }
 
+export function image_view(url: string, opts?: Opts): HTMLElement {
+    const img = document.createElement("img")
+    apply_opts(img, opts)
+    img.src = url
+    img.alt = `Image (click to open)`
+    img.addEventListener("click", () => {
+        window.open(url, "_blank", "noreferrer=true,noopener=true,popup=true")
+    })
+    return img
+}

@@ -43,7 +43,7 @@ export class RemoteUser extends User {
     }
 
     on_relay(message: RelayMessage) {
-        if (message.chat) this.room.chat.send_message(this, message.chat.content)
+        if (message.chat) this.room.chat.add_message(this, message.chat)
         if (message.ice_candidate) this.add_ice_candidate(message.ice_candidate)
         if (message.offer) this.on_offer(message.offer)
         if (message.answer) this.on_answer(message.answer)

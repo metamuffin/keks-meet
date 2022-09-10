@@ -12,7 +12,7 @@ a web conferencing application
 -   Multiple streams
 -   Noise suppression (rnnoise)
 -   End-to-end-encryption
--   Chat
+-   Chat (text and images)
 
 ## Licence
 
@@ -78,7 +78,6 @@ Booleans can be either `1`, `true`, `yes` or their opposites.
     -   Built-in storage for known keys
 -   Relay RTC when there are a lot of clients
 -   Mitigate security issues caused by `*_enabled` params
--   Images in chat
 
 ## Protocol
 
