@@ -36,6 +36,8 @@ export const eh6 = elem_with_content("h6")
 export const ediv = elem_with_children("div")
 export const espan = elem_with_content("span")
 export const elabel = elem_with_content("label")
+export const ebutton = elem_with_content("button")
+export const ebr = () => document.createElement("br")
 
 export const OVERLAYS = ediv({ class: "overlays" })
 

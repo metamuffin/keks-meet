@@ -59,5 +59,15 @@ export class Chat extends OverlayUi {
         this.messages.append(ediv({ class: "message" },
             espan(sender.display_name, { class: "author" }), ": ", ...els
         ))
+        this.shown = true
+        this.notify(sender, message)
+    }
+    notify(sender: User, message: ChatMessage) {
+        if (sender.local || document.hasFocus()) return
+        if (Notification.permission != "granted") return
+        let body = "(empty message)"
+        if (message.text) body = message.text
+        if (message.image) body = "(image)"
+        new Notification(`keks-meet: ${sender.display_name}`, { body })
     }
 }
