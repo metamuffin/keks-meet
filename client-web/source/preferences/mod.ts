@@ -1,3 +1,4 @@
+import { log } from "../logger.ts";
 import { PREF_DECLS } from "./decl.ts";
 
 
@@ -15,7 +16,15 @@ type TypeMapper = { "string": string, "number": number, "boolean": boolean }
 type PrefMap<T extends { [key: string]: { type: unknown } }> = { [Key in keyof T]: T[Key]["type"] }
 type Optional<T extends { [key: string]: unknown }> = { [Key in keyof T]?: T[Key] }
 export const { prefs: PREFS, explicit: PREFS_EXPLICIT } = register_prefs(PREF_DECLS)
-export const on_pref_change_handlers: ((key: keyof typeof PREFS) => void)[] = []
+const pref_change_handlers: Map<keyof typeof PREFS, Set<() => unknown>> = new Map()
+export const on_pref_changed = (key: keyof typeof PREFS, cb: () => unknown) =>
+    (pref_change_handlers.get(key)
+        ?? (() => {
+            const n = new Set<() => unknown>();
+            pref_change_handlers.set(key, n);
+            return n
+        })()
+    ).add(cb)
 
 export function register_prefs<T extends Record<string, PrefDecl<unknown>>>(ds: T): { prefs: PrefMap<T>, explicit: Optional<PrefMap<T>> } {
     const prefs: PrefMap<T> = {} as PrefMap<T>
@@ -33,10 +42,12 @@ export function register_prefs<T extends Record<string, PrefDecl<unknown>>>(ds: 
 }
 
 export function change_pref<T extends keyof typeof PREFS>(key: T, value: typeof PREFS[T]) {
+    log("*", `pref changed: ${key}`)
     PREFS[key] = value
     if ((PREF_DECLS as Record<string, PrefDecl<unknown>>)[key].default != value)
         PREFS_EXPLICIT[key] = value
     else delete PREFS_EXPLICIT[key]
+    pref_change_handlers.get(key)?.forEach(h => h())
     window.location.hash = "#" + generate_section()
 }
 export function generate_section(): string {

@@ -80,6 +80,9 @@ Booleans can be either `1`, `true`, `yes` or their opposites.
 -   Mitigate security issues caused by `*_enabled` params
 -   Save permissions to locale storage
 -   Prevent join notification bypass by not identifying
+-   Dont use websocket to send images to not block anything else
+-   How do we implement global hotkeys?
+-   Tray icon for native
 
 ## Protocol
 

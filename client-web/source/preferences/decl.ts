@@ -7,6 +7,8 @@ export function hex_id(len = 8): string {
 
 // TODO this could be simpler
 const string = "", bool = false, number = 0; // example types for ts
+const optional = <T>(a: T): T | undefined => a
+
 export const PREF_DECLS = {
     username: { type: string, default: "guest-" + hex_id(), description: "Username" },
     warn_redirect: { type: bool, default: false, description: "Interal option that is set by a server redirect." },
@@ -21,7 +23,7 @@ export const PREF_DECLS = {
     microphone_gain: { type: number, default: 1, description: "Amplify microphone volume" },
     video_fps: { type: number, description: "Preferred framerate (in 1/s) for screencast and camera" },
     video_resolution: { type: number, description: "Preferred width for screencast and camera" },
-    camera_facing_mode: { type: string, possible_values: ["environment", "user"], description: "Prefer user-facing or env-facing camera" },
+    camera_facing_mode: { type: optional(string), possible_values: ["environment", "user"], description: "Prefer user-facing or env-facing camera" },
     auto_gain_control: { type: bool, description: "Automatically adjust mic gain" },
     echo_cancellation: { type: bool, description: "Cancel echo" },
 

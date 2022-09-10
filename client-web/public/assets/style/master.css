@@ -49,7 +49,9 @@ input[type="button"].active,
 button.active {
     filter: hue-rotate(20deg);
 }
-input[type="text"] {
+input[type="text"],
+select,
+input[type="number"] {
     background-color: var(--bg-dark);
     border: 1px solid var(--ac-light);
 }
