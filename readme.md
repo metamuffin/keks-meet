@@ -42,6 +42,8 @@ cd server
 cargo run --release
 ```
 
+If you use this project or have any suggestions, please [contact me](https://metamuffin.org/contact)
+
 Because of a current compiler bug, the nightly rustc crashes during codegen - use the stable channel instead.
 
 ## Parameters
