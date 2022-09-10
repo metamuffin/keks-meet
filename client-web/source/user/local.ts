@@ -141,7 +141,6 @@ export class LocalUser extends User {
         gain.connect(destination)
 
         const t = new TrackHandle(destination.stream.getAudioTracks()[0], true)
-
         t.addEventListener("ended", () => {
             user_media.getTracks().forEach(t => t.stop())
             source.disconnect()
@@ -150,7 +149,6 @@ export class LocalUser extends User {
             destination.disconnect()
             this.mic_gain = undefined
         })
-
         return t
     }
 }

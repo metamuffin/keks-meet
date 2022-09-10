@@ -57,10 +57,10 @@ export class Chat extends OverlayUi {
         if (message.text) els.push(espan(message.text, { class: "text" }))
         if (message.image) els.push(image_view(message.image, { class: "image" }))
 
-        this.messages.append(ediv({ class: "message" },
-            espan(sender.display_name, { class: "author" }), ": ", ...els
-        ))
         this.shown = true
+        const e = ediv({ class: "message" }, espan(sender.display_name, { class: "author" }), ": ", ...els)
+        this.messages.append(e)
+        e.scrollIntoView()
 
         let body_str = "(empty message)"
         if (message.text) body_str = message.text
