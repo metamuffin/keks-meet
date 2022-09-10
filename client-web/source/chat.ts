@@ -23,7 +23,11 @@ export class Chat extends OverlayUi {
 
         send.onkeydown = (ev) => {
             if (ev.code == "Enter") {
-                if (send.value.trim().length == 0) return // no!
+                if (send.value.trim().length == 0) {
+                    // keybind for toggle chat is Enter, so lets close here
+                    this.shown = false
+                    return
+                }
                 this.send({ text: send.value })
                 send.value = ""
             }
@@ -45,6 +49,15 @@ export class Chat extends OverlayUi {
                 reader.readAsDataURL(blob);
             }
         }
+        document.body.addEventListener("keydown", ev => {
+            // TODO is there a proper solution?
+            if (ev.target instanceof HTMLInputElement && !(ev.target.type == "button")) return
+            if (ev.code == "Enter") {
+                this.shown = !this.shown
+                if (this.shown) send.focus()
+                ev.preventDefault() // so focused buttons dont trigger
+            }
+        })
     }
 
     send(msg: ChatMessage) {
