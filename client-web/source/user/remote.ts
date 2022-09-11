@@ -21,6 +21,7 @@ export class RemoteUser extends User {
         this.peer = new RTCPeerConnection(RTC_CONFIG)
         this.peer.onicecandidate = ev => {
             if (!ev.candidate) return
+            log("webrtc", `ICE candidate set`, ev.candidate)
             room.signaling.send_relay({ ice_candidate: ev.candidate.toJSON() }, this.id)
         }
         this.peer.ontrack = ev => {

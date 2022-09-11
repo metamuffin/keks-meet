@@ -14,6 +14,7 @@ export const ROOM_CONTAINER = ediv({ class: "room" })
 export const RTC_CONFIG: RTCConfiguration = {
     // google stun!?
     iceServers: [{ urls: ["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"] }],
+    // iceServers: [{ urls: ["stun:meet.metamuffin.org:16900"] }],
     iceCandidatePoolSize: 10,
 }
 
