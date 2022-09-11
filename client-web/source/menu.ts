@@ -21,8 +21,9 @@ export class MenuBr extends OverlayUi {
 
         super(ediv({ class: "menu-br" },
             ep(`keks-meet ${VERSION}`, { class: "version" }),
-            item("Licence", "/licence"),
-            item("Sources / Documentation", "https://codeberg.org/metamuffin/keks-meet"),
+            item("License", "https://codeberg.org/metamuffin/keks-meet/raw/branch/master/COPYING"),
+            item("Source code", "https://codeberg.org/metamuffin/keks-meet"),
+            item("Documentation", "https://codeberg.org/metamuffin/keks-meet/src/branch/master/readme.md"),
         ), true)
     }
 }
