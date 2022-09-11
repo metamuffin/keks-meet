@@ -37,9 +37,7 @@ For self-hosting, this script should do:
 ```
 git clone https://codeberg.org/metamuffin/keks-meet.git
 cd keks-meet
-make -C client-web
-cd server
-cargo run --release
+make run
 ```
 
 If you use this project or have any suggestions, please [contact me](https://metamuffin.org/contact)
