@@ -1,5 +1,6 @@
 
 .PHONY: run client-build server-run server-build watch
+build: client-build server-build
 run: client-build server-run
 client-build:
 	make -C client-web all
