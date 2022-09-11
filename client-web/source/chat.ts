@@ -69,7 +69,7 @@ export class Chat extends OverlayUi {
         this.shown = true
         const e = ediv({ class: "message" }, espan(sender.display_name, { class: "author" }), ": ", ...els)
         this.messages.append(e)
-        e.scrollIntoView()
+        e.scrollIntoView({ block: "end", behavior: "smooth", inline: "end" })
 
         let body_str = "(empty message)"
         if (message.text) body_str = message.text
