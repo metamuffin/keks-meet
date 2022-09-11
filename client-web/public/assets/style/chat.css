@@ -24,6 +24,7 @@
 }
 .chat .image {
     width: min(20em, 30vw);
+    max-height: 50em; /* TODO squishes the image if too high */
 }
 
 .chat .messages {
