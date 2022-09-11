@@ -21,16 +21,19 @@ export class RemoteUser extends User {
         this.peer = new RTCPeerConnection(RTC_CONFIG)
         this.peer.onicecandidate = ev => {
             if (!ev.candidate) return
+            this.update_stats()
             log("webrtc", `ICE candidate set`, ev.candidate)
             room.signaling.send_relay({ ice_candidate: ev.candidate.toJSON() }, this.id)
         }
         this.peer.ontrack = ev => {
             const t = ev.track
+            this.update_stats()
             log("media", `remote track: ${this.display_name}`, t)
             this.add_track(new TrackHandle(t))
         }
         this.peer.onnegotiationneeded = async () => {
             log("webrtc", `negotiation needed: ${this.display_name}`)
+            this.update_stats()
             while (this.negotiation_busy) {
                 await new Promise<void>(r => setTimeout(() => r(), 100))
             }
@@ -38,7 +41,21 @@ export class RemoteUser extends User {
         }
         this.peer.onicecandidateerror = () => {
             log({ scope: "webrtc", warn: true }, "ICE error")
+            this.update_stats()
         }
+        this.peer.oniceconnectionstatechange = () => {
+            this.update_stats()
+        }
+        this.peer.onicegatheringstatechange = () => {
+            this.update_stats()
+        }
+        this.peer.onsignalingstatechange = () => {
+            this.update_stats()
+        }
+        this.peer.onconnectionstatechange = () => {
+            this.update_stats()
+        }
+        this.update_stats()
     }
     leave() {
         log("usermodel", `remove remote user: ${this.display_name}`)
@@ -57,6 +74,32 @@ export class RemoteUser extends User {
         if (message.identify) {
             this.name = message.identify.username
             if (PREFS.notify_join) notify(`${this.display_name} joined`)
+        }
+    }
+
+    async update_stats() {
+        if (!PREFS.webrtc_debug) return
+        try {
+            const stats = await this.peer.getStats()
+            let stuff = "";
+            stuff += `ice-conn=${this.peer.iceConnectionState}; ice-gathering=${this.peer.iceGatheringState}; signaling=${this.peer.signalingState}\n`
+            stats.forEach(s => {
+                console.log("stat", s);
+                if (s.type == "candidate-pair" && s.selected) {
+                    //@ts-ignore spec is weird....
+                    if (!stats.get) return
+                    //@ts-ignore spec is weird....
+                    const cpstat = stats.get(s.localCandidateId)
+                    if (!cpstat) return
+                    console.log("cp", cpstat);
+                    stuff += `via ${cpstat.candidateType}:${cpstat.protocol}:${cpstat.address}\n`
+                } else if (s.type == "codec") {
+                    stuff += `using ${s.codecType ?? "dec/enc"}:${s.mimeType}(${s.sdpFmtpLine})\n`
+                }
+            })
+            this.stats_el.textContent = stuff
+        } catch (e) {
+            console.warn(e);
         }
     }
 
@@ -92,5 +135,6 @@ export class RemoteUser extends User {
 
     add_ice_candidate(candidate: RTCIceCandidateInit) {
         this.peer.addIceCandidate(new RTCIceCandidate(candidate))
+        this.update_stats()
     }
 }

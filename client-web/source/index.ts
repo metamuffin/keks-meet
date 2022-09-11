@@ -13,8 +13,14 @@ export const ROOM_CONTAINER = ediv({ class: "room" })
 
 export const RTC_CONFIG: RTCConfiguration = {
     iceServers: [
-        { urls: ["stun:meet.metamuffin.org:16900"] },
-        { urls: ["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"] } // google stun!?
+        {
+            urls: [
+                "turn:meet.metamuffin.org:16900",
+                "stun:meet.metamuffin.org:16900"
+            ],
+            username: "keksmeet",
+            credential: "ujCmetg6bm0"
+        },
     ],
     iceCandidatePoolSize: 10,
 }

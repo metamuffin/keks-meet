@@ -1,5 +1,6 @@
 /// <reference lib="dom" />
 
+import { epre, espan } from "../helper.ts";
 import { ROOM_CONTAINER } from "../index.ts";
 import { log } from "../logger.ts"
 import { Room } from "../room.ts"
@@ -11,7 +12,8 @@ export abstract class User {
     public local = false
     public tracks: Set<TrackHandle> = new Set()
 
-    private name_el = document.createElement("span")
+    private name_el = espan("")
+    protected stats_el = epre("", { class: "stats" })
     private _name?: string
     get name() { return this._name }
     set name(n: string | undefined) { this._name = n; this.name_el.textContent = this.display_name }
@@ -49,7 +51,7 @@ export abstract class User {
         info_el.classList.add("info")
         this.name_el.textContent = this.display_name
         this.name_el.classList.add("name")
-        info_el.append(this.name_el)
+        info_el.append(this.name_el, this.stats_el)
         this.el.append(info_el)
     }
 
