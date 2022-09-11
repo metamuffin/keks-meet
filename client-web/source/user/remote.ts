@@ -21,38 +21,41 @@ export class RemoteUser extends User {
         this.peer = new RTCPeerConnection(RTC_CONFIG)
         this.peer.onicecandidate = ev => {
             if (!ev.candidate) return
-            this.update_stats()
-            log("webrtc", `ICE candidate set`, ev.candidate)
             room.signaling.send_relay({ ice_candidate: ev.candidate.toJSON() }, this.id)
+            log("webrtc", `ICE candidate set`, ev.candidate)
+            this.update_stats()
         }
         this.peer.ontrack = ev => {
             const t = ev.track
-            this.update_stats()
             log("media", `remote track: ${this.display_name}`, t)
             this.add_track(new TrackHandle(t))
-        }
-        this.peer.onnegotiationneeded = async () => {
-            log("webrtc", `negotiation needed: ${this.display_name}`)
             this.update_stats()
-            while (this.negotiation_busy) {
-                await new Promise<void>(r => setTimeout(() => r(), 100))
-            }
+        }
+        this.peer.onnegotiationneeded = () => {
+            log("webrtc", `negotiation needed: ${this.display_name}`)
+            if (this.negotiation_busy && this.peer.signalingState == "stable") return
             this.offer()
+            this.update_stats()
         }
         this.peer.onicecandidateerror = () => {
+            console.log("onicecandidateerror")
             log({ scope: "webrtc", warn: true }, "ICE error")
             this.update_stats()
         }
         this.peer.oniceconnectionstatechange = () => {
+            console.log("oniceconnectionstatechange")
             this.update_stats()
         }
         this.peer.onicegatheringstatechange = () => {
+            console.log("onicegatheringstatechange")
             this.update_stats()
         }
         this.peer.onsignalingstatechange = () => {
+            console.log("onsignalingstatechange")
             this.update_stats()
         }
         this.peer.onconnectionstatechange = () => {
+            console.log("onconnectionstatechange")
             this.update_stats()
         }
         this.update_stats()
@@ -82,15 +85,15 @@ export class RemoteUser extends User {
         try {
             const stats = await this.peer.getStats()
             let stuff = "";
-            stuff += `ice-conn=${this.peer.iceConnectionState}; ice-gathering=${this.peer.iceGatheringState}; signaling=${this.peer.signalingState}\n`
+            stuff += `ice-conn=${this.peer.iceConnectionState}; ice-gathering=${this.peer.iceGatheringState}; ice-trickle=${this.peer.canTrickleIceCandidates}; signaling=${this.peer.signalingState};\n`
             stats.forEach(s => {
                 console.log("stat", s);
                 if (s.type == "candidate-pair" && s.selected) {
                     //@ts-ignore spec is weird....
-                    if (!stats.get) return
+                    if (!stats.get) return console.warn("no RTCStatsReport.get");
                     //@ts-ignore spec is weird....
                     const cpstat = stats.get(s.localCandidateId)
-                    if (!cpstat) return
+                    if (!cpstat) return console.warn("no stats");
                     console.log("cp", cpstat);
                     stuff += `via ${cpstat.candidateType}:${cpstat.protocol}:${cpstat.address}\n`
                 } else if (s.type == "codec") {
