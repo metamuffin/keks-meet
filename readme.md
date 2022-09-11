@@ -48,12 +48,15 @@ Because of a current compiler bug, the nightly rustc crashes during codegen - us
 
 ## Keybinds
 
-| Keybind | Action               |
-| ------- | -------------------- |
-| `RET`   | Toggle chat          |
-| `SPC M` | Add microphone track |
-| `SPC C` | Add camera track     |
-| `SPC S` | Add screencast track |
+| Keybind   | Action                                                  |
+| --------- | ------------------------------------------------------- |
+| `RET`     | Toggle chat                                             |
+| `SPC M`   | Add microphone track                                    |
+| `SPC R`   | Add microphone track (but with your left hand)          |
+| `SPC C`   | Add camera track                                        |
+| `SPC S`   | Add screencast track                                    |
+| `SPC C-c` | End all tracks                                          |
+| `C-v`\*   | Paste image in chat (does not require chat to be shown) |
 
 ## Parameters
 

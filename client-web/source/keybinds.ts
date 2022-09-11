@@ -18,9 +18,10 @@ export function setup_keybinds(room: Room) {
             return
         }
         if (command_mode) {
-            if (ev.code == "KeyM") room.local_user.publish_track(room.local_user.create_mic_track())
-            if (ev.code == "KeyC") room.local_user.publish_track(room.local_user.create_camera_track())
+            if (ev.code == "KeyM" || ev.code == "KeyR") room.local_user.publish_track(room.local_user.create_mic_track())
             if (ev.code == "KeyS") room.local_user.publish_track(room.local_user.create_screencast_track())
+            if (ev.code == "KeyC" && !ev.ctrlKey) room.local_user.publish_track(room.local_user.create_camera_track())
+            if (ev.code == "KeyC" && ev.ctrlKey) room.local_user.tracks.forEach(t => t.end())
         }
         command_mode = false
     })

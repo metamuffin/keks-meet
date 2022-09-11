@@ -9,7 +9,7 @@ import { TrackHandle } from "../track_handle.ts";
 export abstract class User {
     protected el: HTMLElement
     public local = false
-    protected tracks: Set<TrackHandle> = new Set()
+    public tracks: Set<TrackHandle> = new Set()
 
     private name_el = document.createElement("span")
     private _name?: string
