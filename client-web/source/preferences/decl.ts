@@ -11,7 +11,7 @@ const optional = <T>(a: T): T | undefined => a
 
 export const PREF_DECLS = {
     username: { type: string, default: "guest-" + hex_id(), description: "Username" },
-    warn_redirect: { type: bool, default: false, description: "Interal option that is set by a server redirect." },
+    warn_redirect: { type: bool, hidden: true, default: false, description: "Internal option that is set by a server redirect." },
     image_view_popup: { type: bool, default: true, description: "Open image in popup instead of new tab" },
 
     /* MEDIA */

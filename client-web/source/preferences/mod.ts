@@ -8,6 +8,7 @@ export interface PrefDecl<T> {
     description?: string,
     possible_values?: T[]
     optional?: boolean,
+    hidden?: boolean
 }
 
 type Type = "string" | "number" | "bigint" | "boolean" | "symbol" | "undefined" | "object" | "function";

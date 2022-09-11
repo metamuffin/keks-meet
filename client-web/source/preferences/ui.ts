@@ -6,7 +6,7 @@ export class PrefUi extends OverlayUi {
     constructor() {
         console.log(PREFS);
 
-        const rows = Object.entries(PREF_DECLS as Record<string, PrefDecl<unknown>>).map(([key_, decl]) => {
+        const rows = Object.entries(PREF_DECLS as Record<string, PrefDecl<unknown>>).filter(e => !e[1].hidden).map(([key_, decl]) => {
             const key = key_ as keyof typeof PREF_DECLS
             const id = `pref-${key}`
             let prim_control: HTMLInputElement | HTMLSelectElement | undefined;
