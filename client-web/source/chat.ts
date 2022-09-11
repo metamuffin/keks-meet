@@ -8,6 +8,7 @@ import { User } from "./user/mod.ts";
 export class Chat extends OverlayUi {
     messages: HTMLElement
     controls: HTMLElement
+    send_el: HTMLInputElement
 
     constructor(public room: Room) {
         const send = document.createElement("input")
@@ -20,6 +21,7 @@ export class Chat extends OverlayUi {
         super(ediv({ class: "chat" }, messages, controls))
         this.messages = messages
         this.controls = controls
+        this.send_el = send
 
         send.onkeydown = (ev) => {
             if (ev.code == "Enter") {
@@ -49,15 +51,9 @@ export class Chat extends OverlayUi {
                 reader.readAsDataURL(blob);
             }
         }
-        document.body.addEventListener("keydown", ev => {
-            // TODO is there a proper solution?
-            if (ev.target instanceof HTMLInputElement && !(ev.target.type == "button")) return
-            if (ev.code == "Enter") {
-                this.shown = !this.shown
-                if (this.shown) send.focus()
-                ev.preventDefault() // so focused buttons dont trigger
-            }
-        })
+    }
+    focus() {
+        this.send_el.focus()
     }
 
     send(msg: ChatMessage) {

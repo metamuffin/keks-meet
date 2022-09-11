@@ -50,7 +50,7 @@ export class BottomMenu extends OverlayUi {
             if (prefs.shown) prefs_button.classList.add("active")
             else prefs_button.classList.remove("active")
         }
-
+        
         super(ediv({ class: "bottom-menu" }, chat_toggle, prefs_button, room.local_user.create_controls()))
     }
 }

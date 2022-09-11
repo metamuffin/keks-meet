@@ -46,6 +46,15 @@ If you use this project or have any suggestions, please [contact me](https://met
 
 Because of a current compiler bug, the nightly rustc crashes during codegen - use the stable channel instead.
 
+## Keybinds
+
+| Keybind | Action               |
+| ------- | -------------------- |
+| `RET`   | Toggle chat          |
+| `SPC M` | Add microphone track |
+| `SPC C` | Add camera track     |
+| `SPC S` | Add screencast track |
+
 ## Parameters
 
 Some configuration parameters can be added like query params but **after** the section. (e.g `/room#mymeeting?username=alice`)
@@ -55,7 +64,7 @@ Booleans can be either `1`, `true`, `yes` or their opposites. I convenience func
 | Option name                | Type    | Default     | Description                                                          |
 | -------------------------- | ------- | ----------- | -------------------------------------------------------------------- |
 | `username`                 | string  | `"guest-…"` | Username                                                             |
-| `warn_redirect`            | boolean | `false`     | Internal option that is set by a server redirect.                     |
+| `warn_redirect`            | boolean | `false`     | Internal option that is set by a server redirect.                    |
 | `image_view_popup`         | boolean | `true`      | Open image in popup instead of new tab                               |
 | `microphone_enabled`       | boolean | `false`     | Add one microphone track on startup                                  |
 | `screencast_enabled`       | boolean | `false`     | Add one screencast track on startup                                  |

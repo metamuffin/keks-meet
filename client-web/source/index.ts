@@ -1,6 +1,7 @@
 /// <reference lib="dom" />
 
 import { ediv, OVERLAYS } from "./helper.ts";
+import { setup_keybinds } from "./keybinds.ts";
 import { log, LOGGER_CONTAINER } from "./logger.ts"
 import { BottomMenu, MenuBr } from "./menu.ts";
 import { load_params, PREFS } from "./preferences/mod.ts";
@@ -38,6 +39,7 @@ export async function main() {
     const conn = await (new SignalingConnection().connect(room_name))
     const r = new Room(conn)
 
+    setup_keybinds(r)
     r.on_ready = () => {
         new BottomMenu(r).shown = true
         new MenuBr().shown = true

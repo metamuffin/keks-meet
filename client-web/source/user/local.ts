@@ -28,22 +28,10 @@ export class LocalUser extends User {
         ROOM_CONTAINER.removeChild(this.el)
     }
 
-    async add_initial_tracks() {
-        if (PREFS.microphone_enabled) this.publish_track(await this.create_mic_track())
-        if (PREFS.camera_enabled) this.publish_track(await this.create_camera_track())
-        if (PREFS.screencast_enabled) this.publish_track(await this.create_screencast_track())
-    }
-
-    publish_track(t: TrackHandle) {
-        this.room.remote_users.forEach(u => u.peer.addTrack(t.track))
-        this.add_track(t)
-        t.addEventListener("ended", () => {
-            this.room.remote_users.forEach(u => {
-                u.peer.getSenders().forEach(s => {
-                    if (s.track == t.track) u.peer.removeTrack(s)
-                })
-            })
-        })
+    add_initial_tracks() {
+        if (PREFS.microphone_enabled) this.publish_track(this.create_mic_track())
+        if (PREFS.camera_enabled) this.publish_track(this.create_camera_track())
+        if (PREFS.screencast_enabled) this.publish_track(this.create_screencast_track())
     }
 
     chat(message: ChatMessage) {
@@ -65,22 +53,28 @@ export class LocalUser extends User {
         mic_toggle.value = "Microphone"
         camera_toggle.value = "Camera"
         screen_toggle.value = "Screencast"
-
-        const create = async (_e: HTMLElement, tp: Promise<TrackHandle>) => {
-            log("media", "awaiting track")
-            let t;
-            try { t = await tp }
-            catch (_) { log("media", "request failed") }
-            if (!t) return
-            log("media", "got track")
-            this.publish_track(t)
-        }
-
-        mic_toggle.addEventListener("click", () => create(mic_toggle, this.create_mic_track()))
-        camera_toggle.addEventListener("click", () => create(camera_toggle, this.create_camera_track()))
-        screen_toggle.addEventListener("click", () => create(screen_toggle, this.create_screencast_track()))
-
+        mic_toggle.addEventListener("click", () => this.publish_track(this.create_mic_track()))
+        camera_toggle.addEventListener("click", () => this.publish_track(this.create_camera_track()))
+        screen_toggle.addEventListener("click", () => this.publish_track(this.create_screencast_track()))
         return ediv({ class: "local-controls" }, mic_toggle, camera_toggle, screen_toggle)
+    }
+    async publish_track(tp: Promise<TrackHandle>) {
+        log("media", "awaiting track")
+        let t!: TrackHandle;
+        try { t = await tp }
+        catch (_) { log("media", "request failed") }
+        if (!t) return
+        log("media", "got track")
+
+        this.room.remote_users.forEach(u => u.peer.addTrack(t.track))
+        this.add_track(t)
+        t.addEventListener("ended", () => {
+            this.room.remote_users.forEach(u => {
+                u.peer.getSenders().forEach(s => {
+                    if (s.track == t.track) u.peer.removeTrack(s)
+                })
+            })
+        })
     }
 
     async create_camera_track() {
