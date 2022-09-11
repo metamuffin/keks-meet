@@ -9,6 +9,7 @@ export interface PrefDecl<T> {
     possible_values?: T[]
     optional?: boolean,
     hidden?: boolean
+    allow_url?: boolean
 }
 
 type Type = "string" | "number" | "bigint" | "boolean" | "symbol" | "undefined" | "object" | "function";
@@ -36,7 +37,15 @@ export function register_prefs<T extends Record<string, PrefDecl<unknown>>>(ds: 
     for (const key in ds) {
         const d = ds[key];
         const type = typeof d.type;
+
         let value = get_param(type, key)
+        if (value !== undefined && !d.allow_url) setTimeout(() => { // defer log call because this is executed early
+            log({ scope: "*", warn: true }, `pref key ${JSON.stringify(key)} is not allowed in url`)
+        })
+        if (!d.allow_url) value = undefined
+        const j = localStorage.getItem(key)
+        if (j) value ??= JSON.parse(j)
+
         if (value !== undefined) explicit[key] = value
         value ??= d.default;
         if (d.possible_values) if (!d.possible_values.includes(value)) value = d.default
@@ -45,6 +54,7 @@ export function register_prefs<T extends Record<string, PrefDecl<unknown>>>(ds: 
     return { prefs, explicit }
 }
 
+window["change_pref" as "onbeforeprint"] = change_pref as () => void // TODO ugly
 export function change_pref<T extends keyof typeof PREFS>(key: T, value: typeof PREFS[T]) {
     log("*", `pref changed: ${key}`)
     PREFS[key] = value
@@ -52,8 +62,17 @@ export function change_pref<T extends keyof typeof PREFS>(key: T, value: typeof 
         PREFS_EXPLICIT[key] = value
     else delete PREFS_EXPLICIT[key]
     pref_change_handlers.get(key)?.forEach(h => h())
-    window.location.hash = "#" + generate_section()
+    // window.location.hash = "#" + generate_section()
+    localStorage.setItem(key, JSON.stringify(value))
 }
+
+function param_to_string<T>(p: T): string {
+    if (typeof p == "string") return p
+    else if (typeof p == "boolean") return JSON.stringify(p)
+    else if (typeof p == "number") return JSON.stringify(p)
+    throw new Error("impossible");
+}
+
 export function generate_section(): string {
     const section = []
     for (const key in PREFS_EXPLICIT) {
@@ -76,27 +95,20 @@ export function load_params(): { raw_params: { [key: string]: string }, rname: s
     return { raw_params, rname }
 }
 
-function param_to_string<T>(p: T): string {
-    if (typeof p == "string") return p
-    else if (typeof p == "boolean") return JSON.stringify(p)
-    else if (typeof p == "number") return JSON.stringify(p)
-    throw new Error("impossible");
-}
-
 function get_param<T>(ty: string, key: string): T | undefined {
     const v = load_params().raw_params[key]
-    if (v == undefined) return undefined
-    if (ty == "string") return v as unknown as T
-    else if (ty == "number") {
-        const n = parseInt(v)
-        if (!Number.isNaN(n)) return n as unknown as T
-        console.warn("invalid number parameter");
-    } else if (ty == "boolean") {
-        if (v == "0" || v == "false" || v == "no") return false as unknown as T
-        if (v == "1" || v == "true" || v == "yes") return true as unknown as T
-        console.warn("invalid boolean parameter");
-    } else {
-        throw new Error("invalid param type");
+    if (v !== undefined) {
+        if (ty == "string") return v as unknown as T
+        else if (ty == "number") {
+            const n = parseInt(v)
+            if (!Number.isNaN(n)) return n as unknown as T
+            console.warn("invalid number parameter");
+        } else if (ty == "boolean") {
+            if (v == "0" || v == "false" || v == "no") return false as unknown as T
+            if (v == "1" || v == "true" || v == "yes") return true as unknown as T
+            console.warn("invalid boolean parameter");
+        } else {
+            throw new Error("invalid param type");
+        }
     }
-    return undefined
 }

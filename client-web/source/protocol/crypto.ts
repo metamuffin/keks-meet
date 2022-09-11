@@ -29,7 +29,6 @@ export async function crypto_seeded_key(seed: string): Promise<CryptoKey> {
         false,
         ["encrypt", "decrypt"]
     )
-    console.log(key);
     log("crypto", "ready")
     return key
 }

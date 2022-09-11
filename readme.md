@@ -48,14 +48,14 @@ Because of a current compiler bug, the nightly rustc crashes during codegen - us
 
 ## Parameters
 
-Configuration parameters are added like query params but **after** the section. (e.g `/room#mymeeting?username=alice`)
+Some configuration parameters can be added like query params but **after** the section. (e.g `/room#mymeeting?username=alice`)
 The page will not automatically reload if the section changes.
-Booleans can be either `1`, `true`, `yes` or their opposites.
+Booleans can be either `1`, `true`, `yes` or their opposites. I convenience function for changing params is also exported: `window.change_pref(key, value)`
 
 | Option name                | Type    | Default     | Description                                                          |
 | -------------------------- | ------- | ----------- | -------------------------------------------------------------------- |
 | `username`                 | string  | `"guest-…"` | Username                                                             |
-| `warn_redirect`            | boolean | `false`     | Interal option that is set by a server redirect.                     |
+| `warn_redirect`            | boolean | `false`     | Internal option that is set by a server redirect.                     |
 | `image_view_popup`         | boolean | `true`      | Open image in popup instead of new tab                               |
 | `microphone_enabled`       | boolean | `false`     | Add one microphone track on startup                                  |
 | `screencast_enabled`       | boolean | `false`     | Add one screencast track on startup                                  |
@@ -75,7 +75,6 @@ Booleans can be either `1`, `true`, `yes` or their opposites.
 ## Todo-List
 
 -   Optionally enable video streams
--   Settings menu
 -   Native client
 -   Prevent server from changing message sender
 -   Have a security professional look at the code
@@ -83,7 +82,6 @@ Booleans can be either `1`, `true`, `yes` or their opposites.
 -   Signing key for each user
     -   Built-in storage for known keys
 -   Relay RTC when there are a lot of clients
--   Mitigate security issues caused by `*_enabled` params
 -   Save permissions to locale storage
 -   Prevent join notification bypass by not identifying
 -   Dont use websocket to send images to not block anything else

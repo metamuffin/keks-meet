@@ -4,8 +4,6 @@ import { change_pref, on_pref_changed, PrefDecl, PREFS } from "./mod.ts";
 
 export class PrefUi extends OverlayUi {
     constructor() {
-        console.log(PREFS);
-
         const rows = Object.entries(PREF_DECLS as Record<string, PrefDecl<unknown>>).filter(e => !e[1].hidden).map(([key_, decl]) => {
             const key = key_ as keyof typeof PREF_DECLS
             const id = `pref-${key}`
@@ -77,14 +75,20 @@ export class PrefUi extends OverlayUi {
             const label = elabel(decl.description ?? `[${key}]`, { id })
             return etr({ class: "pref" }, etd({}, label), etd({}, use_opt_ ?? ""), etd({}, prim_control ?? ""))
         })
+        
         const notification_perm = Notification.permission == "granted" ? ediv() : ediv({},
             espan("For keks-meet to send notifications, it needs you to grant permission: "),
             ebutton("Grant", { onclick: () => Notification.requestPermission() }),
         )
+        const reset = ediv({},
+            espan("Want to clear all settings? Use this:"),
+            ebutton("RESET", { onclick: () => { if (confirm("really clear all preferences?")) { localStorage.clear(); window.location.reload() } } }),
+        )
+
         const table = document.createElement("table")
         table.append(...rows)
 
-        super(ediv({ class: "prefs-overlay" }, notification_perm, ebr(), table))
+        super(ediv({ class: "prefs-overlay" }, notification_perm, reset, ebr(), table))
     }
 
 }
