@@ -44,7 +44,7 @@ export function register_prefs<T extends Record<string, PrefDecl<unknown>>>(ds: 
         })
         if (!d.allow_url) value = undefined
         const j = localStorage.getItem(key)
-        if (j) value ??= JSON.parse(j)
+        if (j) value ??= JSON.parse(j) ?? undefined
 
         if (value !== undefined) explicit[key] = value
         value ??= d.default;
@@ -63,7 +63,7 @@ export function change_pref<T extends keyof typeof PREFS>(key: T, value: typeof 
     else delete PREFS_EXPLICIT[key]
     pref_change_handlers.get(key)?.forEach(h => h())
     // window.location.hash = "#" + generate_section()
-    localStorage.setItem(key, JSON.stringify(value))
+    localStorage.setItem(key, JSON.stringify(value) ?? null)
 }
 
 function param_to_string<T>(p: T): string {
