@@ -32,9 +32,10 @@ keks-meet _tries_ to be secure. However I am not a security expert. The current 
 ## Usage
 
 For trying it out, a hosted version is available on [my server](https://meet.metamuffin.org/).
-For self-hosting, this script should do:
+For self-hosting, this should help:
 
 ```
+pacman -S --needed deno rustup make coreutils; rustup install stable
 git clone https://codeberg.org/metamuffin/keks-meet.git
 cd keks-meet
 make run
