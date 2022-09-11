@@ -40,9 +40,10 @@ cd keks-meet
 make run
 ```
 
-If you use this project or have any suggestions, please [contact me](https://metamuffin.org/contact)
-
+When changing code, use `make watch` to re-build things automatically as needed.
 Because of a current compiler bug, the nightly rustc crashes during codegen - use the stable channel instead.
+
+If you use this project or have any suggestions, please [contact me](https://metamuffin.org/contact)
 
 ## Keybinds
 
