@@ -7,7 +7,7 @@ pub struct Key(Aes256Gcm);
 
 impl Key {
     pub fn derive(secret: String) -> Self {
-        let salt = base64::decode("").unwrap();
+        let salt = base64::decode("thisisagoodsaltAAAAAAA==").unwrap();
         let mut key = [0u8; 256];
         fastpbkdf2::pbkdf2_hmac_sha256(secret.as_bytes(), salt.as_slice(), 250000, &mut key);
 
@@ -29,4 +29,8 @@ impl Key {
         let plaintext = self.0.decrypt(Nonce::from_slice(iv), ciphertext).unwrap();
         String::from_utf8(plaintext).unwrap()
     }
+}
+
+pub fn hash(secret: &str) -> String {
+    sha256::digest(format!("also-a-very-good-salt{}", secret))
 }

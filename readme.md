@@ -99,6 +99,7 @@ Booleans can be either `1`, `true`, `yes` or their opposites. I convenience func
 -   Dont use websocket to send images to not block anything else
 -   How do we implement global hotkeys?
 -   Tray icon for native
+-   Pin js by bookmarking data:text/html loader page
 
 ## Protocol
 
