@@ -3,9 +3,9 @@
 
 use log::debug;
 use signaling::signaling_connect;
-use state::State;
-use std::sync::Arc;
-use tokio::sync::RwLock;
+use state::{HasPeer, PeerInit, State};
+use std::{marker::Sync, sync::Arc};
+use tokio::sync::{mpsc::unbounded_channel, RwLock};
 use webrtc::{
     api::{
         interceptor_registry::register_default_interceptors, media_engine::MediaEngine, APIBuilder,
@@ -19,12 +19,18 @@ pub mod protocol;
 pub mod signaling;
 pub mod state;
 
+pub use webrtc;
+
 pub struct Config {
     pub signaling_host: String,
     pub secret: String,
 }
 
-pub async fn connect(config: Config) -> Arc<State> {
+pub async fn connect<I, P>(config: Config, sup: Arc<I>) -> Arc<State<P, I>>
+where
+    I: PeerInit<P> + Sync + std::marker::Send + 'static,
+    P: HasPeer + Sync + std::marker::Send + 'static,
+{
     let (sender, mut recv) = signaling_connect(&config.signaling_host, &config.secret).await;
 
     let key = crypto::Key::derive(&config.secret);
@@ -38,6 +44,7 @@ pub async fn connect(config: Config) -> Arc<State> {
         .with_interceptor_registry(registry)
         .build();
 
+    let (relay_tx, mut relay_rx) = unbounded_channel();
     let state = Arc::new(State {
         peers: Default::default(),
         key,
@@ -45,8 +52,20 @@ pub async fn connect(config: Config) -> Arc<State> {
         my_id: RwLock::new(None),
         sender,
         config,
+        relay_tx,
+        sup,
     });
 
+    {
+        let state = state.clone();
+        tokio::spawn(async move {
+            debug!("receiving packets now");
+            while let Some((r, p)) = relay_rx.recv().await {
+                let state = state.clone();
+                state.send_relay(r, p).await
+            }
+        });
+    }
     {
         let state = state.clone();
         tokio::spawn(async move {

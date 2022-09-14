@@ -1,7 +1,11 @@
+use crate::{
+    protocol::{self, RTCSessionDescriptionInit, RelayMessage},
+    state::{HasPeer, PeerInit, State},
+};
 use log::info;
 use std::sync::Arc;
+use tokio::sync::mpsc::UnboundedSender;
 use webrtc::{
-    data_channel::data_channel_message::DataChannelMessage,
     ice_transport::{ice_candidate::RTCIceCandidate, ice_server::RTCIceServer},
     peer_connection::{
         configuration::RTCConfiguration, peer_connection_state::RTCPeerConnectionState,
@@ -9,19 +13,18 @@ use webrtc::{
     },
 };
 
-use crate::{
-    protocol::{self, RTCSessionDescriptionInit, RelayMessage},
-    state::State,
-};
-
 pub struct Peer {
-    state: Arc<State>, // maybe use Weak later
-    peer_connection: RTCPeerConnection,
-    id: usize,
+    pub signal: UnboundedSender<(usize, RelayMessage)>,
+    pub peer_connection: RTCPeerConnection,
+    pub id: usize,
 }
 
 impl Peer {
-    pub async fn create(state: Arc<State>, id: usize) -> Arc<Self> {
+    pub async fn create<P: HasPeer, I: PeerInit<P>>(
+        state: Arc<State<P, I>>,
+        signal: UnboundedSender<(usize, RelayMessage)>,
+        id: usize,
+    ) -> Arc<Self> {
         info!("({id}) peer joined");
         let config = RTCConfiguration {
             ice_servers: vec![RTCIceServer {
@@ -32,15 +35,14 @@ impl Peer {
         };
 
         let peer_connection = state.api.new_peer_connection(config).await.unwrap();
-
         let peer = Arc::new(Self {
+            signal,
             peer_connection,
             id,
-            state: state.clone(),
         });
         peer.peer_connection
             .on_peer_connection_state_change(Box::new(move |s: RTCPeerConnectionState| {
-                println!("conn state: {s}");
+                info!("connection state changed: {s}");
                 Box::pin(async {})
             }))
             .await;
@@ -81,50 +83,11 @@ impl Peer {
                 })
                 .await;
         }
-
-        // if let Action::Send { .. } = &peer.state.args.action {
-        //     peer.start_transfer().await
-        // }
-
         peer
     }
 
     pub async fn send_relay(&self, inner: RelayMessage) {
-        self.state.send_relay(self.id, inner).await
-    }
-
-    pub async fn start_transfer(&self) {
-        info!("starting data channel");
-        let data_channel = self
-            .peer_connection
-            .create_data_channel("file-transfer", None)
-            .await
-            .unwrap();
-
-        data_channel
-            .on_message(Box::new(move |msg: DataChannelMessage| {
-                let msg_str = String::from_utf8(msg.data.to_vec()).unwrap();
-                println!("message! '{}'", msg_str);
-                Box::pin(async {})
-            }))
-            .await;
-
-        {
-            let dc2 = data_channel.clone();
-            data_channel
-                .on_open(box move || {
-                    let data_channel = dc2.clone();
-                    Box::pin(async move {
-                        loop {
-                            data_channel
-                                .send(&bytes::Bytes::from_static(b"test\n"))
-                                .await
-                                .unwrap();
-                        }
-                    })
-                })
-                .await;
-        }
+        self.signal.send((self.id, inner)).unwrap()
     }
 
     pub async fn on_relay(&self, p: RelayMessage) {
