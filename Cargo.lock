@@ -427,6 +427,7 @@ version = "0.1.0"
 dependencies = [
  "aes-gcm 0.10.1",
  "base64",
+ "bytes",
  "clap",
  "env_logger",
  "fastpbkdf2",

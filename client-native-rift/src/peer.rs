@@ -1,6 +1,5 @@
-use std::sync::Arc;
-
 use log::info;
+use std::sync::Arc;
 use webrtc::{
     data_channel::data_channel_message::DataChannelMessage,
     ice_transport::{ice_candidate::RTCIceCandidate, ice_server::RTCIceServer},
@@ -71,6 +70,19 @@ impl Peer {
                 .await;
         }
 
+        {
+            peer.peer_connection
+                .on_data_channel(box move |dc| {
+                    Box::pin(async move {
+                        dc.on_message(box move |message| {
+                            Box::pin(async move { println!("{:?}", message.data) })
+                        })
+                        .await
+                    })
+                })
+                .await;
+        }
+
         if let Action::Send { .. } = &peer.state.args.action {
             peer.start_transfer().await
         }
@@ -97,6 +109,23 @@ impl Peer {
                 Box::pin(async {})
             }))
             .await;
+
+        {
+            let dc2 = data_channel.clone();
+            data_channel
+                .on_open(box move || {
+                    let data_channel = dc2.clone();
+                    Box::pin(async move {
+                        loop {
+                            data_channel
+                                .send(&bytes::Bytes::from_static(b"test\n"))
+                                .await
+                                .unwrap();
+                        }
+                    })
+                })
+                .await;
+        }
     }
 
     pub async fn on_relay(&self, p: RelayMessage) {
