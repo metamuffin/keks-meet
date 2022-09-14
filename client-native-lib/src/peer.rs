@@ -12,7 +12,6 @@ use webrtc::{
 use crate::{
     protocol::{self, RTCSessionDescriptionInit, RelayMessage},
     state::State,
-    Action,
 };
 
 pub struct Peer {
@@ -83,9 +82,9 @@ impl Peer {
                 .await;
         }
 
-        if let Action::Send { .. } = &peer.state.args.action {
-            peer.start_transfer().await
-        }
+        // if let Action::Send { .. } = &peer.state.args.action {
+        //     peer.start_transfer().await
+        // }
 
         peer
     }

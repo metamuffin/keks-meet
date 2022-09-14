@@ -7,12 +7,11 @@ use webrtc::api::API;
 use crate::{
     crypto::Key,
     peer::Peer,
-    protocol::{self, ClientboundPacket, RelayMessage, RelayMessageWrapper, ServerboundPacket},
-    Action, Args,
+    protocol::{self, ClientboundPacket, RelayMessage, RelayMessageWrapper, ServerboundPacket}, Config,
 };
 
 pub struct State {
-    pub args: Args,
+    pub config: Config,
     pub api: API,
     pub key: Key,
     pub my_id: RwLock<Option<usize>>,
@@ -40,7 +39,6 @@ impl State {
                         .write()
                         .await
                         .insert(id, Peer::create(self.clone(), id).await);
-                    if let Action::Send { .. } = &self.args.action {}
                 }
             }
             protocol::ClientboundPacket::ClientLeave { id: _ } => {}

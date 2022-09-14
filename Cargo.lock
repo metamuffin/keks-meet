@@ -428,8 +428,6 @@ dependencies = [
  "aes-gcm 0.10.1",
  "base64",
  "bytes",
- "clap",
- "env_logger",
  "fastpbkdf2",
  "futures-util",
  "log",
@@ -448,7 +446,12 @@ dependencies = [
 name = "client-native-rift"
 version = "0.1.0"
 dependencies = [
+ "bytes",
+ "clap",
  "client-native-lib",
+ "env_logger",
+ "log",
+ "tokio",
 ]
 
 [[package]]

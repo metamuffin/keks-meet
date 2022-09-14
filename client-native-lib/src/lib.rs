@@ -1,8 +1,7 @@
 #![feature(async_closure)]
 #![feature(box_syntax)]
 
-use clap::{Parser, Subcommand};
-use log::{debug, error};
+use log::debug;
 use signaling::signaling_connect;
 use state::State;
 use std::sync::Arc;
@@ -20,35 +19,15 @@ pub mod protocol;
 pub mod signaling;
 pub mod state;
 
-fn main() {
-    env_logger::init_from_env("LOG");
-    tokio::runtime::Builder::new_multi_thread()
-        .enable_all()
-        .build()
-        .unwrap()
-        .block_on(run())
+pub struct Config {
+    pub signaling_host: String,
+    pub secret: String,
 }
 
-#[derive(Parser)]
-pub struct Args {
-    #[clap(long, default_value = "meet.metamuffin.org")]
-    signaling_host: String,
-    #[clap(short, long)]
-    secret: String,
-    #[clap(subcommand)]
-    action: Action,
-}
-#[derive(Subcommand)]
-pub enum Action {
-    Send {},
-    Receive {},
-}
+pub async fn connect(config: Config) -> Arc<State> {
+    let (sender, mut recv) = signaling_connect(&config.signaling_host, &config.secret).await;
 
-async fn run() {
-    let args = Args::parse();
-    let (sender, mut recv) = signaling_connect(&args.signaling_host, &args.secret).await;
-
-    let key = crypto::Key::derive(&args.secret);
+    let key = crypto::Key::derive(&config.secret);
 
     let mut media_engine = MediaEngine::default();
     media_engine.register_default_codecs().unwrap();
@@ -65,7 +44,7 @@ async fn run() {
         api,
         my_id: RwLock::new(None),
         sender,
-        args,
+        config,
     });
 
     {
@@ -79,7 +58,5 @@ async fn run() {
             }
         });
     }
-
-    tokio::signal::ctrl_c().await.unwrap();
-    error!("interrupt received, exiting");
+    state
 }
