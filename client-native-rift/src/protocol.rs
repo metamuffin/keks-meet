@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
-use webrtc::peer_connection::sdp::sdp_type::RTCSdpType;
+use webrtc::{
+    ice_transport::ice_candidate::RTCIceCandidateInit, peer_connection::sdp::sdp_type::RTCSdpType,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -22,8 +24,8 @@ pub enum ServerboundPacket {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RelayMessageWrapper {
-    sender: usize, // redundant, but ensures the server didnt cheat
-    inner: RelayMessage,
+    pub sender: usize, // redundant, but ensures the server didnt cheat
+    pub inner: RelayMessage,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -38,13 +40,4 @@ pub struct RTCSessionDescriptionInit {
     #[serde(rename = "type")]
     pub ty: RTCSdpType,
     pub sdp: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct RTCIceCandidateInit {
-    pub candidate: String,
-    pub sdp_m_line_index: Option<usize>,
-    pub sdp_mid: Option<String>,
-    pub username_fragment: Option<String>,
 }
