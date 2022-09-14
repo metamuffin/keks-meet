@@ -1,2 +1,2 @@
 [workspace]
-members = ["server", "client-native-rift"]
+members = ["server", "client-native-rift", "client-native-lib"]

@@ -422,7 +422,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "client-native-rift"
+name = "client-native-lib"
 version = "0.1.0"
 dependencies = [
  "aes-gcm 0.10.1",
@@ -442,6 +442,13 @@ dependencies = [
  "tokio-tungstenite",
  "url",
  "webrtc",
+]
+
+[[package]]
+name = "client-native-rift"
+version = "0.1.0"
+dependencies = [
+ "client-native-lib",
 ]
 
 [[package]]
