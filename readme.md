@@ -1,6 +1,6 @@
 # keks-meet
 
-a web conferencing application
+a simple secure web conferencing application
 
 ## Features
 
@@ -12,6 +12,7 @@ a web conferencing application
 -   Multiple streams
 -   Noise suppression (rnnoise)
 -   End-to-end-encryption
+-   Peer-to-peer data transmission
 -   Chat (text and images)
 
 ## Licence
