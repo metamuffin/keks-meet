@@ -18,7 +18,10 @@ use tokio::{
 };
 
 fn main() {
-    env_logger::init_from_env("LOG");
+    env_logger::builder()
+        .filter_level(log::LevelFilter::Info)
+        .parse_env("LOG")
+        .init();
     tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()
@@ -28,8 +31,10 @@ fn main() {
 
 #[derive(Parser)]
 pub struct Args {
+    /// keks-meet server used for establishing p2p connection
     #[clap(long, default_value = "meet.metamuffin.org")]
     signaling_host: String,
+    /// pre-shared secret (aka. room name)
     #[clap(short, long)]
     secret: String,
     #[clap(subcommand)]
@@ -56,7 +61,9 @@ async fn run() {
 
 #[derive(Subcommand)]
 pub enum Action {
+    /// Send a file
     Send { filename: Option<String> },
+    /// Receive a file
     Receive { filename: Option<String> },
 }
 
