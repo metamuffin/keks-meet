@@ -18,17 +18,6 @@ a web conferencing application
 
 Licensed under the terms of the GNU Affero General Public License version 3 only. See [COPYING](./COPYING).
 
-## Security
-
-keks-meet _tries_ to be secure. However I am not a security expert. The current system works as follows:
-
--   The room name is set in the section of the URL which is not sent to the server.
--   The server receives a salted SHA-256 hash of the room name to group clients of a room.
--   The client uses PBKDF2 (constant salt; 250000 iterations) to derive a 256-bit AES-GCM key from the room name.
--   All relayed message contents are encrypted with this key.
-    -   Message recipient is visible to the server
-    -   The server assigns user ids
-
 ## Usage
 
 For trying it out, a hosted version is available on [my server](https://meet.metamuffin.org/).
@@ -97,6 +86,17 @@ Booleans can be either `1`, `true`, `yes` or their opposites. I convenience func
 | `notify_chat`              | boolean | `true`      | Send notifications for incoming chat messages                        |
 | `notify_join`              | boolean | `true`      | Send notifications when users join                                   |
 | `notify_leave`             | boolean | `true`      | Send notifications when users leave                                  |
+
+## Security
+
+keks-meet _tries_ to be secure. However I am not a security expert. The current system works as follows:
+
+-   The room name is set in the section of the URL which is not sent to the server.
+-   The server receives a salted SHA-256 hash of the room name to group clients of a room.
+-   The client uses PBKDF2 (constant salt; 250000 iterations) to derive a 256-bit AES-GCM key from the room name.
+-   All relayed message contents are encrypted with this key.
+    -   Message recipient is visible to the server
+    -   The server assigns user ids
 
 ## Todo-List
 
