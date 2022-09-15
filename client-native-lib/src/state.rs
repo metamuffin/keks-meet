@@ -57,7 +57,9 @@ impl<P: HasPeer, I: PeerInit<P>> State<P, I> {
                     );
                 }
             }
-            protocol::ClientboundPacket::ClientLeave { id: _ } => {}
+            protocol::ClientboundPacket::ClientLeave { id } => {
+                self.peers.write().await.remove(&id);
+            }
             protocol::ClientboundPacket::Message { sender, message } => {
                 let message = self.key.decrypt(&message);
                 let p = serde_json::from_str::<RelayMessageWrapper>(&message).unwrap();

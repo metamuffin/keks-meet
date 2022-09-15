@@ -48,10 +48,10 @@ impl Peer {
             .await;
 
         {
-            let peer2 = peer.clone();
+            let weak = Arc::<Peer>::downgrade(&peer);
             peer.peer_connection
                 .on_ice_candidate(box move |c| {
-                    let peer = peer2.clone();
+                    let peer = weak.upgrade().unwrap();
                     Box::pin(async move {
                         if let Some(c) = c {
                             peer.on_ice_candidate(c).await
@@ -62,10 +62,10 @@ impl Peer {
         }
 
         {
-            let peer2 = peer.clone();
+            let weak = Arc::<Peer>::downgrade(&peer);
             peer.peer_connection
                 .on_negotiation_needed(box move || {
-                    let peer = peer2.clone();
+                    let peer = weak.upgrade().unwrap();
                     Box::pin(async { peer.on_negotiation_needed().await })
                 })
                 .await;
@@ -114,7 +114,7 @@ impl Peer {
     }
 
     pub async fn offer(&self) {
-        info!("sending offer");
+        info!("({}) sending offer", self.id);
         let offer = self.peer_connection.create_offer(None).await.unwrap();
         self.peer_connection
             .set_local_description(offer.clone())
@@ -127,7 +127,7 @@ impl Peer {
         .await
     }
     pub async fn on_offer(&self, offer: RTCSessionDescriptionInit) {
-        info!("received offer");
+        info!("({}) received offer", self.id);
         let offer = RTCSessionDescription::offer(offer.sdp).unwrap();
         self.peer_connection
             .set_remote_description(offer)
@@ -136,7 +136,7 @@ impl Peer {
         self.answer().await
     }
     pub async fn answer(&self) {
-        info!("sending answer");
+        info!("({}) sending answer", self.id);
         let offer = self.peer_connection.create_answer(None).await.unwrap();
         self.peer_connection
             .set_local_description(offer.clone())
@@ -149,7 +149,7 @@ impl Peer {
         .await
     }
     pub async fn on_answer(&self, answer: RTCSessionDescriptionInit) {
-        info!("received answer");
+        info!("({}) received answer", self.id);
         let offer = RTCSessionDescription::answer(answer.sdp).unwrap();
         self.peer_connection
             .set_remote_description(offer)

@@ -443,18 +443,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "client-native-rift"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "clap",
- "client-native-lib",
- "env_logger",
- "log",
- "tokio",
-]
-
-[[package]]
 name = "const-oid"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1759,6 +1747,18 @@ dependencies = [
  "crypto-bigint",
  "hmac 0.12.1",
  "zeroize",
+]
+
+[[package]]
+name = "rift"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "clap",
+ "client-native-lib",
+ "env_logger",
+ "log",
+ "tokio",
 ]
 
 [[package]]
