@@ -34,8 +34,8 @@ keks-meet _tries_ to be secure. However I am not a security expert. The current 
 For trying it out, a hosted version is available on [my server](https://meet.metamuffin.org/).
 For self-hosting, this should help:
 
-```
-pacman -S --needed deno rustup make coreutils; rustup install stable
+```sh
+pacman -S --needed deno rustup make coreutils; rustup install nightly
 git clone https://codeberg.org/metamuffin/keks-meet.git
 cd keks-meet
 make run
@@ -44,6 +44,21 @@ make run
 When changing code, use `make watch` to re-build things automatically as needed.
 
 If you use this project or have any suggestions, please [contact me](https://metamuffin.org/contact)
+
+## Rift
+
+_Rift_ is similar to the [magic wormhole](https://github.com/magic-wormhole/magic-wormhole), except that is peer-to-peer. It reuses the keks-meet signaling server to establish a WebRTC data channel.
+
+```sh
+pacman -S --needed rustup; rustup install nightly
+cargo +nightly install --path client-native-rift
+rift --help
+```
+
+```sh
+rift --secret hunter2 send /path/to/file &
+rift --secret hunter2 receive /path/to/output
+```
 
 ## Keybinds
 
