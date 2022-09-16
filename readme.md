@@ -35,7 +35,7 @@ When changing code, use `make watch` to re-build things automatically as needed.
 
 If you use this project or have any suggestions, please [contact me](https://metamuffin.org/contact)
 
-## Rift
+## _Rift_
 
 _Rift_ is similar to the [magic wormhole](https://github.com/magic-wormhole/magic-wormhole), except that is peer-to-peer. It reuses the keks-meet signaling server to establish a WebRTC data channel.
 
