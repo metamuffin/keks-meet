@@ -110,28 +110,26 @@ export class RemoteUser extends User {
         this.negotiation_busy = true
         const offer_description = await this.peer.createOffer()
         await this.peer.setLocalDescription(offer_description)
-        const offer = { type: offer_description.type, sdp: offer_description.sdp }
-        log("webrtc", `sent offer: ${this.display_name}`, { offer })
-        this.room.signaling.send_relay({ offer }, this.id)
+        log("webrtc", `sent offer: ${this.display_name}`, { offer: offer_description.sdp })
+        this.room.signaling.send_relay({ offer: offer_description.sdp }, this.id)
     }
-    async on_offer(offer: RTCSessionDescriptionInit) {
+    async on_offer(offer: string) {
         this.negotiation_busy = true
         log("webrtc", `got offer: ${this.display_name}`, { offer })
-        const offer_description = new RTCSessionDescription(offer)
+        const offer_description = new RTCSessionDescription({ sdp: offer, type: "offer" })
         await this.peer.setRemoteDescription(offer_description)
         this.answer()
     }
     async answer() {
         const answer_description = await this.peer.createAnswer()
         await this.peer.setLocalDescription(answer_description)
-        const answer = { type: answer_description.type, sdp: answer_description.sdp }
-        log("webrtc", `sent answer: ${this.display_name}`, { answer })
-        this.room.signaling.send_relay({ answer }, this.id)
+        log("webrtc", `sent answer: ${this.display_name}`, { answer: answer_description.sdp })
+        this.room.signaling.send_relay({ answer: answer_description.sdp }, this.id)
         this.negotiation_busy = false
     }
-    async on_answer(answer: RTCSessionDescriptionInit) {
+    async on_answer(answer: string) {
         log("webrtc", `got answer: ${this.display_name}`, { answer })
-        const answer_description = new RTCSessionDescription(answer)
+        const answer_description = new RTCSessionDescription({ sdp: answer, type: "answer" })
         await this.peer.setRemoteDescription(answer_description)
         this.negotiation_busy = false
     }
