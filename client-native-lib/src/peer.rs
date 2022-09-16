@@ -4,7 +4,7 @@
     Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
 */
 use crate::{
-    protocol::{self, RTCSessionDescriptionInit, RelayMessage},
+    protocol::{self, RelayMessage, Sdp},
     state::{HasPeer, PeerInit, State},
 };
 use log::info;
@@ -103,6 +103,7 @@ impl Peer {
                 info!("received ICE candidate");
                 self.peer_connection.add_ice_candidate(c).await.unwrap();
             }
+            _ => (),
         }
     }
 
@@ -125,15 +126,12 @@ impl Peer {
             .set_local_description(offer.clone())
             .await
             .unwrap();
-        self.send_relay(protocol::RelayMessage::Offer(RTCSessionDescriptionInit {
-            sdp: offer.sdp,
-            ty: offer.sdp_type,
-        }))
-        .await
+        self.send_relay(protocol::RelayMessage::Offer(offer.sdp))
+            .await
     }
-    pub async fn on_offer(&self, offer: RTCSessionDescriptionInit) {
+    pub async fn on_offer(&self, offer: Sdp) {
         info!("({}) received offer", self.id);
-        let offer = RTCSessionDescription::offer(offer.sdp).unwrap();
+        let offer = RTCSessionDescription::offer(offer).unwrap();
         self.peer_connection
             .set_remote_description(offer)
             .await
@@ -147,15 +145,12 @@ impl Peer {
             .set_local_description(offer.clone())
             .await
             .unwrap();
-        self.send_relay(protocol::RelayMessage::Answer(RTCSessionDescriptionInit {
-            sdp: offer.sdp,
-            ty: offer.sdp_type,
-        }))
-        .await
+        self.send_relay(protocol::RelayMessage::Answer(offer.sdp))
+            .await
     }
-    pub async fn on_answer(&self, answer: RTCSessionDescriptionInit) {
+    pub async fn on_answer(&self, answer: Sdp) {
         info!("({}) received answer", self.id);
-        let offer = RTCSessionDescription::answer(answer.sdp).unwrap();
+        let offer = RTCSessionDescription::answer(answer).unwrap();
         self.peer_connection
             .set_remote_description(offer)
             .await

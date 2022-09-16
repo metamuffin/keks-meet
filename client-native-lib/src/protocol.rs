@@ -4,9 +4,9 @@
     Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
 */
 use serde::{Deserialize, Serialize};
-use webrtc::{
-    ice_transport::ice_candidate::RTCIceCandidateInit, peer_connection::sdp::sdp_type::RTCSdpType,
-};
+use webrtc::ice_transport::ice_candidate::RTCIceCandidateInit;
+
+pub type Sdp = String;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -34,15 +34,32 @@ pub struct RelayMessageWrapper {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum RelayMessage {
-    Offer(RTCSessionDescriptionInit),
-    Answer(RTCSessionDescriptionInit),
+    Chat(ChatMesssage),
+    Identify { username: String },
+
+    Provide(ProvideInfo),
+    Request { id: String },
+    ProvideStop { id: String },
+    RequestStop { id: String },
+
+    Offer(Sdp),
+    Answer(Sdp),
     IceCandidate(RTCIceCandidateInit),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct RTCSessionDescriptionInit {
-    #[serde(rename = "type")]
-    pub ty: RTCSdpType,
-    pub sdp: String,
+#[serde(rename_all = "snake_case")]
+pub enum ChatMesssage {
+    Text(String),
+    Image(String),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProvideInfo {
+    id: String,
+    kind: String, // TODO actually enum
+    label: Option<String>,
+    size: Option<usize>,
 }
