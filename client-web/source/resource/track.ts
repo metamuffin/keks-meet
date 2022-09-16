@@ -24,12 +24,28 @@ export class TrackResource extends Resource {
         this.update_el()
     }
 
+    destroy() {
+        this.track?.end()
+        super.destroy()
+    }
+
     create_preview(): HTMLElement {
-        return ebutton("Enable", { onclick: () => this.request() })
+        return ebutton("Enable", {
+            onclick: (e) => {
+                (e as HTMLButtonElement).disabled = true;
+                this.request()
+            }
+        })
     }
     create_element() {
         if (!this.track) { return this.create_preview() }
         const el = document.createElement("div")
+        el.append(ebutton("Disable", {
+            onclick: (e) => {
+                (e as HTMLButtonElement).disabled = true;
+                this.request_stop()
+            }
+        }))
 
         const is_video = this.track.kind == "video"
         const media_el = is_video ? document.createElement("video") : document.createElement("audio")

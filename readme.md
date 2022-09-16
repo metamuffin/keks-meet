@@ -101,21 +101,19 @@ keks-meet _tries_ to be secure. However I am not a security expert. The current 
 
 ## Todo-List
 
--   Optionally enable video streams
+-   Make the optional streams UI prettier
+-   Maybe group tracks in streams to make sure everything is in sync
+-   How do we implement global hotkeys?
+-   Dont use websocket to send images to not block anything else
 -   Native client
--   Prevent server from changing message sender
 -   Have a security professional look at the code
 -   Test some options like `camera_facing_mode`
 -   Signing key for each user
     -   Built-in storage for known keys
 -   Relay RTC when there are a lot of clients
--   Save permissions to locale storage
 -   Prevent join notification bypass by not identifying
--   Dont use websocket to send images to not block anything else
--   How do we implement global hotkeys?
 -   Tray icon for native
 -   Pin js by bookmarking data:text/html loader page
--   Maybe group tracks in streams to make sure everything is in sync
 
 ## Protocol
 

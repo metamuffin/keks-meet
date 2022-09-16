@@ -4,12 +4,12 @@ import { PREFS } from "./preferences/mod.ts";
 
 const elem = (s: string) => document.createElement(s)
 
-interface Opts { class?: string[] | string, id?: string, src?: string, onclick?: () => void }
+interface Opts { class?: string[] | string, id?: string, src?: string, onclick?: (e: HTMLElement) => void }
 
 function apply_opts(e: HTMLElement, o: Opts | undefined) {
     if (!o) return
     if (o.id) e.id = o.id
-    if (o.onclick) e.onclick = o.onclick
+    if (o.onclick) e.onclick = () => o.onclick!(e)
     if (typeof o?.class == "string") e.classList.add(o.class)
     if (typeof o?.class == "object") e.classList.add(...o.class)
 }

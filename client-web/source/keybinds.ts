@@ -21,7 +21,7 @@ export function setup_keybinds(room: Room) {
             if (ev.code == "KeyM" || ev.code == "KeyR") room.local_user.await_add_resource(room.local_user.create_mic_res())
             if (ev.code == "KeyS") room.local_user.await_add_resource(room.local_user.create_screencast_res())
             if (ev.code == "KeyC" && !ev.ctrlKey) room.local_user.await_add_resource(room.local_user.create_camera_res())
-            if (ev.code == "KeyC" && ev.ctrlKey) room.local_user.resources.forEach(t => t.end())
+            if (ev.code == "KeyC" && ev.ctrlKey) room.local_user.resources.forEach(t => t.destroy())
         }
         command_mode = false
     })

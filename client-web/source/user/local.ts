@@ -31,18 +31,18 @@ export class LocalUser extends User {
     }
 
     provide_initial_to_remote(u: RemoteUser) {
-        this.resources.forEach(t => {
-            if (t instanceof TrackResource && t.track)
-                u.peer.addTrack(t.track.track)
+        this.resources.forEach(r => {
+            this.room.signaling.send_relay({ provide: r.info }, u.id)
         })
     }
+
     identify(recipient?: number) {
         if (this.name) this.room.signaling.send_relay({ identify: { username: this.name } }, recipient)
     }
+
     chat(message: ChatMessage) {
         this.room.signaling.send_relay({ chat: message })
     }
-
 
     create_controls() {
         const mic_toggle = document.createElement("input")
@@ -78,16 +78,16 @@ export class LocalUser extends User {
         }
     }
 
-    send_track(t: TrackHandle) {
-        this.room.remote_users.forEach(u => u.peer.addTrack(t.track))
-        t.addEventListener("ended", () => {
-            this.room.remote_users.forEach(u => {
-                u.peer.getSenders().forEach(s => {
-                    if (s.track == t.track) u.peer.removeTrack(s)
-                })
-            })
-        })
-    }
+    // send_track(t: TrackHandle) {
+    //     this.room.remote_users.forEach(u => u.peer.addTrack(t.track))
+    //     t.addEventListener("ended", () => {
+    //         this.room.remote_users.forEach(u => {
+    //             u.peer.getSenders().forEach(s => {
+    //                 if (s.track == t.track) u.peer.removeTrack(s)
+    //             })
+    //         })
+    //     })
+    // }
 
     async create_camera_res() {
         log("media", "requesting user media (camera)")

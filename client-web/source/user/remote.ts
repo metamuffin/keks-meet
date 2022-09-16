@@ -33,12 +33,12 @@ export class RemoteUser extends User {
         this.peer.ontrack = ev => {
             console.log(ev)
             const t = ev.track
-            const id = ev.streams[0].id
-            if (!id) return log({ scope: "media", warn: true }, "got a track without stream")
+            const id = ev.streams[0]?.id
+            if (!id) { ev.transceiver.stop(); return log({ scope: "media", warn: true }, "got a track without stream") }
             const r = this.resources.get(id)
-            if (!r) return log({ scope: "media", warn: true }, "got an unassociated track")
+            if (!r) { ev.transceiver.stop(); return log({ scope: "media", warn: true }, "got an unassociated track") }
             if (r instanceof TrackResource) r.track = new TrackHandle(t);
-            else log({ scope: "media", warn: true }, "got a track for a resource that should use data channel")
+            else { ev.transceiver.stop(); return log({ scope: "media", warn: true }, "got a track for a resource that should use data channel") }
             log("media", `remote track: ${this.display_name}`, t)
             this.update_stats()
         }

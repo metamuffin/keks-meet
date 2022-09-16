@@ -52,10 +52,8 @@ export class Chat extends OverlayUi {
             }
         }
     }
-    focus() {
-        this.send_el.focus()
-    }
 
+    focus() { this.send_el.focus() }
     send(msg: ChatMessage) {
         this.room.local_user.chat(msg)
         this.add_message(this.room.local_user, msg)

@@ -42,7 +42,7 @@ export abstract class Resource {
     }
     request_stop() {
         if (!(this.user instanceof RemoteUser)) return
-        this.user.send_to({ request: { id: this.info.id } })
+        this.user.send_to({ request_stop: { id: this.info.id } })
     }
 
     update_el() {
