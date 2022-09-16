@@ -1,3 +1,8 @@
+/*
+    This file is part of keks-meet (https://codeberg.org/metamuffin/keks-meet)
+    which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
+    Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
+*/
 import { ClientboundPacket, RelayMessage, RelayMessageWrapper, ServerboundPacket } from "../../../common/packets.d.ts"
 import { log } from "../logger.ts"
 import { crypto_encrypt, crypto_seeded_key, crypt_decrypt, crypt_hash } from "./crypto.ts"

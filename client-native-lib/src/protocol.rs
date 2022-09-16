@@ -1,3 +1,8 @@
+/*
+    This file is part of keks-meet (https://codeberg.org/metamuffin/keks-meet)
+    which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
+    Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
+*/
 use serde::{Deserialize, Serialize};
 use webrtc::{
     ice_transport::ice_candidate::RTCIceCandidateInit, peer_connection::sdp::sdp_type::RTCSdpType,

@@ -1,3 +1,8 @@
+/*
+    This file is part of keks-meet (https://codeberg.org/metamuffin/keks-meet)
+    which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
+    Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
+*/
 use aes_gcm::{
     aead::{generic_array::sequence::GenericSequence, Aead},
     Aes256Gcm, KeyInit, Nonce,
