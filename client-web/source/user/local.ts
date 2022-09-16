@@ -78,17 +78,6 @@ export class LocalUser extends User {
         }
     }
 
-    // send_track(t: TrackHandle) {
-    //     this.room.remote_users.forEach(u => u.peer.addTrack(t.track))
-    //     t.addEventListener("ended", () => {
-    //         this.room.remote_users.forEach(u => {
-    //             u.peer.getSenders().forEach(s => {
-    //                 if (s.track == t.track) u.peer.removeTrack(s)
-    //             })
-    //         })
-    //     })
-    // }
-
     async create_camera_res() {
         log("media", "requesting user media (camera)")
         const user_media = await window.navigator.mediaDevices.getUserMedia({

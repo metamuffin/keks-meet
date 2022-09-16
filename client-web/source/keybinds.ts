@@ -1,5 +1,6 @@
-import { Room } from "./room.ts"
+/// <reference lib="dom" />
 
+import { Room } from "./room.ts"
 
 export function setup_keybinds(room: Room) {
     let command_mode = false

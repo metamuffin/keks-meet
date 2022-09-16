@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+
 import { ProvideInfo } from "../../../common/packets.d.ts"
 import { ediv } from "../helper.ts"
 import { log } from "../logger.ts"

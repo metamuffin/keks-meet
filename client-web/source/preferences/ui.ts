@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+
 import { ebr, ebutton, ediv, elabel, espan, etd, etr, OverlayUi } from "../helper.ts";
 import { PREF_DECLS } from "./decl.ts";
 import { change_pref, on_pref_changed, PrefDecl, PREFS } from "./mod.ts";

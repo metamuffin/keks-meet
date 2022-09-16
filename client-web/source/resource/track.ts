@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+
 import { ProvideInfo } from "../../../common/packets.d.ts";
 import { ebutton } from "../helper.ts";
 import { TrackHandle } from "../track_handle.ts";
@@ -29,8 +31,10 @@ export class TrackResource extends Resource {
         super.destroy()
     }
 
+    // TODO --- all the following code could be more generic and prettier in the UI ---
+
     create_preview(): HTMLElement {
-        return ebutton("Enable", {
+        return ebutton(`Enable ${this.info.kind}`, {
             onclick: (e) => {
                 (e as HTMLButtonElement).disabled = true;
                 this.request()
@@ -40,7 +44,7 @@ export class TrackResource extends Resource {
     create_element() {
         if (!this.track) { return this.create_preview() }
         const el = document.createElement("div")
-        el.append(ebutton("Disable", {
+        el.append(ebutton(`Enable ${this.info.kind}`, {
             onclick: (e) => {
                 (e as HTMLButtonElement).disabled = true;
                 this.request_stop()

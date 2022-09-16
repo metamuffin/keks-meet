@@ -1,3 +1,5 @@
+/// <reference lib="dom" />
+
 import { ChatMessage } from "../../common/packets.d.ts";
 import { ediv, espan, image_view, notify, OverlayUi } from "./helper.ts";
 import { log } from "./logger.ts";
