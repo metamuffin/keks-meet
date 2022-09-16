@@ -7,12 +7,12 @@ import { get_rnnoise_node } from "../rnnoise.ts";
 import { Room } from "../room.ts";
 import { TrackHandle } from "../track_handle.ts";
 import { User } from "./mod.ts";
-import { ROOM_CONTAINER } from "../index.ts";
 import { ediv } from "../helper.ts";
-import { ChatMessage } from "../../../common/packets.d.ts";
+import { ChatMessage, ProvideInfo } from "../../../common/packets.d.ts";
+import { TrackResource } from "../resource/track.ts";
+import { Resource } from "../resource/mod.ts";
 
 export class LocalUser extends User {
-
     constructor(room: Room, id: number) {
         super(room, id)
         this.el.classList.add("local")
@@ -22,28 +22,27 @@ export class LocalUser extends User {
         this.add_initial_tracks()
         log("usermodel", `added local user: ${this.display_name}`)
     }
-    leave() { // we might never need this but ok
-        this.room.local_user = undefined as unknown as LocalUser
-        super.leave()
-        ROOM_CONTAINER.removeChild(this.el)
-    }
+    leave() { throw new Error("local users cant leave"); }
 
     add_initial_tracks() {
-        if (PREFS.microphone_enabled) this.publish_track(this.create_mic_track())
-        if (PREFS.camera_enabled) this.publish_track(this.create_camera_track())
-        if (PREFS.screencast_enabled) this.publish_track(this.create_screencast_track())
+        if (PREFS.microphone_enabled) this.await_add_resource(this.create_mic_res())
+        if (PREFS.camera_enabled) this.await_add_resource(this.create_camera_res())
+        if (PREFS.screencast_enabled) this.await_add_resource(this.create_screencast_res())
     }
 
-    chat(message: ChatMessage) {
-        this.room.signaling.send_relay({ chat: message })
-    }
-
-    add_initial_to_remote(u: RemoteUser) {
-        this.tracks.forEach(t => u.peer.addTrack(t.track))
+    provide_initial_to_remote(u: RemoteUser) {
+        this.resources.forEach(t => {
+            if (t instanceof TrackResource && t.track)
+                u.peer.addTrack(t.track.track)
+        })
     }
     identify(recipient?: number) {
         if (this.name) this.room.signaling.send_relay({ identify: { username: this.name } }, recipient)
     }
+    chat(message: ChatMessage) {
+        this.room.signaling.send_relay({ chat: message })
+    }
+
 
     create_controls() {
         const mic_toggle = document.createElement("input")
@@ -53,21 +52,30 @@ export class LocalUser extends User {
         mic_toggle.value = "Microphone"
         camera_toggle.value = "Camera"
         screen_toggle.value = "Screencast"
-        mic_toggle.addEventListener("click", () => this.publish_track(this.create_mic_track()))
-        camera_toggle.addEventListener("click", () => this.publish_track(this.create_camera_track()))
-        screen_toggle.addEventListener("click", () => this.publish_track(this.create_screencast_track()))
+        mic_toggle.addEventListener("click", () => this.await_add_resource(this.create_mic_res()))
+        camera_toggle.addEventListener("click", () => this.await_add_resource(this.create_camera_res()))
+        screen_toggle.addEventListener("click", () => this.await_add_resource(this.create_screencast_res()))
         return ediv({ class: "local-controls" }, mic_toggle, camera_toggle, screen_toggle)
     }
-    async publish_track(tp: Promise<TrackHandle>) {
+    async await_add_resource(tp: Promise<Resource>) {
         log("media", "awaiting track")
-        let t!: TrackHandle;
+        let t!: Resource;
         try { t = await tp }
         catch (_) { log("media", "request failed") }
         if (!t) return
         log("media", "got track")
+        this.add_resource(t)
+    }
 
+    add_resource(r: Resource) {
+        this.resources.set(r.info.id, r)
+        this.el.append(r.el)
+        const provide: ProvideInfo = r.info
+        this.room.signaling.send_relay({ provide })
+    }
+
+    send_track(t: TrackHandle) {
         this.room.remote_users.forEach(u => u.peer.addTrack(t.track))
-        this.add_track(t)
         t.addEventListener("ended", () => {
             this.room.remote_users.forEach(u => {
                 u.peer.getSenders().forEach(s => {
@@ -77,7 +85,7 @@ export class LocalUser extends User {
         })
     }
 
-    async create_camera_track() {
+    async create_camera_res() {
         log("media", "requesting user media (camera)")
         const user_media = await window.navigator.mediaDevices.getUserMedia({
             video: {
@@ -86,10 +94,11 @@ export class LocalUser extends User {
                 width: { ideal: PREFS.video_resolution }
             }
         })
-        return new TrackHandle(user_media.getVideoTracks()[0], true)
+        const t = new TrackHandle(user_media.getVideoTracks()[0], true)
+        return new TrackResource(this, { id: t.id, kind: "video", label: "Camera" }, t)
     }
 
-    async create_screencast_track() {
+    async create_screencast_res() {
         log("media", "requesting user media (screen)")
         const user_media = await window.navigator.mediaDevices.getDisplayMedia({
             video: {
@@ -97,10 +106,11 @@ export class LocalUser extends User {
                 width: { ideal: PREFS.video_resolution }
             },
         })
-        return new TrackHandle(user_media.getVideoTracks()[0], true)
+        const t = new TrackHandle(user_media.getVideoTracks()[0], true)
+        return new TrackResource(this, { id: t.id, kind: "video", label: "Screen" }, t)
     }
 
-    async create_mic_track() {
+    async create_mic_res() {
         log("media", "requesting user media (audio)")
         const user_media = await window.navigator.mediaDevices.getUserMedia({
             audio: {
@@ -136,6 +146,6 @@ export class LocalUser extends User {
             clear_gain_cb()
             destination.disconnect()
         })
-        return t
+        return new TrackResource(this, { id: t.id, kind: "audio", label: "Microphone" }, t)
     }
 }

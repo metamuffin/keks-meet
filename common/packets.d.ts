@@ -25,7 +25,9 @@ export interface /* enum */ RelayMessage {
     identify?: { username: string }
 
     provide?: ProvideInfo
-    request?: { id: number }
+    request?: { id: string }
+    provide_stop?: { id: string }
+    request_stop?: { id: string }
 
     offer?: Sdp,
     answer?: Sdp,
@@ -33,7 +35,7 @@ export interface /* enum */ RelayMessage {
 }
 export interface ChatMessage { text?: string, image?: string }
 export interface ProvideInfo {
-    id: number,
+    id: string,
     kind: "audio" | "video" | "file"
     label?: string
     size?: number

@@ -1,16 +1,21 @@
 /// <reference lib="dom" />
 
 import { RelayMessage } from "../../../common/packets.d.ts";
+import { Resource } from "../resource/mod.ts";
 import { notify } from "../helper.ts";
 import { ROOM_CONTAINER, RTC_CONFIG } from "../index.ts"
 import { log } from "../logger.ts"
 import { PREFS } from "../preferences/mod.ts";
 import { Room } from "../room.ts"
 import { TrackHandle } from "../track_handle.ts";
-import { User } from "./mod.ts"
+import { User } from "./mod.ts";
+import { TrackResource } from "../resource/track.ts";
 
 export class RemoteUser extends User {
     peer: RTCPeerConnection
+    senders: Map<string, RTCRtpSender> = new Map()
+    data_channels: Map<string, RTCDataChannel> = new Map()
+
     negotiation_busy = false
 
     constructor(room: Room, id: number) {
@@ -28,7 +33,9 @@ export class RemoteUser extends User {
         this.peer.ontrack = ev => {
             const t = ev.track
             log("media", `remote track: ${this.display_name}`, t)
-            this.add_track(new TrackHandle(t))
+            const r = this.resources.get(t.label)
+            if (r instanceof TrackResource) { r.track = new TrackHandle(t); r.state = "running" }
+            else log({ scope: "media", warn: true }, "got a track for a resource that should use data channel")
             this.update_stats()
         }
         this.peer.onnegotiationneeded = () => {
@@ -38,26 +45,13 @@ export class RemoteUser extends User {
             this.update_stats()
         }
         this.peer.onicecandidateerror = () => {
-            console.log("onicecandidateerror")
             log({ scope: "webrtc", warn: true }, "ICE error")
             this.update_stats()
         }
-        this.peer.oniceconnectionstatechange = () => {
-            console.log("oniceconnectionstatechange")
-            this.update_stats()
-        }
-        this.peer.onicegatheringstatechange = () => {
-            console.log("onicegatheringstatechange")
-            this.update_stats()
-        }
-        this.peer.onsignalingstatechange = () => {
-            console.log("onsignalingstatechange")
-            this.update_stats()
-        }
-        this.peer.onconnectionstatechange = () => {
-            console.log("onconnectionstatechange")
-            this.update_stats()
-        }
+        this.peer.oniceconnectionstatechange = () => { this.update_stats() }
+        this.peer.onicegatheringstatechange = () => { this.update_stats() }
+        this.peer.onsignalingstatechange = () => { this.update_stats() }
+        this.peer.onconnectionstatechange = () => { this.update_stats() }
         this.update_stats()
     }
     leave() {
@@ -78,6 +72,34 @@ export class RemoteUser extends User {
             this.name = message.identify.username
             if (PREFS.notify_join) notify(`${this.display_name} joined`)
         }
+        if (message.provide) {
+            const d = Resource.create(this, message.provide)
+            if (!d) return
+            this.el.append(d.el)
+            this.resources.set(message.provide.id, d)
+        }
+        if (message.provide_stop) {
+            this.resources.get(message.provide_stop.id)?.el.remove()
+            this.resources.delete(message.provide_stop.id)
+        }
+        if (message.request) {
+            const r = this.room.local_user.resources.get(message.request.id)
+            if (!r) return log({ scope: "*", warn: true }, "somebody requested an unknown resource")
+            if (r instanceof TrackResource) {
+                if (!r.track) throw new Error("local resources not avail");
+                const sender = this.peer.addTrack(r.track.track)
+                this.senders.set(r.track.id, sender)
+                r.track.addEventListener("end", () => { this.senders.delete(r.track?.id ?? "") })
+            }
+        }
+        if (message.request_stop) {
+            const sender = this.senders.get(message.request_stop.id)
+            if (!sender) return log({ scope: "*", warn: true }, "somebody requested us to stop transmitting an unknown resource")
+            this.peer.removeTrack(sender)
+        }
+    }
+    send_to(message: RelayMessage) {
+        this.room.signaling.send_relay(message, this.id)
     }
 
     async update_stats() {
@@ -111,7 +133,7 @@ export class RemoteUser extends User {
         const offer_description = await this.peer.createOffer()
         await this.peer.setLocalDescription(offer_description)
         log("webrtc", `sent offer: ${this.display_name}`, { offer: offer_description.sdp })
-        this.room.signaling.send_relay({ offer: offer_description.sdp }, this.id)
+        this.send_to({ offer: offer_description.sdp })
     }
     async on_offer(offer: string) {
         this.negotiation_busy = true
@@ -124,7 +146,7 @@ export class RemoteUser extends User {
         const answer_description = await this.peer.createAnswer()
         await this.peer.setLocalDescription(answer_description)
         log("webrtc", `sent answer: ${this.display_name}`, { answer: answer_description.sdp })
-        this.room.signaling.send_relay({ answer: answer_description.sdp }, this.id)
+        this.send_to({ answer: answer_description.sdp })
         this.negotiation_busy = false
     }
     async on_answer(answer: string) {

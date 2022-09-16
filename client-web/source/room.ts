@@ -38,7 +38,7 @@ export class Room {
                 this.on_ready()
             } else {
                 const ru = new RemoteUser(this, p.id)
-                this.local_user.add_initial_to_remote(ru)
+                this.local_user.provide_initial_to_remote(ru)
                 this.local_user.identify(ru.id)
             }
         } else if (packet.client_leave) {
