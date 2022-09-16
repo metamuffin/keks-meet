@@ -80,6 +80,10 @@ export class RemoteUser extends User {
             console.log(message.provide.id);
             const d = Resource.create(this, message.provide)
             if (!d) return
+            if (d instanceof TrackResource) {
+                if (d.info.kind == "video" && PREFS.optional_video_default_enable) d.request()
+                if (d.info.kind == "audio" && PREFS.optional_audio_default_enable) d.request()
+            }
             this.el.append(d.el)
             this.resources.set(message.provide.id, d)
         }

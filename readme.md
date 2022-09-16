@@ -105,6 +105,7 @@ keks-meet _tries_ to be secure. However I am not a security expert. The current 
 -   Maybe group tracks in streams to make sure everything is in sync
 -   How do we implement global hotkeys?
 -   Dont use websocket to send images to not block anything else
+-   File transfers via data channel (rift)
 -   Native client
 -   Have a security professional look at the code
 -   Test some options like `camera_facing_mode`
