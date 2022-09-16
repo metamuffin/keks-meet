@@ -4,25 +4,26 @@ a simple secure web conferencing application
 
 ## Features
 
--   Rooms
--   Different stream types
-    -   Camera
-    -   Microphone
-    -   Screen capture
--   Multiple streams
--   Noise suppression (rnnoise)
--   End-to-end-encryption
--   Peer-to-peer data transmission
--   Chat (text and images)
+- Rooms
+- Different stream types
+  - Camera
+  - Microphone
+  - Screen capture
+- Multiple streams
+- Noise suppression (rnnoise)
+- End-to-end-encryption
+- Peer-to-peer data transmission
+- Chat (text and images)
 
 ## Licence
 
-Licensed under the terms of the GNU Affero General Public License version 3 only. See [COPYING](./COPYING).
+Licensed under the terms of the GNU Affero General Public License version 3
+only. See [COPYING](./COPYING).
 
 ## Usage
 
-For trying it out, a hosted version is available on [my server](https://meet.metamuffin.org/).
-For self-hosting, this should help:
+For trying it out, a hosted version is available on
+[my server](https://meet.metamuffin.org/). For self-hosting, this should help:
 
 ```sh
 pacman -S --needed deno rustup make coreutils; rustup install nightly
@@ -33,11 +34,15 @@ make run
 
 When changing code, use `make watch` to re-build things automatically as needed.
 
-If you use this project or have any suggestions, please [contact me](https://metamuffin.org/contact)
+If you use this project or have any suggestions, please
+[contact me](https://metamuffin.org/contact)
 
 ## _Rift_
 
-_Rift_ is similar to the [magic wormhole](https://github.com/magic-wormhole/magic-wormhole), except that is peer-to-peer. It reuses the keks-meet signaling server to establish a WebRTC data channel.
+_Rift_ is similar to the
+[magic wormhole](https://github.com/magic-wormhole/magic-wormhole), except that
+is peer-to-peer. It reuses the keks-meet signaling server to establish a WebRTC
+data channel.
 
 ```sh
 pacman -S --needed rustup; rustup install nightly
@@ -64,61 +69,71 @@ rift --secret hunter2 receive /path/to/output
 
 ## Parameters
 
-Some configuration parameters can be added like query params but **after** the section. (e.g `/room#mymeeting?username=alice`)
-The page will not automatically reload if the section changes.
-Booleans can be either `1`, `true`, `yes` or their opposites. I convenience function for changing params is also exported: `window.change_pref(key, value)`
+Some configuration parameters can be added like query params but **after** the
+section. (e.g `/room#mymeeting?username=alice`) The page will not automatically
+reload if the section changes. Booleans can be either `1`, `true`, `yes` or
+their opposites. I convenience function for changing params is also exported:
+`window.change_pref(key, value)`
 
-| Option name                | Type    | Default     | Description                                                          |
-| -------------------------- | ------- | ----------- | -------------------------------------------------------------------- |
-| `username`                 | string  | `"guest-…"` | Username                                                             |
-| `warn_redirect`            | boolean | `false`     | Internal option that is set by a server redirect.                    |
-| `image_view_popup`         | boolean | `true`      | Open image in popup instead of new tab                               |
-| `microphone_enabled`       | boolean | `false`     | Add one microphone track on startup                                  |
-| `screencast_enabled`       | boolean | `false`     | Add one screencast track on startup                                  |
-| `camera_enabled`           | boolean | `false`     | Add one camera track on startup                                      |
-| `rnnoise`                  | boolean | `true`      | Use RNNoise for noise suppression                                    |
-| `native_noise_suppression` | boolean | `false`     | Suggest the browser to do noise suppression                          |
-| `microphone_gain`          | number  | `1`         | Amplify microphone volume                                            |
-| `video_fps`                | number  | -           | Preferred framerate (in 1/s) for screencast and camera               |
-| `video_resolution`         | number  | -           | Preferred width for screencast and camera                            |
-| `camera_facing_mode`       | string  | -           | Prefer user-facing or env-facing camera (`"environment"` / `"user"`) |
-| `auto_gain_control`        | boolean | -           | Automatically adjust mic gain                                        |
-| `echo_cancellation`        | boolean | -           | Cancel echo                                                          |
-| `notify_chat`              | boolean | `true`      | Send notifications for incoming chat messages                        |
-| `notify_join`              | boolean | `true`      | Send notifications when users join                                   |
-| `notify_leave`             | boolean | `true`      | Send notifications when users leave                                  |
+| Option name                     | Type    | Default     | Description                                                          |
+| ------------------------------- | ------- | ----------- | -------------------------------------------------------------------- |
+| `username`                      | string  | `"guest-…"` | Username                                                             |
+| `warn_redirect`                 | boolean | `false`     | Internal option that is set by a server redirect.                    |
+| `image_view_popup`              | boolean | `true`      | Open image in popup instead of new tab                               |
+| `webrtc_debug`                  | boolean | `false`     | Show additional information for WebRTC related stuff                 |
+| `microphone_enabled`            | boolean | `false`     | Add one microphone track on startup                                  |
+| `screencast_enabled`            | boolean | `false`     | Add one screencast track on startup                                  |
+| `camera_enabled`                | boolean | `false`     | Add one camera track on startup                                      |
+| `rnnoise`                       | boolean | `true`      | Use RNNoise for noise suppression                                    |
+| `native_noise_suppression`      | boolean | `false`     | Suggest the browser to do noise suppression                          |
+| `microphone_gain`               | number  | `1`         | Amplify microphone volume                                            |
+| `video_fps`                     | number  | -           | Preferred framerate (in 1/s) for screencast and camera               |
+| `video_resolution`              | number  | -           | Preferred width for screencast and camera                            |
+| `camera_facing_mode`            | string  | -           | Prefer user-facing or env-facing camera (`"environment"` / `"user"`) |
+| `auto_gain_control`             | boolean | -           | Automatically adjust mic gain                                        |
+| `echo_cancellation`             | boolean | -           | Cancel echo                                                          |
+| `optional_audio_default_enable` | boolean | `true`      | Enable audio tracks by default                                       |
+| `optional_video_default_enable` | boolean | `false`     | Enable video tracks by default                                       |
+| `notify_chat`                   | boolean | `true`      | Send notifications for incoming chat messages                        |
+| `notify_join`                   | boolean | `true`      | Send notifications when users join                                   |
+| `notify_leave`                  | boolean | `true`      | Send notifications when users leave                                  |
 
 ## Security
 
-keks-meet _tries_ to be secure. However I am not a security expert. The current system works as follows:
+keks-meet _tries_ to be secure. However I am not a security expert. The current
+system works as follows:
 
--   The room name is set in the section of the URL which is not sent to the server.
--   The server receives a salted SHA-256 hash of the room name to group clients of a room.
--   The client uses PBKDF2 (constant salt; 250000 iterations) to derive a 256-bit AES-GCM key from the room name.
--   All relayed message contents are encrypted with this key.
-    -   Message recipient is visible to the server
-    -   The server assigns user ids
+- The room name is set in the section of the URL which is not sent to the
+  server.
+- The server receives a salted SHA-256 hash of the room name to group clients of
+  a room.
+- The client uses PBKDF2 (constant salt; 250000 iterations) to derive a 256-bit
+  AES-GCM key from the room name.
+- All relayed message contents are encrypted with this key.
+  - Message recipient is visible to the server
+  - The server assigns user ids
 
 ## Todo-List
 
--   Make the optional streams UI prettier
--   Maybe group tracks in streams to make sure everything is in sync
--   How do we implement global hotkeys?
--   Dont use websocket to send images to not block anything else
--   File transfers via data channel (rift)
--   Native client
--   Have a security professional look at the code
--   Test some options like `camera_facing_mode`
--   Signing key for each user
-    -   Built-in storage for known keys
--   Relay RTC when there are a lot of clients
--   Prevent join notification bypass by not identifying
--   Tray icon for native
--   Pin js by bookmarking data:text/html loader page
+- Make the optional streams UI prettier
+- Maybe group tracks in streams to make sure everything is in sync
+- How do we implement global hotkeys?
+- Dont use websocket to send images to not block anything else
+- File transfers via data channel (rift)
+- Native client
+- Have a security professional look at the code
+- Test some options like `camera_facing_mode`
+- Signing key for each user
+  - Built-in storage for known keys
+- Relay RTC when there are a lot of clients
+- Prevent join notification bypass by not identifying
+- Tray icon for native
+- Pin js by bookmarking data:text/html loader page
 
 ## Protocol
 
-The protocol packets are defined in [packets.d.ts](./common/packets.d.ts). Here is an (simplified) example of how the protocol is used.
+The protocol packets are defined in [packets.d.ts](./common/packets.d.ts). Here
+is an (simplified) example of how the protocol is used.
 
 **THIS IS OBSOLETE! The new protocol is quite similar but uses encryption**
 
