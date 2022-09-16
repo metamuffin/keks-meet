@@ -115,6 +115,7 @@ keks-meet _tries_ to be secure. However I am not a security expert. The current 
 -   How do we implement global hotkeys?
 -   Tray icon for native
 -   Pin js by bookmarking data:text/html loader page
+-   Maybe group tracks in streams to make sure everything is in sync
 
 ## Protocol
 

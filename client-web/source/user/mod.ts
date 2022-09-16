@@ -6,7 +6,7 @@ import { Resource } from "../resource/mod.ts";
 import { Room } from "../room.ts"
 
 export abstract class User {
-    protected el: HTMLElement
+    public el: HTMLElement
     public local = false
     public resources: Map<string, Resource> = new Map()
 

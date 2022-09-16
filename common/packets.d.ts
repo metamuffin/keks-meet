@@ -35,7 +35,7 @@ export interface /* enum */ RelayMessage {
 }
 export interface ChatMessage { text?: string, image?: string }
 export interface ProvideInfo {
-    id: string,
+    id: string, // for datachannels this is `label`, for tracks this will be the `id` of the only associated stream.
     kind: "audio" | "video" | "file"
     label?: string
     size?: number

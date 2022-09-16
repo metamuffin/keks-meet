@@ -31,11 +31,15 @@ export class RemoteUser extends User {
             this.update_stats()
         }
         this.peer.ontrack = ev => {
+            console.log(ev)
             const t = ev.track
-            log("media", `remote track: ${this.display_name}`, t)
-            const r = this.resources.get(t.label)
-            if (r instanceof TrackResource) { r.track = new TrackHandle(t); r.state = "running" }
+            const id = ev.streams[0].id
+            if (!id) return log({ scope: "media", warn: true }, "got a track without stream")
+            const r = this.resources.get(id)
+            if (!r) return log({ scope: "media", warn: true }, "got an unassociated track")
+            if (r instanceof TrackResource) r.track = new TrackHandle(t);
             else log({ scope: "media", warn: true }, "got a track for a resource that should use data channel")
+            log("media", `remote track: ${this.display_name}`, t)
             this.update_stats()
         }
         this.peer.onnegotiationneeded = () => {
@@ -73,6 +77,7 @@ export class RemoteUser extends User {
             if (PREFS.notify_join) notify(`${this.display_name} joined`)
         }
         if (message.provide) {
+            console.log(message.provide.id);
             const d = Resource.create(this, message.provide)
             if (!d) return
             this.el.append(d.el)
@@ -87,7 +92,7 @@ export class RemoteUser extends User {
             if (!r) return log({ scope: "*", warn: true }, "somebody requested an unknown resource")
             if (r instanceof TrackResource) {
                 if (!r.track) throw new Error("local resources not avail");
-                const sender = this.peer.addTrack(r.track.track)
+                const sender = this.peer.addTrack(r.track.track, r.track.stream)
                 this.senders.set(r.track.id, sender)
                 r.track.addEventListener("end", () => { this.senders.delete(r.track?.id ?? "") })
             }

@@ -9,6 +9,8 @@ export type ChannelState = "running" | "disconnected"
 
 export abstract class Resource {
     el: HTMLElement = ediv({ class: ["channel"] })
+    on_destroy = () => { }
+
     constructor(
         public user: User,
         public info: ProvideInfo,
@@ -22,6 +24,8 @@ export abstract class Resource {
         if (value != this._state) this.update_el()
         this._state = value
     }
+
+    destroy() { this.on_destroy() }
 
     abstract create_element(): HTMLElement
     abstract create_preview(): HTMLElement

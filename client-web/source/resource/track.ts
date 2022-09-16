@@ -1,12 +1,27 @@
 import { ProvideInfo } from "../../../common/packets.d.ts";
 import { ebutton } from "../helper.ts";
 import { TrackHandle } from "../track_handle.ts";
+import { LocalUser } from "../user/local.ts";
 import { User } from "../user/mod.ts";
 import { Resource } from "./mod.ts";
 
 export class TrackResource extends Resource {
-    constructor(user: User, info: ProvideInfo, public track?: TrackHandle) {
+    private _track?: TrackHandle
+    constructor(user: User, info: ProvideInfo, track?: TrackHandle) {
         super(user, info)
+        this.track = track
+    }
+
+    get track() { return this._track }
+    set track(value: TrackHandle | undefined) {
+        const handle_end = () => {
+            this.track = undefined
+            if (this.user instanceof LocalUser) this.destroy()
+        }
+        this._track?.removeEventListener("ended", handle_end)
+        this._track = value
+        this._track?.addEventListener("ended", handle_end)
+        this.update_el()
     }
 
     create_preview(): HTMLElement {

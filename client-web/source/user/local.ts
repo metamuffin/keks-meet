@@ -72,6 +72,10 @@ export class LocalUser extends User {
         this.el.append(r.el)
         const provide: ProvideInfo = r.info
         this.room.signaling.send_relay({ provide })
+        r.on_destroy = () => {
+            this.el.removeChild(r.el);
+            this.room.signaling.send_relay({ provide_stop: { id: r.info.id } })
+        }
     }
 
     send_track(t: TrackHandle) {
