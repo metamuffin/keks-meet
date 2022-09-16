@@ -31,49 +31,41 @@ export class TrackResource extends Resource {
         super.destroy()
     }
 
-    // TODO --- all the following code could be more generic and prettier in the UI ---
-
-    create_preview(): HTMLElement {
-        return ebutton(`Enable ${this.info.kind}`, {
-            onclick: (e) => {
-                (e as HTMLButtonElement).disabled = true;
-                this.request()
-            }
-        })
-    }
     create_element() {
-        if (!this.track) { return this.create_preview() }
         const el = document.createElement("div")
-        el.append(ebutton(`Enable ${this.info.kind}`, {
-            onclick: (e) => {
-                (e as HTMLButtonElement).disabled = true;
-                this.request_stop()
-            }
-        }))
-
-        const is_video = this.track.kind == "video"
-        const media_el = is_video ? document.createElement("video") : document.createElement("audio")
-        const stream = new MediaStream([this.track.track])
-        media_el.srcObject = stream
-        media_el.classList.add("media")
-        media_el.autoplay = true
-        media_el.controls = true
-        if (this.track.local) media_el.muted = true
-        el.append(media_el)
-
-        if (this.track.local) {
-            const end_button = document.createElement("button")
-            end_button.textContent = "End"
-            end_button.addEventListener("click", () => {
-                this.track?.end()
-            })
-            el.append(end_button)
+        if (!this.track?.local) {
+            el.append(ebutton(`${this.track ? "Disable" : "Enable"} ${this.info.kind}`, {
+                onclick: (e) => {
+                    (e as HTMLButtonElement).disabled = true;
+                    this.track ? this.request_stop() : this.request()
+                }
+            }))
         }
-        this.el.append(el)
-        this.track.addEventListener("ended", () => {
-            media_el.srcObject = null // TODO
-            el.remove()
-        })
+        if (this.track) {
+            const is_video = this.track.kind == "video"
+            const media_el = is_video ? document.createElement("video") : document.createElement("audio")
+            const stream = new MediaStream([this.track.track])
+            media_el.srcObject = stream
+            media_el.classList.add("media")
+            media_el.autoplay = true
+            media_el.controls = true
+            if (this.track.local) media_el.muted = true
+            el.append(media_el)
+
+            if (this.track.local) {
+                const end_button = document.createElement("button")
+                end_button.textContent = "End"
+                end_button.addEventListener("click", () => {
+                    this.track?.end()
+                })
+                el.append(end_button)
+            }
+            this.el.append(el)
+            this.track.addEventListener("ended", () => {
+                media_el.srcObject = null // TODO
+                el.remove()
+            })
+        }
         return el
     }
 }

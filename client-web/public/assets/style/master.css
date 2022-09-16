@@ -55,7 +55,8 @@ input[type="number"] {
     background-color: var(--bg-dark);
     border: 1px solid var(--ac-light);
 }
-input:disabled {
+input:disabled,
+button:disabled {
     filter: sepia(90%);
 }
 

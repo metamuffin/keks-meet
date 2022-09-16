@@ -23,14 +23,14 @@ export abstract class Resource {
     private _state: ChannelState = "disconnected"
     get state() { return this._state }
     set state(value: ChannelState) {
-        if (value != this._state) this.update_el()
+        const old_value = this._state
         this._state = value
+        if (value != old_value) this.update_el()
     }
 
     destroy() { this.on_destroy() }
 
     abstract create_element(): HTMLElement
-    abstract create_preview(): HTMLElement
 
     static create(user: User, info: ProvideInfo): Resource | undefined {
         if (info.kind == "audio" || info.kind == "video") return new TrackResource(user, info)
