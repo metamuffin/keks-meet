@@ -8,8 +8,8 @@
 
 use log::debug;
 use signaling::signaling_connect;
-use state::{HasPeer, PeerInit, State};
-use std::{marker::Sync, sync::Arc};
+use state::State;
+use std::sync::Arc;
 use tokio::sync::{mpsc::unbounded_channel, RwLock};
 use webrtc::{
     api::{
@@ -31,11 +31,7 @@ pub struct Config {
     pub secret: String,
 }
 
-pub async fn connect<I, P>(config: Config, sup: Arc<I>) -> Arc<State<P, I>>
-where
-    I: PeerInit<P> + Sync + std::marker::Send + 'static,
-    P: HasPeer + Sync + std::marker::Send + 'static,
-{
+pub async fn connect(config: Config) -> Arc<State> {
     let (sender, mut recv) = signaling_connect(&config.signaling_host, &config.secret).await;
 
     let key = crypto::Key::derive(&config.secret);
@@ -58,7 +54,6 @@ where
         sender,
         config,
         relay_tx,
-        sup,
     });
 
     {

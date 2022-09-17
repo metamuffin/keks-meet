@@ -3,9 +3,7 @@
     which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
     Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
 */
-use std::{collections::HashMap, pin::Pin, sync::Arc};
-
-use futures_util::Future;
+use std::{collections::HashMap, sync::Arc};
 use log::warn;
 use tokio::sync::{mpsc::UnboundedSender, RwLock};
 use webrtc::api::API;
@@ -17,27 +15,16 @@ use crate::{
     Config,
 };
 
-pub trait HasPeer {
-    fn peer(&self) -> &Arc<Peer>;
-}
-pub trait PeerInit<P> {
-    fn add_peer(
-        &self,
-        p: Arc<Peer>,
-    ) -> Pin<Box<dyn Future<Output = Arc<P>> + 'static + Send + Sync>>;
-}
-
-pub struct State<P: HasPeer, I: PeerInit<P>> {
-    pub sup: Arc<I>,
+pub struct State {
     pub config: Config,
     pub api: API,
     pub key: Key,
     pub my_id: RwLock<Option<usize>>,
     pub sender: UnboundedSender<ServerboundPacket>,
-    pub peers: RwLock<HashMap<usize, Arc<P>>>,
+    pub peers: RwLock<HashMap<usize, Arc<Peer>>>,
     pub relay_tx: UnboundedSender<(usize, RelayMessage)>,
 }
-impl<P: HasPeer, I: PeerInit<P>> State<P, I> {
+impl State {
     pub async fn my_id(&self) -> usize {
         self.my_id.read().await.expect("not initialized yet")
     }
@@ -56,9 +43,7 @@ impl<P: HasPeer, I: PeerInit<P>> State<P, I> {
                 } else {
                     self.peers.write().await.insert(
                         id,
-                        self.sup
-                            .add_peer(Peer::create(self.clone(), self.relay_tx.clone(), id).await)
-                            .await,
+                        Peer::create(self.clone(), self.relay_tx.clone(), id).await,
                     );
                 }
             }
@@ -75,7 +60,7 @@ impl<P: HasPeer, I: PeerInit<P>> State<P, I> {
 
     pub async fn on_relay(&self, sender: usize, p: RelayMessage) {
         if let Some(peer) = self.peers.read().await.get(&sender).cloned() {
-            peer.peer().on_relay(p).await
+            peer.on_relay(p).await
         } else {
             warn!("got a packet from a non-existent peer")
         }

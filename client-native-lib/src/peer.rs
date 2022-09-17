@@ -5,7 +5,7 @@
 */
 use crate::{
     protocol::{self, RelayMessage, Sdp},
-    state::{HasPeer, PeerInit, State},
+    state::State,
 };
 use log::info;
 use std::sync::Arc;
@@ -25,8 +25,8 @@ pub struct Peer {
 }
 
 impl Peer {
-    pub async fn create<P: HasPeer, I: PeerInit<P>>(
-        state: Arc<State<P, I>>,
+    pub async fn create(
+        state: Arc<State>,
         signal: UnboundedSender<(usize, RelayMessage)>,
         id: usize,
     ) -> Arc<Self> {
