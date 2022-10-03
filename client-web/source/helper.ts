@@ -84,3 +84,5 @@ export function notify(body: string, author?: string) {
     else
         new Notification(`keks-meet`, { body })
 }
+
+export function sleep(delay: number) { return new Promise(r => setTimeout(r, delay)) }

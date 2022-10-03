@@ -61,7 +61,7 @@ export class RemoteUser extends User {
         }
         this.pc.onnegotiationneeded = () => {
             log("webrtc", `negotiation needed: ${this.display_name}`)
-            if (this.negotiation_busy && this.pc.signalingState == "stable") return
+            // if (this.pc.signalingState != "stable") return
             this.offer()
             this.update_stats()
         }
@@ -119,8 +119,9 @@ export class RemoteUser extends User {
         }
         if (message.request_stop) {
             const sender = this.senders.get(message.request_stop.id)
-            if (!sender) return log({ scope: "*", warn: true }, "somebody requested us to stop transmitting an unknown resource")
-            this.pc.removeTrack(sender)
+            if (sender) this.pc.removeTrack(sender)
+            const dc = this.data_channels.get(message.request_stop.id)
+            if (dc) dc.close()
         }
     }
     send_to(message: RelayMessage) {
@@ -168,14 +169,14 @@ export class RemoteUser extends User {
             let stuff = "";
             stuff += `ice-conn=${this.pc.iceConnectionState}; ice-gathering=${this.pc.iceGatheringState}; ice-trickle=${this.pc.canTrickleIceCandidates}; signaling=${this.pc.signalingState};\n`
             stats.forEach(s => {
-                console.log("stat", s);
+                // console.log("stat", s);
                 if (s.type == "candidate-pair" && s.selected) {
                     //@ts-ignore trust me, this works
                     if (!stats.get) return console.warn("no RTCStatsReport.get");
                     //@ts-ignore trust me, this works
                     const cpstat = stats.get(s.localCandidateId)
                     if (!cpstat) return console.warn("no stats");
-                    console.log("cp", cpstat);
+                    // console.log("cp", cpstat);
                     stuff += `via ${cpstat.candidateType}:${cpstat.protocol}:${cpstat.address}\n`
                 } else if (s.type == "codec") {
                     stuff += `using ${s.codecType ?? "dec/enc"}:${s.mimeType}(${s.sdpFmtpLine})\n`
@@ -186,5 +187,4 @@ export class RemoteUser extends User {
             console.warn(e);
         }
     }
-
 }

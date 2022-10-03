@@ -132,6 +132,8 @@ system works as follows:
 - Pin js by bookmarking data:text/html loader page
 - convert protocol enums to `A | B | C`
 - add "contributing" stuff to readme
+- download files in a streaming manner.
+  - workaround using service worker
 
 ## Protocol
 
