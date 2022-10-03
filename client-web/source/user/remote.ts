@@ -36,7 +36,6 @@ export class RemoteUser extends User {
             this.update_stats()
         }
         this.pc.ontrack = ev => {
-            console.log(ev)
             const t = ev.track
             const id = ev.streams[0]?.id
             if (!id) { ev.transceiver.stop(); return log({ scope: "media", warn: true }, "got a track without stream") }
@@ -44,6 +43,7 @@ export class RemoteUser extends User {
             if (!r) { ev.transceiver.stop(); return log({ scope: "media", warn: true }, "got an unassociated track") }
             r.on_enable(new TrackHandle(t), () => {
                 this.request_resource_stop(r)
+                ev.transceiver.stop()
             })
             log("media", `remote track: ${this.display_name}`, t)
             this.update_stats()
@@ -54,6 +54,7 @@ export class RemoteUser extends User {
             if (!r) { channel.close(); return log({ scope: "media", warn: true }, "got an unassociated channel") }
             r.on_enable(channel, () => {
                 this.request_resource_stop(r)
+                channel.close()
             })
             log("media", `remote channel: ${this.display_name}`, channel)
             this.update_stats()
