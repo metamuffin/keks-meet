@@ -33,6 +33,7 @@ make run
 ```
 
 When changing code, use `make watch` to re-build things automatically as needed.
+(run `cargo install systemfd cargo-watch` if needed)
 
 If you use this project or have any suggestions, please
 [contact me](https://metamuffin.org/contact)
