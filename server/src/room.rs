@@ -6,7 +6,7 @@
 use crate::protocol::{ClientboundPacket, ServerboundPacket};
 use futures_util::{SinkExt, StreamExt, TryFutureExt};
 use log::{debug, error};
-use std::{collections::HashMap, sync::atomic::AtomicUsize};
+use std::{collections::HashMap, sync::atomic::AtomicUsize, time::Duration};
 use tokio::sync::{mpsc, RwLock};
 use warp::ws::{Message, WebSocket};
 
@@ -109,6 +109,8 @@ impl Room {
             ServerboundPacket::Ping => (),
             ServerboundPacket::Relay { recipient, message } => {
                 let packet = ClientboundPacket::Message { sender, message };
+                // Add some delay for testing scenarios with latency.
+                // tokio::time::sleep(Duration::from_millis(1000)).await;
                 if let Some(recipient) = recipient {
                     self.send_to_client(recipient, packet).await;
                 } else {

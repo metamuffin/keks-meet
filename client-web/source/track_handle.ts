@@ -5,6 +5,7 @@
 */
 /// <reference lib="dom" />
 
+/// We need this to adjust the way events are fired
 export class TrackHandle extends EventTarget {
     stream: MediaStream // this is used to create an id that is persistent across clients
 

@@ -10,6 +10,7 @@ import { ediv, espan, image_view, notify, OverlayUi } from "./helper.ts";
 import { log } from "./logger.ts";
 import { PREFS } from "./preferences/mod.ts";
 import { Room } from "./room.ts";
+import { LocalUser } from "./user/local.ts";
 import { User } from "./user/mod.ts";
 
 export class Chat extends OverlayUi {
@@ -79,6 +80,6 @@ export class Chat extends OverlayUi {
         let body_str = "(empty message)"
         if (message.text) body_str = message.text
         if (message.image) body_str = "(image)"
-        if (!sender.local && PREFS.notify_chat) notify(body_str, sender.display_name)
+        if (!(sender instanceof LocalUser) && PREFS.notify_chat) notify(body_str, sender.display_name)
     }
 }

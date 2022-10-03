@@ -5,9 +5,11 @@
 */
 /// <reference lib="dom" />
 
-import { ediv, ep, OverlayUi } from "./helper.ts"
+import { ebutton, ediv, ep, OverlayUi } from "./helper.ts"
 import { VERSION } from "./index.ts"
 import { PrefUi } from "./preferences/ui.ts"
+import { create_file_res } from "./resource/file.ts";
+import { create_camera_res, create_mic_res, create_screencast_res } from "./resource/track.ts";
 import { Room } from "./room.ts"
 
 export class MenuBr extends OverlayUi {
@@ -55,7 +57,14 @@ export class BottomMenu extends OverlayUi {
             if (prefs.shown) prefs_button.classList.add("active")
             else prefs_button.classList.remove("active")
         }
-        
-        super(ediv({ class: "bottom-menu" }, chat_toggle, prefs_button, room.local_user.create_controls()))
+
+        const local_controls = ediv({ class: "local-controls" },
+            ebutton("Microphone", { onclick: () => room.local_user.await_add_resource(create_mic_res()) }),
+            ebutton("Camera", { onclick: () => room.local_user.await_add_resource(create_camera_res()) }),
+            ebutton("Screen", { onclick: () => room.local_user.await_add_resource(create_screencast_res()) }),
+            ebutton("File", { onclick: () => room.local_user.await_add_resource(create_file_res()) }),
+        )
+
+        super(ediv({ class: "bottom-menu" }, chat_toggle, prefs_button, local_controls))
     }
 }

@@ -7,24 +7,24 @@
 
 import { PREFS } from "./preferences/mod.ts";
 
-const elem = (s: string) => document.createElement(s)
+const elem = <K extends keyof HTMLElementTagNameMap>(s: K): HTMLElementTagNameMap[K] => document.createElement(s)
 
-interface Opts { class?: string[] | string, id?: string, src?: string, onclick?: (e: HTMLElement) => void }
+interface Opts<El> { class?: string[] | string, id?: string, src?: string, onclick?: (e: El) => void }
 
-function apply_opts(e: HTMLElement, o: Opts | undefined) {
+function apply_opts<El extends HTMLElement>(e: El, o: Opts<El> | undefined) {
     if (!o) return
     if (o.id) e.id = o.id
     if (o.onclick) e.onclick = () => o.onclick!(e)
     if (typeof o?.class == "string") e.classList.add(o.class)
     if (typeof o?.class == "object") e.classList.add(...o.class)
 }
-const elem_with_content = (s: string) => (c: string, opts?: Opts) => {
+const elem_with_content = <K extends keyof HTMLElementTagNameMap>(s: K) => (c: string, opts?: Opts<HTMLElementTagNameMap[K]>) => {
     const e = elem(s)
     apply_opts(e, opts)
     e.textContent = c
     return e
 }
-const elem_with_children = (s: string) => (opts?: Opts, ...cs: (HTMLElement | string)[]) => {
+const elem_with_children = <K extends keyof HTMLElementTagNameMap>(s: K) => (opts?: Opts<HTMLElementTagNameMap[K]>, ...cs: (HTMLElement | string)[]) => {
     const e = elem(s)
     apply_opts(e, opts)
     for (const c of cs) {
@@ -65,7 +65,7 @@ export class OverlayUi {
     }
 }
 
-export function image_view(url: string, opts?: Opts): HTMLElement {
+export function image_view(url: string, opts?: Opts<HTMLElement>): HTMLElement {
     const img = document.createElement("img")
     apply_opts(img, opts)
     img.src = url

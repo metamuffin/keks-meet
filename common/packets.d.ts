@@ -39,9 +39,11 @@ export interface /* enum */ RelayMessage {
     ice_candidate?: F_RTCIceCandidateInit,
 }
 export interface ChatMessage { text?: string, image?: string }
+export type ResourceKind = "track" | "file"
 export interface ProvideInfo {
     id: string, // for datachannels this is `label`, for tracks this will be the `id` of the only associated stream.
-    kind: "audio" | "video" | "file"
+    kind: ResourceKind
+    track_kind?: "audio" | "video"
     label?: string
     size?: number
 }

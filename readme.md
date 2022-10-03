@@ -41,8 +41,8 @@ If you use this project or have any suggestions, please
 
 _Rift_ is similar to the
 [magic wormhole](https://github.com/magic-wormhole/magic-wormhole), except that
-is peer-to-peer. It reuses the keks-meet signaling server to establish a WebRTC
-data channel.
+it's peer-to-peer. It reuses the keks-meet signaling server to establish a
+WebRTC data channel.
 
 ```sh
 pacman -S --needed rustup; rustup install nightly
@@ -129,6 +129,8 @@ system works as follows:
 - Prevent join notification bypass by not identifying
 - Tray icon for native
 - Pin js by bookmarking data:text/html loader page
+- convert protocol enums to `A | B | C`
+- add "contributing" stuff to readme
 
 ## Protocol
 
