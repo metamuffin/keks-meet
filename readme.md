@@ -136,22 +136,32 @@ system works as follows:
 ## Protocol
 
 The protocol packets are defined in [packets.d.ts](./common/packets.d.ts). Here
-is an (simplified) example of how the protocol is used.
-
-**THIS IS OBSOLETE! The new protocol is quite similar but uses encryption**
+are some simplified examples of how the protocol is used.
 
 ```
 S->C    { init: { your_id: 5, version: "..." } }
 ----    # Your join packet will be the first one.
-S->C    { client_join: { id: 5, name: "bob" } }
-S->C    { client_join: { id: 3, name: "alice" } }
-----    # Now publish your ICE candidates
-C->S    { relay: { message: { ice_candiate: <RTCIceCandidateInit> } } }
-----    # Whenever you change your streams change:
+S->C    { client_join: { id: 5 } }
+S->C    { client_join: { id: 3 } }
+----    # The server doesnt know people's names so they identify themselves.
+S->C    { message: { sender: 3, message: <Encrypted { identify: { username: "Alice" } }> } }
+----    # You should do that too.
+C->S    { relay: { message: <Encrypted { identify: { username: "Bob" } }> } }
+----    # Publish your ICE candidates.
+C->S    { relay: { message: <Encrypted { ice_candiate: <RTCIceCandidateInit> }> } }
+----    # If you create a resource, tell others about it:
+C->S    { relay: { message: <Encrypted { provide: { id: "asd123", label: "Camera", kind: "track", track_kind: "video" } }> } }
+----    # If somebody is interested in this resource, they will request you to transmit.
+S->C    { message: { sender: 3, message: <Encrypted { request: { id: "asd123" } }> } }
+----    # Whenever you change your tracks/data channels:
 ----    # Send an offer to everybody
-C->S    { relay: { recipient: 3, offer: <RTCSessionDescriptionInit> } }
-----    # Alice answers
-S->C    { message: { sender: 3, message: { offer: <RTCSessionDescriptionInit> } } }
+C->S    { relay: <Encrypted { recipient: 3, offer: <RTCSessionDescriptionInit> }> }
+----    # Await answer:
+S->C    { message: { sender: 3, message: <Encrypted { offer: <RTCSessionDescriptionInit> }> } }
 ----    # In case the server uses a reverse-proxy that disconnects inactive connections: Ping every 30s
 C->S    { ping: null }
 ```
+
+If you decide to implement this protocol, please make sure it is compatible,
+especially ensure that channels/tracks are only added on request and to not
+reuse existing identifiers for new protocol packets.
