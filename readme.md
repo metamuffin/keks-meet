@@ -132,6 +132,7 @@ system works as follows:
 - Pin js by bookmarking data:text/html loader page
 - convert protocol enums to `A | B | C`
 - add "contributing" stuff to readme
+- dont use request_stop instead terminate the transceiver
 
 ## Protocol
 

@@ -45,8 +45,17 @@ export class RemoteUser extends User {
             r.on_enable(new TrackHandle(t), () => {
                 this.request_resource_stop(r)
             })
-            // else { ev.transceiver.stop(); return log({ scope: "media", warn: true }, "got a track for a resource that should use data channel") }
             log("media", `remote track: ${this.display_name}`, t)
+            this.update_stats()
+        }
+        this.pc.ondatachannel = ({ channel }) => {
+            const id = channel.label
+            const r = this.resources.get(id)
+            if (!r) { channel.close(); return log({ scope: "media", warn: true }, "got an unassociated channel") }
+            r.on_enable(channel, () => {
+                this.request_resource_stop(r)
+            })
+            log("media", `remote channel: ${this.display_name}`, channel)
             this.update_stats()
         }
         this.pc.onnegotiationneeded = () => {
@@ -97,7 +106,7 @@ export class RemoteUser extends User {
         if (message.request) {
             const r = this.room.local_user.resources.get(message.request.id)
             if (!r) return log({ scope: "*", warn: true }, "somebody requested an unknown resource")
-            const channel = r.on_request(this, label => this.pc.createDataChannel(label))
+            const channel = r.on_request(this, () => this.pc.createDataChannel(r.info.id))
             if (channel instanceof TrackHandle) {
                 const sender = this.pc.addTrack(channel.track, channel.stream)
                 this.senders.set(channel.id, sender)
