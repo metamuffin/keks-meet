@@ -130,7 +130,6 @@ system works as follows:
 - Prevent join notification bypass by not identifying
 - Tray icon for native
 - Pin js by bookmarking data:text/html loader page
-- convert protocol enums to `A | B | C`
 - add "contributing" stuff to readme
 - download files in a streaming manner.
   - workaround using service worker
