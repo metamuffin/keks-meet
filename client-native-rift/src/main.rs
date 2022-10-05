@@ -7,7 +7,7 @@
 
 use bytes::Bytes;
 use clap::{Parser, Subcommand};
-use client_native_lib::{ connect, peer::Peer, webrtc::data_channel::RTCDataChannel, Config};
+use client_native_lib::{connect, peer::Peer, webrtc::data_channel::RTCDataChannel, Config};
 use log::{error, info};
 use std::{future::Future, pin::Pin, sync::Arc};
 use tokio::{
@@ -31,8 +31,8 @@ fn main() {
 #[derive(Parser)]
 pub struct Args {
     /// keks-meet server used for establishing p2p connection
-    #[clap(long, default_value = "meet.metamuffin.org")]
-    signaling_host: String,
+    #[clap(long, default_value = "wss://meet.metamuffin.org")]
+    signaling_uri: String,
     /// pre-shared secret (aka. room name)
     #[clap(short, long)]
     secret: String,
@@ -45,7 +45,7 @@ async fn run() {
 
     connect(Config {
         secret: args.secret.clone(),
-        signaling_host: args.signaling_host.clone(),
+        signaling_uri: args.signaling_uri.clone(),
     })
     .await;
 

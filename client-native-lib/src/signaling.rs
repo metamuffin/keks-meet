@@ -13,13 +13,13 @@ use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver, UnboundedSender};
 use tokio_tungstenite::tungstenite::{self, Message};
 
 pub async fn signaling_connect(
-    host: &str,
+    signaling_server: &str,
     secret: &str,
 ) -> (
     UnboundedSender<ServerboundPacket>,
     UnboundedReceiver<ClientboundPacket>,
 ) {
-    let uri = format!("wss://{host}/signaling/{}", hash(secret));
+    let uri = format!("{signaling_server}/signaling/{}", hash(secret));
     info!("connecting to signaling server at {uri:?}");
     let (conn, _) = tokio_tungstenite::connect_async(url::Url::parse(&uri).unwrap())
         .await

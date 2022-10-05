@@ -31,12 +31,12 @@ pub mod state;
 pub use webrtc;
 
 pub struct Config {
-    pub signaling_host: String,
+    pub signaling_uri: String,
     pub secret: String,
 }
 
 pub async fn connect(config: Config) -> Arc<State> {
-    let (sender, mut recv) = signaling_connect(&config.signaling_host, &config.secret).await;
+    let (sender, mut recv) = signaling_connect(&config.signaling_uri, &config.secret).await;
 
     let key = crypto::Key::derive(&config.secret);
 
