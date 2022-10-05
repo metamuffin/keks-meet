@@ -56,6 +56,21 @@ rift --secret hunter2 send /path/to/file &
 rift --secret hunter2 receive /path/to/output
 ```
 
+## Security
+
+keks-meet _tries_ to be secure. However I am not a security expert. The current
+system works as follows:
+
+- The room name is set in the section of the URL which is not sent to the
+  server.
+- The server receives a salted SHA-256 hash of the room name to group clients of
+  a room.
+- The client uses PBKDF2 (constant salt; 250000 iterations) to derive a 256-bit
+  AES-GCM key from the room name.
+- All relayed message contents are encrypted with this key.
+  - Message recipient is visible to the server
+  - The server assigns user ids
+
 ## Keybinds
 
 | Keybind   | Action                                                  |
@@ -67,6 +82,27 @@ rift --secret hunter2 receive /path/to/output
 | `SPC S`   | Add screencast track                                    |
 | `SPC C-c` | End all tracks                                          |
 | `C-v`\*   | Paste image in chat (does not require chat to be shown) |
+
+## Todo-List
+
+- Make the optional streams UI prettier
+- Maybe group tracks in streams to make sure everything is in sync
+- How do we implement global hotkeys?
+- Dont use websocket to send images to not block anything else
+- File transfers via data channel (rift)
+- Native client
+- Have a security professional look at the code
+- Test some options like `camera_facing_mode`
+- Signing key for each user
+  - Built-in storage for known keys
+- Relay RTC when there are a lot of clients
+- Prevent join notification bypass by not identifying
+- Tray icon for native
+- Pin js by bookmarking data:text/html loader page
+- add "contributing" stuff to readme
+- download files in a streaming manner.
+  - workaround using service worker
+- service worker to implement manual updates
 
 ## Parameters
 
@@ -98,42 +134,6 @@ their opposites. I convenience function for changing params is also exported:
 | `notify_chat`                   | boolean | `true`      | Send notifications for incoming chat messages                        |
 | `notify_join`                   | boolean | `true`      | Send notifications when users join                                   |
 | `notify_leave`                  | boolean | `true`      | Send notifications when users leave                                  |
-
-## Security
-
-keks-meet _tries_ to be secure. However I am not a security expert. The current
-system works as follows:
-
-- The room name is set in the section of the URL which is not sent to the
-  server.
-- The server receives a salted SHA-256 hash of the room name to group clients of
-  a room.
-- The client uses PBKDF2 (constant salt; 250000 iterations) to derive a 256-bit
-  AES-GCM key from the room name.
-- All relayed message contents are encrypted with this key.
-  - Message recipient is visible to the server
-  - The server assigns user ids
-
-## Todo-List
-
-- Make the optional streams UI prettier
-- Maybe group tracks in streams to make sure everything is in sync
-- How do we implement global hotkeys?
-- Dont use websocket to send images to not block anything else
-- File transfers via data channel (rift)
-- Native client
-- Have a security professional look at the code
-- Test some options like `camera_facing_mode`
-- Signing key for each user
-  - Built-in storage for known keys
-- Relay RTC when there are a lot of clients
-- Prevent join notification bypass by not identifying
-- Tray icon for native
-- Pin js by bookmarking data:text/html loader page
-- add "contributing" stuff to readme
-- download files in a streaming manner.
-  - workaround using service worker
-- service worker to implement manual updates
 
 ## Protocol
 
