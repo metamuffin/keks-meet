@@ -13,7 +13,7 @@ pub struct Key(Aes256Gcm);
 
 impl Key {
     pub fn derive(secret: &str) -> Self {
-        info!("running key generation... this might take some™ time");
+        info!("running key generation...");
         let salt = base64::decode("thisisagoodsaltAAAAAAA==").unwrap();
         let mut key = [0u8; 32];
         fastpbkdf2::pbkdf2_hmac_sha256(secret.as_bytes(), salt.as_slice(), 250000, &mut key);

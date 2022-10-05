@@ -134,6 +134,7 @@ system works as follows:
 - add "contributing" stuff to readme
 - download files in a streaming manner.
   - workaround using service worker
+- service worker to implement manual updates
 
 ## Protocol
 
