@@ -40,10 +40,11 @@ export interface /* enum */ RelayMessage {
 }
 export interface ChatMessage { text?: string, image?: string }
 export type ResourceKind = "track" | "file"
+export type TrackKind = "audio" | "video"
 export interface ProvideInfo {
     id: string, // for datachannels this is `label`, for tracks this will be the `id` of the only associated stream.
     kind: ResourceKind
-    track_kind?: "audio" | "video"
+    track_kind?: TrackKind
     label?: string
     size?: number
 }

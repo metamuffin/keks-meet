@@ -57,9 +57,17 @@ pub enum ChatMesssage {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TrackKind {
+    Audio,
+    Video,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProvideInfo {
     id: String,
-    kind: String, // TODO actually enum
+    kind: String, // not an enum so we dont fail if we dont support it
+    track_kind: Option<TrackKind>,
     label: Option<String>,
     size: Option<usize>,
 }
