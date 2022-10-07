@@ -7,6 +7,11 @@
 #![feature(box_syntax)]
 #![feature(async_fn_in_trait)]
 
+use std::{pin::Pin, sync::Arc};
+
+use futures_util::Future;
+use peer::Peer;
+use protocol::ProvideInfo;
 use state::State;
 use tokio::sync::RwLock;
 use webrtc::{
@@ -27,25 +32,10 @@ pub use webrtc;
 pub struct Config {
     pub signaling_uri: String,
     pub secret: String,
+    pub username: String,
 }
 
-impl State {
-    pub async fn new(config: Config) -> Self {
-        let conn = signaling::SignalingConnection::new(&config.signaling_uri, &config.secret).await;
-        let key = crypto::Key::derive(&config.secret);
-
-        Self {
-            api: build_api(),
-            my_id: RwLock::new(None),
-            peers: Default::default(),
-            config,
-            conn,
-            key,
-        }
-    }
-}
-
-fn build_api() -> webrtc::api::API {
+pub(crate) fn build_api() -> webrtc::api::API {
     let mut media_engine = MediaEngine::default();
     media_engine.register_default_codecs().unwrap();
     let mut registry = Registry::new();
@@ -54,4 +44,19 @@ fn build_api() -> webrtc::api::API {
         .with_media_engine(media_engine)
         .with_interceptor_registry(registry)
         .build()
+}
+
+pub trait LocalResource: Send + Sync + 'static {
+    fn info(&self) -> ProvideInfo;
+    fn on_request(&self, peer: Arc<Peer>) -> Box<dyn Future<Output = ()>>;
+}
+
+pub trait EventHandler: Send + Sync + 'static {
+    fn remote_resource_added(
+        &self,
+        peer: &Peer,
+        info: ProvideInfo,
+    ) -> Pin<Box<dyn Future<Output = ()>>>;
+    fn remote_resource_removed(&self, peer: &Peer, id: String)
+        -> Pin<Box<dyn Future<Output = ()>>>;
 }

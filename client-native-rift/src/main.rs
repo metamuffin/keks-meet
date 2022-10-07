@@ -7,7 +7,9 @@
 
 use bytes::Bytes;
 use clap::{Parser, Subcommand};
-use client_native_lib::{connect, peer::Peer, webrtc::data_channel::RTCDataChannel, Config};
+use client_native_lib::{
+    peer::Peer, state::State, webrtc::data_channel::RTCDataChannel, Config, EventHandler,
+};
 use log::{error, info};
 use std::{future::Future, pin::Pin, sync::Arc};
 use tokio::{
@@ -33,6 +35,9 @@ pub struct Args {
     /// keks-meet server used for establishing p2p connection
     #[clap(long, default_value = "wss://meet.metamuffin.org")]
     signaling_uri: String,
+    /// username for the `identify` packet
+    #[clap(short, long, default_value = "guest")]
+    username: String,
     /// pre-shared secret (aka. room name)
     #[clap(short, long)]
     secret: String,
@@ -43,14 +48,40 @@ pub struct Args {
 async fn run() {
     let args = Args::parse();
 
-    connect(Config {
-        secret: args.secret.clone(),
-        signaling_uri: args.signaling_uri.clone(),
-    })
+    let state = State::new(
+        Config {
+            secret: args.secret.clone(),
+            signaling_uri: args.signaling_uri.clone(),
+            username: args.username.clone(),
+        },
+        Box::new(Handler {}),
+    )
     .await;
+
+    state.receive_loop().await;
 
     tokio::signal::ctrl_c().await.unwrap();
     error!("interrupt received, exiting");
+}
+
+struct Handler {}
+
+impl EventHandler for Handler {
+    fn remote_resource_added(
+        &self,
+        peer: &Peer,
+        info: client_native_lib::protocol::ProvideInfo,
+    ) -> Pin<Box<dyn Future<Output = ()>>> {
+        todo!()
+    }
+
+    fn remote_resource_removed(
+        &self,
+        peer: &Peer,
+        id: String,
+    ) -> Pin<Box<dyn Future<Output = ()>>> {
+        todo!()
+    }
 }
 
 #[derive(Subcommand)]

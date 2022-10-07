@@ -4,11 +4,12 @@
     Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
 */
 use crate::{
-    crypto::Key,
+    build_api,
+    crypto::{self, Key},
     peer::Peer,
     protocol::{self, ClientboundPacket, RelayMessage, RelayMessageWrapper, ServerboundPacket},
-    signaling::SignalingConnection,
-    Config,
+    signaling::{self, SignalingConnection},
+    Config, EventHandler, LocalResource,
 };
 use futures_util::{SinkExt, StreamExt};
 use log::{debug, info, warn};
@@ -17,14 +18,32 @@ use tokio::sync::RwLock;
 use webrtc::api::API;
 
 pub struct State {
+    pub event_handler: Box<dyn EventHandler>,
     pub conn: SignalingConnection,
     pub config: Config,
     pub api: API,
     pub key: Key,
-    pub my_id: RwLock<Option<usize>>,
+    local_resources: RwLock<HashMap<String, Box<dyn LocalResource>>>,
+    my_id: RwLock<Option<usize>>,
     pub peers: RwLock<HashMap<usize, Arc<Peer>>>,
 }
 impl State {
+    pub async fn new(config: Config, event_handler: Box<dyn EventHandler>) -> Arc<Self> {
+        let conn = signaling::SignalingConnection::new(&config.signaling_uri, &config.secret).await;
+        let key = crypto::Key::derive(&config.secret);
+
+        Arc::new(Self {
+            event_handler,
+            api: build_api(),
+            my_id: RwLock::new(None),
+            peers: Default::default(),
+            local_resources: Default::default(),
+            config,
+            conn,
+            key,
+        })
+    }
+
     pub async fn my_id(&self) -> usize {
         self.my_id.read().await.expect("not initialized yet")
     }
@@ -47,14 +66,22 @@ impl State {
                 if id == self.my_id().await {
                     // we joined - YAY!
                 } else {
-                    self.peers
-                        .write()
-                        .await
-                        .insert(id, Peer::create(self.clone(), id).await);
+                    let peer = Peer::create(self.clone(), id).await;
+                    self.peers.write().await.insert(id, peer.clone());
+                    peer.send_relay(RelayMessage::Identify {
+                        username: self.config.username.clone(),
+                    })
+                    .await;
                 }
             }
             protocol::ClientboundPacket::ClientLeave { id } => {
-                self.peers.write().await.remove(&id);
+                self.peers
+                    .write()
+                    .await
+                    .remove(&id)
+                    .unwrap()
+                    .on_leave()
+                    .await;
             }
             protocol::ClientboundPacket::Message { sender, message } => {
                 let message = self.key.decrypt(&message);
@@ -89,5 +116,21 @@ impl State {
             })
             .await
             .unwrap()
+    }
+
+    pub async fn add_local_resource(&self, res: Box<dyn LocalResource>) {
+        for (pid, peer) in self.peers.read().await.iter() {
+            peer.send_relay(RelayMessage::Provide(res.info()));
+        }
+        self.local_resources
+            .write()
+            .await
+            .insert(res.info().id, res);
+    }
+    pub async fn remove_local_resource(&self, id: String) {
+        self.local_resources.write().await.remove(&id);
+        for (pid, peer) in self.peers.read().await.iter() {
+            peer.send_relay(RelayMessage::ProvideStop { id: id.clone() });
+        }
     }
 }

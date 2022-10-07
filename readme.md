@@ -103,6 +103,7 @@ system works as follows:
 - download files in a streaming manner.
   - workaround using service worker
 - service worker to implement manual updates
+- open chat links in a new tab
 
 ## Parameters
 

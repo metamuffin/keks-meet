@@ -65,9 +65,9 @@ pub enum TrackKind {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProvideInfo {
-    id: String,
-    kind: String, // not an enum so we dont fail if we dont support it
-    track_kind: Option<TrackKind>,
-    label: Option<String>,
-    size: Option<usize>,
+    pub id: String,
+    pub kind: String, // not an enum so we dont fail if we dont support it
+    pub track_kind: Option<TrackKind>,
+    pub label: Option<String>,
+    pub size: Option<usize>,
 }

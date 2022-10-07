@@ -4,13 +4,17 @@
     Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
 */
 use crate::{
-    protocol::{self, RelayMessage, Sdp},
+    protocol::{self, ProvideInfo, RelayMessage, Sdp},
     state::State,
 };
 use log::info;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
+use tokio::sync::RwLock;
 use webrtc::{
-    ice_transport::{ice_candidate::RTCIceCandidate, ice_server::RTCIceServer},
+    ice_transport::{
+        ice_candidate::{RTCIceCandidate, RTCIceCandidateInit},
+        ice_server::RTCIceServer,
+    },
     peer_connection::{
         configuration::RTCConfiguration, peer_connection_state::RTCPeerConnectionState,
         sdp::session_description::RTCSessionDescription, RTCPeerConnection,
@@ -20,6 +24,7 @@ use webrtc::{
 pub struct Peer {
     pub state: Arc<State>,
     pub peer_connection: RTCPeerConnection,
+    pub resources_provided: RwLock<HashMap<String, ProvideInfo>>,
     pub id: usize,
 }
 
@@ -36,6 +41,7 @@ impl Peer {
 
         let peer_connection = state.api.new_peer_connection(config).await.unwrap();
         let peer = Arc::new(Self {
+            resources_provided: Default::default(),
             state: state.clone(),
             peer_connection,
             id,
@@ -92,21 +98,52 @@ impl Peer {
 
     pub async fn on_relay(&self, p: RelayMessage) {
         match p {
-            protocol::RelayMessage::Offer(o) => self.on_offer(o).await,
-            protocol::RelayMessage::Answer(a) => self.on_answer(a).await,
-            protocol::RelayMessage::IceCandidate(c) => {
-                info!("received ICE candidate");
-                self.peer_connection.add_ice_candidate(c).await.unwrap();
+            RelayMessage::Offer(o) => self.on_offer(o).await,
+            RelayMessage::Answer(a) => self.on_answer(a).await,
+            RelayMessage::IceCandidate(c) => self.on_remote_ice_candidate(c).await,
+            RelayMessage::Provide(info) => {
+                info!(
+                    "remote resource provided: ({:?}) {:?} {:?}",
+                    info.id, info.kind, info.label
+                );
+                self.resources_provided
+                    .write()
+                    .await
+                    .insert(info.id.clone(), info.clone());
+                self.state
+                    .event_handler
+                    .remote_resource_added(&self, info)
+                    .await;
+            }
+            RelayMessage::ProvideStop { id } => {
+                info!("remote resource removed: ({:?}) ", id);
+                self.resources_provided.write().await.remove(&id);
+                self.state
+                    .event_handler
+                    .remote_resource_removed(&self, id)
+                    .await;
             }
             _ => (),
         }
     }
 
+    pub async fn on_leave(&self) {
+        info!("({}) peer left", self.id);
+    }
+
     pub async fn on_ice_candidate(&self, candidate: RTCIceCandidate) {
+        info!("publishing local ICE candidate");
         self.send_relay(RelayMessage::IceCandidate(
             candidate.to_json().await.unwrap(),
         ))
         .await;
+    }
+    pub async fn on_remote_ice_candidate(&self, candidate: RTCIceCandidateInit) {
+        info!("adding remote ICE candidate");
+        self.peer_connection
+            .add_ice_candidate(candidate)
+            .await
+            .unwrap();
     }
 
     pub async fn on_negotiation_needed(self: Arc<Self>) {
