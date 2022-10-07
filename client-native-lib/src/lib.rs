@@ -10,9 +10,9 @@
 use std::{pin::Pin, sync::Arc};
 
 use futures_util::Future;
-use peer::Peer;
-use protocol::ProvideInfo;
 use instance::Instance;
+use peer::{Peer, TransportChannel};
+use protocol::ProvideInfo;
 use tokio::sync::RwLock;
 use webrtc::{
     api::{
@@ -22,10 +22,10 @@ use webrtc::{
 };
 
 pub mod crypto;
+pub mod instance;
 pub mod peer;
 pub mod protocol;
 pub mod signaling;
-pub mod instance;
 
 pub use webrtc;
 
@@ -46,17 +46,22 @@ pub(crate) fn build_api() -> webrtc::api::API {
         .build()
 }
 
+pub type DynFut<T> = Pin<Box<dyn Future<Output = T> + Send>>;
+
 pub trait LocalResource: Send + Sync + 'static {
     fn info(&self) -> ProvideInfo;
-    fn on_request(&self, peer: Arc<Peer>) -> Box<dyn Future<Output = ()>>;
+    fn on_request(&self, peer: Arc<Peer>) -> DynFut<()>;
 }
 
 pub trait EventHandler: Send + Sync + 'static {
-    fn remote_resource_added(
+    fn peer_join(&self, peer: Arc<Peer>) -> DynFut<()>;
+    fn peer_leave(&self, peer: Arc<Peer>) -> DynFut<()>;
+    fn resource_added(&self, peer: Arc<Peer>, info: ProvideInfo) -> DynFut<()>;
+    fn resource_removed(&self, peer: Arc<Peer>, id: String) -> DynFut<()>;
+    fn resource_connected(
         &self,
         peer: Arc<Peer>,
-        info: ProvideInfo,
-    ) -> Pin<Box<dyn Future<Output = ()>>>;
-    fn remote_resource_removed(&self, peer: Arc<Peer>, id: String)
-        -> Pin<Box<dyn Future<Output = ()>>>;
+        resource: &ProvideInfo,
+        channel: TransportChannel,
+    ) -> DynFut<()>;
 }

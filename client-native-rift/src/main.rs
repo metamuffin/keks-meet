@@ -8,9 +8,13 @@
 use bytes::Bytes;
 use clap::{Parser, Subcommand};
 use client_native_lib::{
-    instance::Instance, peer::Peer, webrtc::data_channel::RTCDataChannel, Config, EventHandler,
+    instance::Instance,
+    peer::{Peer, TransportChannel},
+    protocol::ProvideInfo,
+    webrtc::data_channel::RTCDataChannel,
+    Config, DynFut, EventHandler, LocalResource,
 };
-use log::{error, info};
+use log::{error, info, warn};
 use std::{future::Future, pin::Pin, sync::Arc};
 use tokio::{
     fs::File,
@@ -30,7 +34,7 @@ fn main() {
         .block_on(run())
 }
 
-#[derive(Parser)]
+#[derive(Parser, Clone)]
 pub struct Args {
     /// keks-meet server used for establishing p2p connection
     #[clap(long, default_value = "wss://meet.metamuffin.org")]
@@ -54,7 +58,9 @@ async fn run() {
             signaling_uri: args.signaling_uri.clone(),
             username: args.username.clone(),
         },
-        Box::new(Handler {}),
+        Arc::new(Handler {
+            args: Arc::new(args.clone()),
+        }),
     )
     .await;
 
@@ -64,30 +70,91 @@ async fn run() {
     error!("interrupt received, exiting");
 }
 
-struct Handler {}
+#[derive(Clone)]
+struct Handler {
+    args: Arc<Args>,
+}
 
 impl EventHandler for Handler {
-    fn remote_resource_added(
+    fn peer_join(&self, peer: Arc<Peer>) -> client_native_lib::DynFut<()> {
+        Box::pin(async move {})
+    }
+
+    fn peer_leave(&self, peer: Arc<Peer>) -> client_native_lib::DynFut<()> {
+        Box::pin(async move {})
+    }
+    fn resource_added(
         &self,
         peer: Arc<Peer>,
         info: client_native_lib::protocol::ProvideInfo,
-    ) -> Pin<Box<dyn Future<Output = ()>>> {
+    ) -> DynFut<()> {
         let id = info.id.clone();
         Box::pin(async move {
             peer.request_resource(id).await;
         })
     }
+    fn resource_removed(&self, peer: Arc<Peer>, id: String) -> DynFut<()> {
+        Box::pin(async {})
+    }
 
-    fn remote_resource_removed(
+    fn resource_connected(
         &self,
         peer: Arc<Peer>,
-        id: String,
-    ) -> Pin<Box<dyn Future<Output = ()>>> {
-        Box::pin(async {})
+        resource: &ProvideInfo,
+        channel: TransportChannel,
+    ) -> client_native_lib::DynFut<()> {
+        let resource = resource.clone();
+        let s = self.clone();
+        Box::pin(async move {
+            match channel {
+                TransportChannel::Track(_) => warn!("wrong type"),
+                TransportChannel::DataChannel(dc) => {
+                    if resource.kind != "file" {
+                        return error!("we got a non-file resource for some reason…");
+                    }
+                    let writer = Arc::new(RwLock::new(None));
+                    {
+                        let writer = writer.clone();
+                        dc.on_open(box move || {
+                            let s = s.clone();
+                            let writer = writer.clone();
+                            Box::pin(async move {
+                                info!("channel opened");
+                                *writer.write().await = Some(s.args.action.create_writer().await)
+                            })
+                        })
+                        .await;
+                    }
+                    {
+                        let writer = writer.clone();
+                        dc.on_close(box move || {
+                            let writer = writer.clone();
+                            Box::pin(async move {
+                                info!("channel closed");
+                                *writer.write().await = None;
+                            })
+                        })
+                        .await;
+                    }
+                    dc.on_message(box move |mesg| {
+                        Box::pin(async move {
+                            info!("{:?} bytes of data", mesg.data.len());
+                        })
+                    })
+                    .await;
+                    dc.on_error(box move |err| {
+                        Box::pin(async move {
+                            error!("data channel errored: {err}");
+                        })
+                    })
+                    .await;
+                }
+            }
+        })
     }
 }
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Clone)]
 pub enum Action {
     /// Send a file
     Send { filename: Option<String> },
@@ -119,6 +186,19 @@ impl Action {
             }
             _ => unreachable!(),
         }
+    }
+}
+
+struct FileSender {
+    info: ProvideInfo,
+}
+impl LocalResource for FileSender {
+    fn info(&self) -> client_native_lib::protocol::ProvideInfo {
+        self.info.clone()
+    }
+
+    fn on_request(&self, peer: Arc<Peer>) -> DynFut<()> {
+        Box::pin(async move {})
     }
 }
 

@@ -18,7 +18,7 @@ use tokio::sync::RwLock;
 use webrtc::api::API;
 
 pub struct Instance {
-    pub event_handler: Box<dyn EventHandler>,
+    pub event_handler: Arc<dyn EventHandler>,
     pub conn: SignalingConnection,
     pub config: Config,
     pub api: API,
@@ -28,7 +28,7 @@ pub struct Instance {
     pub peers: RwLock<HashMap<usize, Arc<Peer>>>,
 }
 impl Instance {
-    pub async fn new(config: Config, event_handler: Box<dyn EventHandler>) -> Arc<Self> {
+    pub async fn new(config: Config, event_handler: Arc<dyn EventHandler>) -> Arc<Self> {
         let conn = signaling::SignalingConnection::new(&config.signaling_uri, &config.secret).await;
         let key = crypto::Key::derive(&config.secret);
 
@@ -72,16 +72,13 @@ impl Instance {
                         username: self.config.username.clone(),
                     })
                     .await;
+                    self.event_handler.peer_join(peer).await;
                 }
             }
             protocol::ClientboundPacket::ClientLeave { id } => {
-                self.peers
-                    .write()
-                    .await
-                    .remove(&id)
-                    .unwrap()
-                    .on_leave()
-                    .await;
+                let peer = self.peers.write().await.remove(&id).unwrap();
+                peer.on_leave().await;
+                self.event_handler.peer_leave(peer).await;
             }
             protocol::ClientboundPacket::Message { sender, message } => {
                 let message = self.key.decrypt(&message);
