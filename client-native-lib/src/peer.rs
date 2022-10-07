@@ -4,13 +4,14 @@
     Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
 */
 use crate::{
+    instance::Instance,
     protocol::{self, ProvideInfo, RelayMessage, Sdp},
-    state::State,
 };
 use log::info;
 use std::{collections::HashMap, sync::Arc};
 use tokio::sync::RwLock;
 use webrtc::{
+    data::data_channel::DataChannel,
     ice_transport::{
         ice_candidate::{RTCIceCandidate, RTCIceCandidateInit},
         ice_server::RTCIceServer,
@@ -19,17 +20,34 @@ use webrtc::{
         configuration::RTCConfiguration, peer_connection_state::RTCPeerConnectionState,
         sdp::session_description::RTCSessionDescription, RTCPeerConnection,
     },
+    track::track_remote::TrackRemote,
 };
 
 pub struct Peer {
-    pub state: Arc<State>,
+    pub inst: Arc<Instance>,
     pub peer_connection: RTCPeerConnection,
     pub resources_provided: RwLock<HashMap<String, ProvideInfo>>,
     pub id: usize,
 }
 
+// pub struct RemoteResource {
+//     info: ProvideInfo,
+//     state: RemoteResourceInner,
+// }
+// // (Box<dyn FnOnce(Arc<TransportChannel>) -> Pin<Box<dyn Future<Output = ()>>>>)
+// pub enum RemoteResourceInner {
+//     Disconnected,
+//     AwaitConnect,
+//     Connected(Arc<TransportChannel>),
+//     AwaitDisconnect,
+// }
+// pub enum TransportChannel {
+//     Track(TrackRemote),
+//     DataChannel(DataChannel),
+// }
+
 impl Peer {
-    pub async fn create(state: Arc<State>, id: usize) -> Arc<Self> {
+    pub async fn create(inst: Arc<Instance>, id: usize) -> Arc<Self> {
         info!("({id}) peer joined");
         let config = RTCConfiguration {
             ice_servers: vec![RTCIceServer {
@@ -39,10 +57,10 @@ impl Peer {
             ..Default::default()
         };
 
-        let peer_connection = state.api.new_peer_connection(config).await.unwrap();
+        let peer_connection = inst.api.new_peer_connection(config).await.unwrap();
         let peer = Arc::new(Self {
             resources_provided: Default::default(),
-            state: state.clone(),
+            inst: inst.clone(),
             peer_connection,
             id,
         });
@@ -80,6 +98,7 @@ impl Peer {
         {
             peer.peer_connection
                 .on_data_channel(box move |dc| {
+                    info!("got a data channel");
                     Box::pin(async move {
                         dc.on_message(box move |message| {
                             Box::pin(async move { println!("{:?}", message.data) })
@@ -92,11 +111,18 @@ impl Peer {
         peer
     }
 
-    pub async fn send_relay(&self, inner: RelayMessage) {
-        self.state.send_relay(self.id, inner).await
+    pub async fn request_resource(&self, id: String) {
+        self.send_relay(RelayMessage::Request { id }).await;
+    }
+    pub async fn request_stop_resource(&self, id: String) {
+        self.send_relay(RelayMessage::RequestStop { id }).await;
     }
 
-    pub async fn on_relay(&self, p: RelayMessage) {
+    pub async fn send_relay(&self, inner: RelayMessage) {
+        self.inst.send_relay(self.id, inner).await
+    }
+
+    pub async fn on_relay(self: Arc<Self>, p: RelayMessage) {
         match p {
             RelayMessage::Offer(o) => self.on_offer(o).await,
             RelayMessage::Answer(a) => self.on_answer(a).await,
@@ -110,17 +136,17 @@ impl Peer {
                     .write()
                     .await
                     .insert(info.id.clone(), info.clone());
-                self.state
+                self.inst
                     .event_handler
-                    .remote_resource_added(&self, info)
+                    .remote_resource_added(self.clone(), info)
                     .await;
             }
             RelayMessage::ProvideStop { id } => {
                 info!("remote resource removed: ({:?}) ", id);
                 self.resources_provided.write().await.remove(&id);
-                self.state
+                self.inst
                     .event_handler
-                    .remote_resource_removed(&self, id)
+                    .remote_resource_removed(self.clone(), id)
                     .await;
             }
             _ => (),

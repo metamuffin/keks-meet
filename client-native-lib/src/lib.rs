@@ -12,7 +12,7 @@ use std::{pin::Pin, sync::Arc};
 use futures_util::Future;
 use peer::Peer;
 use protocol::ProvideInfo;
-use state::State;
+use instance::Instance;
 use tokio::sync::RwLock;
 use webrtc::{
     api::{
@@ -25,7 +25,7 @@ pub mod crypto;
 pub mod peer;
 pub mod protocol;
 pub mod signaling;
-pub mod state;
+pub mod instance;
 
 pub use webrtc;
 
@@ -54,9 +54,9 @@ pub trait LocalResource: Send + Sync + 'static {
 pub trait EventHandler: Send + Sync + 'static {
     fn remote_resource_added(
         &self,
-        peer: &Peer,
+        peer: Arc<Peer>,
         info: ProvideInfo,
     ) -> Pin<Box<dyn Future<Output = ()>>>;
-    fn remote_resource_removed(&self, peer: &Peer, id: String)
+    fn remote_resource_removed(&self, peer: Arc<Peer>, id: String)
         -> Pin<Box<dyn Future<Output = ()>>>;
 }

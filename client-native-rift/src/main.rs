@@ -8,7 +8,7 @@
 use bytes::Bytes;
 use clap::{Parser, Subcommand};
 use client_native_lib::{
-    peer::Peer, state::State, webrtc::data_channel::RTCDataChannel, Config, EventHandler,
+    instance::Instance, peer::Peer, webrtc::data_channel::RTCDataChannel, Config, EventHandler,
 };
 use log::{error, info};
 use std::{future::Future, pin::Pin, sync::Arc};
@@ -48,7 +48,7 @@ pub struct Args {
 async fn run() {
     let args = Args::parse();
 
-    let state = State::new(
+    let inst = Instance::new(
         Config {
             secret: args.secret.clone(),
             signaling_uri: args.signaling_uri.clone(),
@@ -58,7 +58,7 @@ async fn run() {
     )
     .await;
 
-    state.receive_loop().await;
+    inst.receive_loop().await;
 
     tokio::signal::ctrl_c().await.unwrap();
     error!("interrupt received, exiting");
@@ -69,18 +69,21 @@ struct Handler {}
 impl EventHandler for Handler {
     fn remote_resource_added(
         &self,
-        peer: &Peer,
+        peer: Arc<Peer>,
         info: client_native_lib::protocol::ProvideInfo,
     ) -> Pin<Box<dyn Future<Output = ()>>> {
-        todo!()
+        let id = info.id.clone();
+        Box::pin(async move {
+            peer.request_resource(id).await;
+        })
     }
 
     fn remote_resource_removed(
         &self,
-        peer: &Peer,
+        peer: Arc<Peer>,
         id: String,
     ) -> Pin<Box<dyn Future<Output = ()>>> {
-        todo!()
+        Box::pin(async {})
     }
 }
 

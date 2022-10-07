@@ -17,7 +17,7 @@ use std::{collections::HashMap, sync::Arc};
 use tokio::sync::RwLock;
 use webrtc::api::API;
 
-pub struct State {
+pub struct Instance {
     pub event_handler: Box<dyn EventHandler>,
     pub conn: SignalingConnection,
     pub config: Config,
@@ -27,7 +27,7 @@ pub struct State {
     my_id: RwLock<Option<usize>>,
     pub peers: RwLock<HashMap<usize, Arc<Peer>>>,
 }
-impl State {
+impl Instance {
     pub async fn new(config: Config, event_handler: Box<dyn EventHandler>) -> Arc<Self> {
         let conn = signaling::SignalingConnection::new(&config.signaling_uri, &config.secret).await;
         let key = crypto::Key::derive(&config.secret);
@@ -51,8 +51,8 @@ impl State {
     pub async fn receive_loop(self: Arc<Self>) {
         while let Some(packet) = self.conn.recv.write().await.next().await {
             debug!("{packet:?}");
-            let state = self.clone();
-            state.on_message(packet).await
+            let inst = self.clone();
+            inst.on_message(packet).await
         }
     }
 
