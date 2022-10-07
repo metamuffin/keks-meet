@@ -17,6 +17,7 @@ const log_scope_color = {
     media: "#4af5ff",
     rnnoise: "#4aff7e",
     usermodel: "#a6ff4a",
+    dc: "#4af5ff",
 }
 
 export type LogScope = keyof typeof log_scope_color

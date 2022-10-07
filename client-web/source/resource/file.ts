@@ -1,4 +1,12 @@
+/*
+    This file is part of keks-meet (https://codeberg.org/metamuffin/keks-meet)
+    which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
+    Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
+*/
+/// <reference lib="dom" />
+
 import { ebutton, ediv, espan, sleep } from "../helper.ts";
+import { log } from "../logger.ts";
 import { LocalResource, ResourceHandlerDecl } from "./mod.ts";
 
 export const resource_file: ResourceHandlerDecl = {
@@ -28,13 +36,13 @@ export const resource_file: ResourceHandlerDecl = {
                 this.el.appendChild(display.el)
 
                 channel.onopen = _ev => {
-                    console.log(`${user.display_name}: channel open`);
+                    log("dc", `${user.display_name}: channel open`);
                 }
                 channel.onerror = _ev => {
-                    console.log(`${user.display_name}: channel error`);
+                    log("dc", `${user.display_name}: channel error`);
                 }
                 channel.onclose = _ev => {
-                    console.log(`${user.display_name}: channel closed`);
+                    log("dc", `${user.display_name}: channel closed`);
                     const a = document.createElement("a")
                     a.href = URL.createObjectURL(new Blob([buffer], { type: "text/plain" }))
                     a.download = info.label ?? "file"
@@ -99,12 +107,13 @@ function file_res_inner(file: File): LocalResource {
                     display.status = `Draining buffers… (buffer: ${channel.bufferedAmount})`
                     await sleep(10)
                 }
+                display.status = "Waiting for the channel to close…"
                 return channel.close()
             }
             const feed = async () => {
                 const { value: chunk, done } = await reader.read()
-                if (!chunk) console.warn("no chunk");
                 if (done) return await finish()
+                if (!chunk) console.warn("no chunk");
                 position += chunk.length
                 channel.send(chunk)
                 display.status = `${position} / ${file.size} (buffer: ${channel.bufferedAmount})`
@@ -119,17 +128,17 @@ function file_res_inner(file: File): LocalResource {
             channel.onbufferedamountlow = () => feed_until_full()
             channel.onopen = _ev => {
                 display.status = "Buffering…"
-                console.log(`${user.display_name}: channel open`);
+                log("dc", `${user.display_name}: channel open`);
                 feed_until_full()
             }
             channel.onerror = _ev => {
-                console.log(`${user.display_name}: channel error`);
+                log("dc", `${user.display_name}: channel error`);
             }
             channel.onclosing = _ev => {
                 display.status = "Channel closing…"
             }
             channel.onclose = _ev => {
-                console.log(`${user.display_name}: channel closed`);
+                log("dc", `${user.display_name}: channel closed`);
                 transfers_el.removeChild(display.el)
             }
             return channel
