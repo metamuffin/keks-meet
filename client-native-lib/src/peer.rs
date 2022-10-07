@@ -9,7 +9,6 @@ use crate::{
 };
 use log::info;
 use std::sync::Arc;
-use tokio::sync::mpsc::UnboundedSender;
 use webrtc::{
     ice_transport::{ice_candidate::RTCIceCandidate, ice_server::RTCIceServer},
     peer_connection::{
@@ -19,17 +18,13 @@ use webrtc::{
 };
 
 pub struct Peer {
-    pub signal: UnboundedSender<(usize, RelayMessage)>,
+    pub state: Arc<State>,
     pub peer_connection: RTCPeerConnection,
     pub id: usize,
 }
 
 impl Peer {
-    pub async fn create(
-        state: Arc<State>,
-        signal: UnboundedSender<(usize, RelayMessage)>,
-        id: usize,
-    ) -> Arc<Self> {
+    pub async fn create(state: Arc<State>, id: usize) -> Arc<Self> {
         info!("({id}) peer joined");
         let config = RTCConfiguration {
             ice_servers: vec![RTCIceServer {
@@ -41,7 +36,7 @@ impl Peer {
 
         let peer_connection = state.api.new_peer_connection(config).await.unwrap();
         let peer = Arc::new(Self {
-            signal,
+            state: state.clone(),
             peer_connection,
             id,
         });
@@ -92,7 +87,7 @@ impl Peer {
     }
 
     pub async fn send_relay(&self, inner: RelayMessage) {
-        self.signal.send((self.id, inner)).unwrap()
+        self.state.send_relay(self.id, inner).await
     }
 
     pub async fn on_relay(&self, p: RelayMessage) {
