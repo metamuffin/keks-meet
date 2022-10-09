@@ -36,6 +36,10 @@ export interface User {
 }
 
 window.onload = () => main()
+window.onhashchange = () => {
+    // TODO might just destroy room object and create a new one, but cleanup probably wont work. lets reload instead
+    window.location.reload()
+}
 
 export async function main() {
     log("*", "starting up")
