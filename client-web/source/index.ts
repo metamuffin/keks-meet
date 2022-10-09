@@ -40,7 +40,14 @@ window.onhashchange = () => {
     // TODO might just destroy room object and create a new one, but cleanup probably wont work. lets reload instead
     window.location.reload()
 }
+window.onbeforeunload = ev => {
+    if (r.local_user.resources.size != 0 && PREFS.enable_onbeforeunload) {
+        ev.preventDefault()
+        return ev.returnValue = "You have local resources shared. Really quit?"
+    }
+}
 
+let r: Room;
 export async function main() {
     log("*", "starting up")
     document.body.querySelectorAll("p").forEach(e => e.remove())
@@ -54,7 +61,7 @@ export async function main() {
     if (PREFS.warn_redirect) log({ scope: "crypto", warn: true }, "You were redirected from the old URL format. The server knows the room name now - e2ee is insecure!")
 
     const conn = await (new SignalingConnection().connect(room_name))
-    const r = new Room(conn)
+    r = new Room(conn)
 
     setup_keybinds(r)
     r.on_ready = () => {
