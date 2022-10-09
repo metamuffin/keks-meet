@@ -90,7 +90,14 @@ impl EventHandler for Handler {
     ) -> DynFut<()> {
         let id = info.id.clone();
         Box::pin(async move {
-            peer.request_resource(id).await;
+            match self.args.action {
+                Action::Send { filename } => {}
+                Action::Receive { filename } => {
+                    if info.kind == "file" {
+                        peer.request_resource(id).await;
+                    }
+                }
+            }
         })
     }
     fn resource_removed(&self, peer: Arc<Peer>, id: String) -> DynFut<()> {
@@ -112,7 +119,8 @@ impl EventHandler for Handler {
                     if resource.kind != "file" {
                         return error!("we got a non-file resource for some reason…");
                     }
-                    let writer = Arc::new(RwLock::new(None));
+                    let writer: Arc<RwLock<Option<Pin<Box<dyn AsyncWrite + Send + Sync>>>>> =
+                        Arc::new(RwLock::new(None));
                     {
                         let writer = writer.clone();
                         dc.on_open(box move || {
@@ -136,11 +144,23 @@ impl EventHandler for Handler {
                         })
                         .await;
                     }
-                    dc.on_message(box move |mesg| {
-                        Box::pin(async move {
-                            info!("{:?} bytes of data", mesg.data.len());
+                    {
+                        let writer = writer.clone();
+                        dc.on_message(box move |mesg| {
+                            let writer = writer.clone();
+                            Box::pin(async move {
+                                info!("{:?} bytes of data", mesg.data.len());
+                                writer
+                                    .write()
+                                    .await
+                                    .as_mut()
+                                    .unwrap()
+                                    .write(&mesg.data)
+                                    .await
+                                    .unwrap();
+                            })
                         })
-                    })
+                    }
                     .await;
                     dc.on_error(box move |err| {
                         Box::pin(async move {

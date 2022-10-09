@@ -47,12 +47,10 @@ pub(crate) fn build_api() -> webrtc::api::API {
 }
 
 pub type DynFut<T> = Pin<Box<dyn Future<Output = T> + Send>>;
-
 pub trait LocalResource: Send + Sync + 'static {
     fn info(&self) -> ProvideInfo;
     fn on_request(&self, peer: Arc<Peer>) -> DynFut<()>;
 }
-
 pub trait EventHandler: Send + Sync + 'static {
     fn peer_join(&self, peer: Arc<Peer>) -> DynFut<()>;
     fn peer_leave(&self, peer: Arc<Peer>) -> DynFut<()>;
