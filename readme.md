@@ -104,6 +104,8 @@ system works as follows:
   - workaround using service worker
 - service worker to implement manual updates
 - open chat links in a new tab
+- increase message size again when https://github.com/webrtc-rs/webrtc/pull/304
+  is resolved
 
 ## Parameters
 

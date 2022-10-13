@@ -89,8 +89,9 @@ impl EventHandler for Handler {
         info: client_native_lib::protocol::ProvideInfo,
     ) -> DynFut<()> {
         let id = info.id.clone();
+        let args = self.args.clone();
         Box::pin(async move {
-            match self.args.action {
+            match &args.action {
                 Action::Send { filename } => {}
                 Action::Receive { filename } => {
                     if info.kind == "file" {

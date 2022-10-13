@@ -9,6 +9,8 @@ import { ebutton, ediv, espan, sleep } from "../helper.ts";
 import { log } from "../logger.ts";
 import { LocalResource, ResourceHandlerDecl } from "./mod.ts";
 
+const MAX_CHUNK_SIZE = 1 << 15;
+
 export const resource_file: ResourceHandlerDecl = {
     kind: "file",
     new_remote(info, user, enable) {
@@ -111,11 +113,13 @@ function file_res_inner(file: File): LocalResource {
                 return channel.close()
             }
             const feed = async () => {
-                const { value: chunk, done } = await reader.read()
+                const { value: chunk, done }: { value: Uint8Array, done: boolean } = await reader.read()
                 if (done) return await finish()
                 if (!chunk) console.warn("no chunk");
                 position += chunk.length
-                channel.send(chunk)
+                for (let i = 0; i < chunk.length; i += MAX_CHUNK_SIZE) {
+                    channel.send(chunk.slice(i, Math.min(i + MAX_CHUNK_SIZE, chunk.length)))
+                }
                 display.status = `${position} / ${file.size} (buffer: ${channel.bufferedAmount})`
             }
             const feed_until_full = async () => {
