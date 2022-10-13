@@ -44,6 +44,24 @@ impl Instance {
         })
     }
 
+    pub async fn spawn_ping(self: &Arc<Self>) {
+        let blub = self.clone();
+        tokio::spawn(async move {
+            loop {
+                blub.ping();
+            }
+        });
+    }
+
+    pub async fn ping(&self) {
+        self.conn
+            .send
+            .write()
+            .await
+            .send(ServerboundPacket::Ping)
+            .await;
+    }
+
     pub async fn my_id(&self) -> usize {
         self.my_id.read().await.expect("not initialized yet")
     }

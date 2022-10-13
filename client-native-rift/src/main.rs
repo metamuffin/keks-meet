@@ -14,8 +14,16 @@ use client_native_lib::{
     webrtc::data_channel::RTCDataChannel,
     Config, DynFut, EventHandler, LocalResource,
 };
+use humansize::DECIMAL;
 use log::{error, info, warn};
-use std::{future::Future, pin::Pin, sync::Arc};
+use std::{
+    future::Future,
+    pin::Pin,
+    sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc,
+    },
+};
 use tokio::{
     fs::File,
     io::{stdin, stdout, AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt},
@@ -64,6 +72,7 @@ async fn run() {
     )
     .await;
 
+    inst.spawn_ping().await;
     inst.receive_loop().await;
 
     tokio::signal::ctrl_c().await.unwrap();
@@ -120,6 +129,7 @@ impl EventHandler for Handler {
                     if resource.kind != "file" {
                         return error!("we got a non-file resource for some reason…");
                     }
+                    let mut pos = Arc::new(AtomicUsize::new(0));
                     let writer: Arc<RwLock<Option<Pin<Box<dyn AsyncWrite + Send + Sync>>>>> =
                         Arc::new(RwLock::new(None));
                     {
@@ -149,8 +159,15 @@ impl EventHandler for Handler {
                         let writer = writer.clone();
                         dc.on_message(box move |mesg| {
                             let writer = writer.clone();
+                            let pos = pos.clone();
                             Box::pin(async move {
-                                info!("{:?} bytes of data", mesg.data.len());
+                                let pos = pos.fetch_add(mesg.data.len(), Ordering::Relaxed);
+                                info!(
+                                    "{:?} bytes of data ({} of {})",
+                                    mesg.data.len(),
+                                    humansize::format_size(pos, DECIMAL),
+                                    humansize::format_size(resource.size.unwrap_or(0), DECIMAL),
+                                );
                                 writer
                                     .write()
                                     .await
