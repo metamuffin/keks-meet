@@ -77,12 +77,15 @@ impl Peer {
             let weak = Arc::<Peer>::downgrade(&peer);
             peer.peer_connection
                 .on_ice_candidate(box move |c| {
-                    let peer = weak.upgrade().unwrap();
-                    Box::pin(async move {
-                        if let Some(c) = c {
-                            peer.on_ice_candidate(c).await
-                        }
-                    })
+                    if let Some(peer) = weak.upgrade() {
+                        Box::pin(async move {
+                            if let Some(c) = c {
+                                peer.on_ice_candidate(c).await
+                            }
+                        })
+                    } else {
+                        Box::pin(async move {})
+                    }
                 })
                 .await;
         }

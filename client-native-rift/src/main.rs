@@ -259,6 +259,7 @@ impl LocalResource for FileSender {
 
     fn on_request(&self, peer: Arc<Peer>) -> DynFut<()> {
         let id = self.info().id.clone();
+        let total_size = self.info().size.unwrap_or(0);
         let reader_factory = self.reader_factory.clone();
         Box::pin(async move {
             let channel = peer
@@ -299,6 +300,7 @@ impl LocalResource for FileSender {
                 let channel2 = channel.clone();
                 channel
                     .on_buffered_amount_low(box move || {
+                        let pos = pos.clone();
                         let reader = reader.clone();
                         let channel = channel2.clone();
                         Box::pin(async move {
@@ -316,7 +318,12 @@ impl LocalResource for FileSender {
                                 info!("reached EOF, closing channel");
                                 channel.close().await.unwrap();
                             } else {
-                                debug!("sending {size} bytes");
+                                let progress_size = pos.fetch_add(size, Ordering::Relaxed);
+                                info!(
+                                    "sending {size} bytes ({} of {})",
+                                    humansize::format_size(progress_size, DECIMAL),
+                                    humansize::format_size(total_size, DECIMAL),
+                                );
                                 channel
                                     .send(&Bytes::copy_from_slice(&buf[..size]))
                                     .await
