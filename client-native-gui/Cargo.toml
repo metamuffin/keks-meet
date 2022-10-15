@@ -1,0 +1,13 @@
+[package]
+name = "keks-meet"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+client-native-lib = { path = "../client-native-lib" }
+
+env_logger = "0.8"
+log = "0.4"
+
+egui = "0.19.0"
+eframe = "0.19.0"
