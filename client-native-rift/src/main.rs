@@ -5,12 +5,12 @@
 */
 #![feature(box_syntax)]
 
-use bytes::{Bytes, BytesMut};
+use bytes::Bytes;
 use clap::{Parser, Subcommand};
 use client_native_lib::{
     instance::Instance,
     peer::{Peer, TransportChannel},
-    protocol::{ProvideInfo, RelayMessage},
+    protocol::ProvideInfo,
     Config, DynFut, EventHandler, LocalResource,
 };
 use humansize::DECIMAL;
@@ -31,7 +31,8 @@ use tokio::{
 
 fn main() {
     env_logger::builder()
-        .filter_level(log::LevelFilter::Info)
+        .filter_module("rift", log::LevelFilter::Info)
+        .filter_module("client_native_lib", log::LevelFilter::Info)
         .parse_env("LOG")
         .init();
     tokio::runtime::Builder::new_multi_thread()
@@ -105,7 +106,7 @@ struct Handler {
 }
 
 impl EventHandler for Handler {
-    fn peer_join(&self, peer: Arc<Peer>) -> client_native_lib::DynFut<()> {
+    fn peer_join(&self, _peer: Arc<Peer>) -> client_native_lib::DynFut<()> {
         Box::pin(async move {})
     }
 

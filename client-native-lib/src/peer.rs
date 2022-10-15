@@ -6,9 +6,8 @@
 use crate::{
     instance::Instance,
     protocol::{self, ProvideInfo, RelayMessage, Sdp},
-    LocalResource,
 };
-use log::{info, warn};
+use log::{debug, info, warn};
 use std::{collections::HashMap, sync::Arc};
 use tokio::sync::RwLock;
 use webrtc::{
@@ -191,7 +190,7 @@ impl Peer {
                     warn!("({}) requested unknown local resource", self.id)
                 }
             }
-            RelayMessage::RequestStop { id } => {}
+            RelayMessage::RequestStop { id: _ } => {} // TODO
         }
     }
 
@@ -200,14 +199,14 @@ impl Peer {
     }
 
     pub async fn on_ice_candidate(&self, candidate: RTCIceCandidate) {
-        info!("publishing local ICE candidate");
+        debug!("publishing local ICE candidate");
         self.send_relay(RelayMessage::IceCandidate(
             candidate.to_json().await.unwrap(),
         ))
         .await;
     }
     pub async fn on_remote_ice_candidate(&self, candidate: RTCIceCandidateInit) {
-        info!("adding remote ICE candidate");
+        debug!("adding remote ICE candidate");
         self.peer_connection
             .add_ice_candidate(candidate)
             .await
