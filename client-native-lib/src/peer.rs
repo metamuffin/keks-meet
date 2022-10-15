@@ -6,12 +6,12 @@
 use crate::{
     instance::Instance,
     protocol::{self, ProvideInfo, RelayMessage, Sdp},
+    LocalResource,
 };
 use log::{info, warn};
 use std::{collections::HashMap, sync::Arc};
 use tokio::sync::RwLock;
 use webrtc::{
-    data::data_channel::DataChannel,
     data_channel::RTCDataChannel,
     ice_transport::{
         ice_candidate::{RTCIceCandidate, RTCIceCandidateInit},
@@ -27,7 +27,7 @@ use webrtc::{
 pub struct Peer {
     pub inst: Arc<Instance>,
     pub peer_connection: RTCPeerConnection,
-    pub resources_provided: RwLock<HashMap<String, ProvideInfo>>,
+    pub remote_provided: RwLock<HashMap<String, ProvideInfo>>,
     pub id: usize,
 }
 
@@ -42,6 +42,7 @@ pub struct Peer {
 //     Connected(Arc<TransportChannel>),
 //     AwaitDisconnect,
 // }
+
 pub enum TransportChannel {
     Track(Arc<TrackRemote>),
     DataChannel(Arc<RTCDataChannel>),
@@ -60,7 +61,7 @@ impl Peer {
 
         let peer_connection = inst.api.new_peer_connection(config).await.unwrap();
         let peer = Arc::new(Self {
-            resources_provided: Default::default(),
+            remote_provided: Default::default(),
             inst: inst.clone(),
             peer_connection,
             id,
@@ -103,7 +104,7 @@ impl Peer {
                     let peer = weak.upgrade().unwrap();
                     Box::pin(async move {
                         if let Some(res) = peer
-                            .resources_provided
+                            .remote_provided
                             .read()
                             .await
                             .get(&dc.label().to_string())
@@ -119,13 +120,23 @@ impl Peer {
                                 .await;
                         } else {
                             warn!("got unassociated data channel; closed connection");
-                            dc.close().await;
+                            dc.close().await.unwrap();
                         }
                     })
                 })
                 .await;
         }
         peer
+    }
+
+    pub async fn init_remote(&self) {
+        self.send_relay(RelayMessage::Identify {
+            username: self.inst.config.username.clone(),
+        })
+        .await;
+        for res in self.inst.local_resources.read().await.values() {
+            self.send_relay(RelayMessage::Provide(res.info())).await;
+        }
     }
 
     pub async fn request_resource(&self, id: String) {
@@ -139,7 +150,7 @@ impl Peer {
         self.inst.send_relay(self.id, inner).await
     }
 
-    pub async fn on_relay(self: Arc<Self>, p: RelayMessage) {
+    pub async fn on_relay(self: &Arc<Self>, p: RelayMessage) {
         match p {
             RelayMessage::Offer(o) => self.on_offer(o).await,
             RelayMessage::Answer(a) => self.on_answer(a).await,
@@ -149,7 +160,7 @@ impl Peer {
                     "remote resource provided: ({:?}) {:?} {:?}",
                     info.id, info.kind, info.label
                 );
-                self.resources_provided
+                self.remote_provided
                     .write()
                     .await
                     .insert(info.id.clone(), info.clone());
@@ -160,13 +171,24 @@ impl Peer {
             }
             RelayMessage::ProvideStop { id } => {
                 info!("remote resource removed: ({:?}) ", id);
-                self.resources_provided.write().await.remove(&id);
+                self.remote_provided.write().await.remove(&id);
                 self.inst
                     .event_handler
                     .resource_removed(self.clone(), id)
                     .await;
             }
-            _ => (),
+            RelayMessage::Chat(_) => (),
+            RelayMessage::Identify { username } => {
+                info!("peer {} is known as {username:?}", self.id)
+            }
+            RelayMessage::Request { id } => {
+                if let Some(res) = self.inst.local_resources.read().await.get(&id) {
+                    res.on_request(self.clone()).await;
+                } else {
+                    warn!("({}) requested unknown local resource", self.id)
+                }
+            }
+            RelayMessage::RequestStop { id } => {}
         }
     }
 

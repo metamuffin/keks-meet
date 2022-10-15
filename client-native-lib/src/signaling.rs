@@ -6,7 +6,7 @@
 use crate::protocol::ClientboundPacket;
 use crate::{crypto::hash, protocol::ServerboundPacket};
 use futures_util::{Sink, SinkExt, Stream, StreamExt};
-use log::{debug, error, info, warn};
+use log::{debug, error, info, trace};
 use std::pin::Pin;
 use tokio::sync::RwLock;
 use tokio_tungstenite::tungstenite::{self, Message};
@@ -37,7 +37,10 @@ impl SignalingConnection {
         let (tx, rx): (_, _) = conn.split();
 
         let tx = tx.with(async move |packet: ServerboundPacket| {
-            debug!(" ->  {packet:?}");
+            match packet {
+                ServerboundPacket::Relay { .. } => trace!(" ->  {packet:?}"),
+                _ => debug!(" ->  {packet:?}"),
+            }
             Ok::<_, _>(Message::Text(
                 serde_json::to_string::<ServerboundPacket>(&packet).unwrap(),
             ))
@@ -46,9 +49,12 @@ impl SignalingConnection {
         let rx = rx.filter_map(async move |mesg| match mesg {
             Ok(mesg) => match mesg {
                 tungstenite::Message::Text(t) => {
-                    let p: ClientboundPacket = serde_json::from_str(t.as_str()).unwrap();
-                    debug!("<-  {p:?}");
-                    Some(p)
+                    let packet: ClientboundPacket = serde_json::from_str(t.as_str()).unwrap();
+                    match packet {
+                        ClientboundPacket::Message { .. } => trace!(" <- {packet:?}"),
+                        _ => debug!(" <- {packet:?}"),
+                    }
+                    Some(packet)
                 }
                 tungstenite::Message::Close(e) => {
                     error!("ws closed {e:?}");
@@ -57,7 +63,7 @@ impl SignalingConnection {
                 _ => None,
             },
             Err(e) => {
-                warn!("websocket error: {e}");
+                error!("websocket error: {e}");
                 None
             }
         });
