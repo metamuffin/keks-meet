@@ -83,30 +83,6 @@ system works as follows:
 | `SPC C-c` | End all tracks                                          |
 | `C-v`\*   | Paste image in chat (does not require chat to be shown) |
 
-## Todo-List
-
-- Make the optional streams UI prettier
-- Maybe group tracks in streams to make sure everything is in sync
-- How do we implement global hotkeys?
-- Dont use websocket to send images to not block anything else
-- File transfers via data channel (rift)
-- Native client
-- Have a security professional look at the code
-- Test some options like `camera_facing_mode`
-- Signing key for each user
-  - Built-in storage for known keys
-- Relay RTC when there are a lot of clients
-- Prevent join notification bypass by not identifying
-- Tray icon for native
-- Pin js by bookmarking data:text/html loader page
-- add "contributing" stuff to readme
-- download files in a streaming manner.
-  - workaround using service worker
-- service worker to implement manual updates
-- open chat links in a new tab
-- increase message size again when https://github.com/webrtc-rs/webrtc/pull/304
-  is resolved
-
 ## Parameters
 
 Some configuration parameters can be added like query params but **after** the
