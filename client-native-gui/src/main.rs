@@ -1,16 +1,17 @@
 #![feature(box_syntax)]
 
+use async_std::task::block_on;
+use client_native_lib::{
+    instance::Instance, peer::Peer, protocol::RelayMessage, Config, EventHandler,
+};
+use eframe::{egui, epaint::ahash::HashMap};
+use egui::{Ui, Visuals};
 use std::{
     future::Future,
     ops::Deref,
     pin::Pin,
     sync::{Arc, RwLock},
 };
-
-use async_std::task::block_on;
-use client_native_lib::{instance::Instance, peer::Peer, Config, EventHandler};
-use eframe::{egui, epaint::ahash::HashMap};
-use egui::{Ui, Visuals};
 use tokio::task::{block_in_place, JoinHandle};
 
 #[tokio::main]
@@ -84,25 +85,29 @@ struct Ingame {
 impl Ingame {
     pub async fn new(config: Config) -> Self {
         let handler = Arc::new(Handler::new());
-        Self {
-            instance: Instance::new(config, handler.clone()).await,
-            handler,
+        let instance = Instance::new(config, handler.clone()).await;
+        instance.spawn_ping().await;
+        {
+            let instance = instance.clone();
+            tokio::spawn(instance.receive_loop());
         }
+        Self { instance, handler }
     }
 
     pub fn ui(&self, ui: &mut Ui) {
         for (pid, peer) in self.handler.peers.read().unwrap().deref() {
-            ui.heading(format!("{}", pid));
+            ui.collapsing(peer.display_name(), |ui| {});
         }
     }
 }
 
 struct Handler {
-    peers: std::sync::RwLock<HashMap<usize, GuiPeer>>,
+    peers: RwLock<HashMap<usize, GuiPeer>>,
 }
 
 struct GuiPeer {
     peer: Arc<Peer>,
+    username: Option<String>,
 }
 
 impl Handler {
@@ -113,15 +118,26 @@ impl Handler {
     }
 }
 
+impl GuiPeer {
+    pub fn display_name(&self) -> String {
+        self.username
+            .clone()
+            .unwrap_or_else(|| format!("Unknown ({})", self.peer.id))
+    }
+}
+
 impl EventHandler for Handler {
     fn peer_join(
         &self,
         peer: std::sync::Arc<client_native_lib::peer::Peer>,
     ) -> client_native_lib::DynFut<()> {
-        self.peers
-            .write()
-            .unwrap()
-            .insert(peer.id, GuiPeer { peer: peer.clone() });
+        self.peers.write().unwrap().insert(
+            peer.id,
+            GuiPeer {
+                peer: peer.clone(),
+                username: None,
+            },
+        );
         Box::pin(async move {})
     }
 
@@ -155,6 +171,20 @@ impl EventHandler for Handler {
         resource: &client_native_lib::protocol::ProvideInfo,
         channel: client_native_lib::peer::TransportChannel,
     ) -> client_native_lib::DynFut<()> {
+        Box::pin(async move {})
+    }
+
+    fn on_relay(
+        &self,
+        peer: Arc<Peer>,
+        message: &client_native_lib::protocol::RelayMessage,
+    ) -> client_native_lib::DynFut<()> {
+        let mut guard = self.peers.write().unwrap();
+        let p = guard.get_mut(&peer.id).unwrap();
+        match message.clone() {
+            RelayMessage::Identify { username } => p.username = Some(username),
+            _ => (),
+        };
         Box::pin(async move {})
     }
 }

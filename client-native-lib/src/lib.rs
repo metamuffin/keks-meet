@@ -9,7 +9,7 @@
 
 use futures_util::Future;
 use peer::{Peer, TransportChannel};
-use protocol::ProvideInfo;
+use protocol::{ProvideInfo, RelayMessage};
 use std::{pin::Pin, sync::Arc};
 use webrtc::{
     api::{
@@ -59,4 +59,7 @@ pub trait EventHandler: Send + Sync + 'static {
         resource: &ProvideInfo,
         channel: TransportChannel,
     ) -> DynFut<()>;
+    fn on_relay(&self, peer: Arc<Peer>, message: &RelayMessage) -> DynFut<()> {
+        Box::pin(async move {})
+    }
 }

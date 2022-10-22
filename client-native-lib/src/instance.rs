@@ -27,6 +27,7 @@ pub struct Instance {
     my_id: RwLock<Option<usize>>,
     pub peers: RwLock<HashMap<usize, Arc<Peer>>>,
 }
+
 impl Instance {
     pub async fn new(config: Config, event_handler: Arc<dyn EventHandler>) -> Arc<Self> {
         let conn = signaling::SignalingConnection::new(&config.signaling_uri, &config.secret).await;
