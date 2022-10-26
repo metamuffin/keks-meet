@@ -47,12 +47,11 @@ function port_to_readable(port: MessagePort): ReadableStream {
     return new ReadableStream({
         start(controller) {
             console.log("ReadableStream started");
-            port.addEventListener("message", event => {
-                console.log(event.data);
+            port.onmessage = event => {
                 if (event.data === "end") { controller.close() }
                 else if (event.data === "abort") controller.error("aborted")
                 else controller.enqueue(event.data)
-            })
+            }
         },
         cancel() { console.log("ReadableStream cancelled"); port.postMessage({ abort: true }) },
     })

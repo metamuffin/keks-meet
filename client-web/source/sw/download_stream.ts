@@ -46,7 +46,6 @@ export function StreamDownload(size: number, filename?: string, progress?: (posi
             const reader = new FileReader();
             reader.onload = function (event) {
                 const arr = new Uint8Array(event.target!.result as ArrayBuffer);
-                console.log("send", arr);
                 port1.postMessage(arr)
                 position += arr.length
                 if (progress) progress(position)
