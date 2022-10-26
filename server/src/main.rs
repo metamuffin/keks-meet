@@ -31,10 +31,10 @@ fn main() {
 async fn run() {
     env_logger::init_from_env("LOG");
 
-    let rooms = Rooms::default();
-    let rooms = warp::any().map(move || rooms.clone());
+    let rooms: _ = Rooms::default();
+    let rooms: _ = warp::any().map(move || rooms.clone());
 
-    let signaling = warp::path!("signaling" / String)
+    let signaling: _ = warp::path!("signaling" / String)
         .and(rooms)
         .and(warp::ws())
         .map(signaling_connect);
@@ -42,6 +42,7 @@ async fn run() {
     let index: _ = warp::path!().and(warp::fs::file("../client-web/public/start.html"));
     let room: _ = warp::path!("room").and(warp::fs::file("../client-web/public/app.html"));
     let assets: _ = warp::path("assets").and(warp::fs::dir("../client-web/public/assets"));
+    let sw_script: _ = warp::path("sw.js").and(warp::fs::file("../client-web/public/assets/sw.js"));
     let favicon: _ = warp::path!("favicon.ico").map(|| "");
     let old_format_redirect: _ = warp::path!("room" / String).map(|rname| {
         reply::with_header(
@@ -52,11 +53,12 @@ async fn run() {
         .into_response()
     });
 
-    let routes = assets
+    let routes: _ = assets
         .or(room)
         .or(index)
         .or(signaling)
         .or(favicon)
+        .or(sw_script)
         .or(old_format_redirect)
         .recover(handle_rejection)
         .with(warp::log("stuff"));

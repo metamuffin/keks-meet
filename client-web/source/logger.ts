@@ -16,6 +16,7 @@ const log_scope_color = {
     ws: "#544aff",
     media: "#4af5ff",
     rnnoise: "#4aff7e",
+    sw: "#4aff7e",
     usermodel: "#a6ff4a",
     dc: "#4af5ff",
 }

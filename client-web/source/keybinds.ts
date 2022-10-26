@@ -7,6 +7,7 @@
 
 import { create_camera_res, create_mic_res, create_screencast_res } from "./resource/track.ts";
 import { Room } from "./room.ts"
+import { update_serviceworker } from "./sw/init.ts";
 
 export function setup_keybinds(room: Room) {
     let command_mode = false
@@ -29,6 +30,7 @@ export function setup_keybinds(room: Room) {
             if (ev.code == "KeyS") room.local_user.await_add_resource(create_screencast_res())
             if (ev.code == "KeyC" && !ev.ctrlKey) room.local_user.await_add_resource(create_camera_res())
             if (ev.code == "KeyC" && ev.ctrlKey) room.local_user.resources.forEach(t => t.destroy())
+            if (ev.code == "KeyU") if (window.confirm("really update?")) update_serviceworker()
         }
         command_mode = false
     })

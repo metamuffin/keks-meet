@@ -5,6 +5,7 @@
 */
 /// <reference lib="dom" />
 
+import { init_serviceworker } from "./sw/init.ts";
 import { ediv, OVERLAYS } from "./helper.ts";
 import { setup_keybinds } from "./keybinds.ts";
 import { log, LOGGER_CONTAINER } from "./logger.ts"
@@ -56,6 +57,7 @@ export async function main() {
     if (!globalThis.RTCPeerConnection) return log({ scope: "webrtc", error: true }, "WebRTC not supported.")
     if (!globalThis.isSecureContext) log({ scope: "*", warn: true }, "This page is not in a 'Secure Context'")
     if (!globalThis.crypto.subtle) return log({ scope: "crypto", error: true }, "SubtleCrypto not availible")
+    if (!globalThis.navigator.serviceWorker) log({ scope: "*", warn: true }, "Your browser does not support the Service Worker API, some features dont work without it.")
     if (room_name.length < 8) log({ scope: "crypto", warn: true }, "Room name is very short. e2ee is insecure!")
     if (room_name.length == 0) return window.location.href = "/" // send them back to the start page
     if (PREFS.warn_redirect) log({ scope: "crypto", warn: true }, "You were redirected from the old URL format. The server knows the room name now - e2ee is insecure!")
@@ -69,4 +71,6 @@ export async function main() {
         new MenuBr().shown = true
     }
     document.body.append(ROOM_CONTAINER, OVERLAYS, LOGGER_CONTAINER)
+
+    if (globalThis.navigator.serviceWorker) init_serviceworker()
 }

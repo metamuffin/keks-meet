@@ -9,7 +9,7 @@
 
 .user {
     background-color: var(--bg);
-    border: 0px soly transparent;
+    border: 0px solid transparent;
     border-radius: 5px;
     padding: 1em;
     vertical-align: baseline;

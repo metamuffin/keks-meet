@@ -9,6 +9,7 @@
 ** How do we implement global hotkeys?
 ** Dont use websocket to send images to not block anything else
 ** File transfers via data channel (rift)
+*** client-web: cancel transfer
 ** Native client
 ** Have a security professional look at the code
 ** Test some options like `camera_facing_mode`
@@ -19,10 +20,13 @@
 ** Tray icon for native
 ** Pin js by bookmarking data:text/html loader page
 ** add "contributing" stuff to readme
-** download files in a streaming manner.
-*** workaround using service worker
+** download files in a streaming workaround using service worker
+*** impl backpressure
+*** handle all failure events
 ** service worker to implement manual updates
 ** open chat links in a new tab
 ** increase message size again when https://github.com/webrtc-rs/webrtc/pull/304 is resolved
+** modularize everything
+*** (Loader), Core, Notifications, Track res, Microphone, Video, Keybinds, Chat, lsvp?
 
 

@@ -7,6 +7,7 @@
 
 import { ebutton, ediv, espan, sleep } from "../helper.ts";
 import { log } from "../logger.ts";
+import { StreamDownload } from "../sw/download_stream.ts";
 import { LocalResource, ResourceHandlerDecl } from "./mod.ts";
 
 const MAX_CHUNK_SIZE = 1 << 15;
@@ -30,9 +31,12 @@ export const resource_file: ResourceHandlerDecl = {
             on_statechange(_s) { },
             on_enable(channel, disable) {
                 if (!(channel instanceof RTCDataChannel)) throw new Error("not a data channel");
-                // TODO stream
-                let position = 0
-                const buffer = new Uint8Array(info.size!)
+                const download = StreamDownload(
+                    info.size!, info.label ?? "file",
+                    position => {
+                        display.status = `${position} / ${info.size}`
+                    }
+                );
 
                 const display = transfer_status_el()
                 this.el.appendChild(display.el)
@@ -45,25 +49,15 @@ export const resource_file: ResourceHandlerDecl = {
                 }
                 channel.onclose = _ev => {
                     log("dc", `${user.display_name}: channel closed`);
-                    const a = document.createElement("a")
-                    a.href = URL.createObjectURL(new Blob([buffer], { type: "text/plain" }))
-                    a.download = info.label ?? "file"
-                    a.click()
                     this.el.removeChild(display.el)
+                    download.close()
                     download_button.disabled = false
                     download_button.textContent = "Download"
                     disable()
                 }
                 channel.onmessage = ev => {
-                    const reader = new FileReader();
-                    reader.onload = function (event) {
-                        const arr = new Uint8Array(event.target!.result as ArrayBuffer);
-                        for (let i = 0; i < arr.length; i++, position++) {
-                            buffer[position] = arr[i]
-                        }
-                        display.status = `${position} / ${info.size}`
-                    };
-                    reader.readAsArrayBuffer(ev.data);
+                    // console.log(ev.data);
+                    download.write(ev.data)
                 }
             }
         }
@@ -113,9 +107,9 @@ function file_res_inner(file: File): LocalResource {
                 return channel.close()
             }
             const feed = async () => {
-                const { value: chunk, done }: { value: Uint8Array, done: boolean } = await reader.read()
+                const { value: chunk, done }: { value?: Uint8Array, done: boolean } = await reader.read()
                 if (done) return await finish()
-                if (!chunk) console.warn("no chunk");
+                if (!chunk) return console.warn("no chunk");
                 position += chunk.length
                 for (let i = 0; i < chunk.length; i += MAX_CHUNK_SIZE) {
                     channel.send(chunk.slice(i, Math.min(i + MAX_CHUNK_SIZE, chunk.length)))
