@@ -26,7 +26,12 @@ function FallbackStreamDownload(size: number, filename?: string, progress?: (pos
     }
 }
 
-export function StreamDownload(size: number, filename?: string, progress?: (position: number) => void) {
+export function StreamDownload({ size, filename, cancel, progress }: {
+    size: number,
+    filename: string,
+    cancel: () => void,
+    progress: (position: number) => void
+}) {
     if (!SW) FallbackStreamDownload(size, filename, progress)
     let position = 0
 
@@ -40,6 +45,13 @@ export function StreamDownload(size: number, filename?: string, progress?: (posi
     a.download = filename ?? "file"
     a.target = "_blank"
     a.click()
+
+    port1.onmessage = ev => {
+        if (ev.data.abort) {
+            cancel()
+            port1.close()
+        }
+    }
 
     return {
         close() {

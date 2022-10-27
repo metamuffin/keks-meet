@@ -31,15 +31,30 @@ export const resource_file: ResourceHandlerDecl = {
             on_statechange(_s) { },
             on_enable(channel, disable) {
                 if (!(channel instanceof RTCDataChannel)) throw new Error("not a data channel");
-                const download = StreamDownload(
-                    info.size!, info.label ?? "file",
-                    position => {
-                        display.status = `${display_filesize(position)} / ${display_filesize(info.size!)}`
-                    }
-                );
 
                 const display = transfer_status_el()
                 this.el.appendChild(display.el)
+                const reset = () => {
+                    download_button.disabled = false
+                    download_button.textContent = "Download again"
+                    this.el.removeChild(display.el)
+                    disable()
+                }
+
+                const download = StreamDownload(
+                    {
+                        size: info.size!,
+                        filename: info.label ?? "file",
+                        progress(position) {
+                            display.status = `${display_filesize(position)} / ${display_filesize(info.size!)}`
+                        },
+                        cancel() {
+                            channel.close()
+                            log({ scope: "*", warn: true }, "download stream aborted")
+                            reset()
+                        }
+                    }
+                );
 
                 channel.onopen = _ev => {
                     log("dc", `${user.display_name}: channel open`);
@@ -49,11 +64,8 @@ export const resource_file: ResourceHandlerDecl = {
                 }
                 channel.onclose = _ev => {
                     log("dc", `${user.display_name}: channel closed`);
-                    this.el.removeChild(display.el)
                     download.close()
-                    download_button.disabled = false
-                    download_button.textContent = "Download"
-                    disable()
+                    reset()
                 }
                 channel.onmessage = ev => {
                     // console.log(ev.data);

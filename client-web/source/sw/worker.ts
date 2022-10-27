@@ -12,8 +12,6 @@ declare const self: ServiceWorkerGlobalScope; export { };
 console.log("hello from the keks-meet service worker");
 console.log(self.origin)
 
-// let cache: Cache;
-
 self.addEventListener("install", event => {
     console.log("install");
     self.skipWaiting()
@@ -22,13 +20,6 @@ self.addEventListener("install", event => {
 self.addEventListener("activate", _event => {
     console.log("activate");
     self.clients.claim()
-    // event.waitUntil((async () => {
-    //     cache = await caches.open("v1")
-    //     cache.addAll([
-    //         "/assets/bundle.js",
-    //         "/assets/sw.js",
-    //     ])
-    // })())
 })
 self.addEventListener("unload", () => {
     console.log("unload")
@@ -72,14 +63,16 @@ self.addEventListener("fetch", event => {
                 stream.readable,
                 {
                     headers: new Headers({
-                        "Content-Type": "application/octet-stream; charset=utf-8", // TODO transmit and set accordingly
-                        "Content-Security-Policy": "default-src 'none'",
-                        "Content-Length": `${stream.size}`,
+                        "content-type": "application/octet-stream; charset=utf-8", // TODO transmit and set accordingly
+                        "content-security-policy": "default-src 'none'",
+                        "content-length": `${stream.size}`,
                     })
                 }
             )
         )
     }
+
+    if (path == "/swtest") return event.respondWith(new Response("works!", { headers: new Headers({ "content-type": "text/plain" }) }))
 
     event.respondWith(fetch(request))
 })
