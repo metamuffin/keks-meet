@@ -14,7 +14,7 @@ import { load_params, PREFS } from "./preferences/mod.ts";
 import { SignalingConnection } from "./protocol/mod.ts";
 import { Room } from "./room.ts"
 
-export const VERSION = "0.1.9"
+export const VERSION = "0.1.10"
 export const ROOM_CONTAINER = ediv({ class: "room" })
 
 export const RTC_CONFIG: RTCConfiguration = {
