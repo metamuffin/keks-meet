@@ -86,3 +86,11 @@ export function notify(body: string, author?: string) {
 }
 
 export function sleep(delay: number) { return new Promise(r => setTimeout(r, delay)) }
+
+export function display_filesize(n: number): string {
+    if (n > 1000000000000) return (n / 1000000000000).toFixed(1) + "TB"
+    if (n > 1000000000) return (n / 1000000000).toFixed(1) + "GB"
+    if (n > 1000000) return (n / 1000000).toFixed(1) + "MB"
+    if (n > 1000) return (n / 1000).toFixed(1) + "kB"
+    return n.toString() + "B"
+}

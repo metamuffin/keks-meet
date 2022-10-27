@@ -5,7 +5,7 @@
 */
 /// <reference lib="dom" />
 
-import { ebutton, ediv, espan, sleep } from "../helper.ts";
+import { display_filesize, ebutton, ediv, espan, sleep } from "../helper.ts";
 import { log } from "../logger.ts";
 import { StreamDownload } from "../sw/download_stream.ts";
 import { LocalResource, ResourceHandlerDecl } from "./mod.ts";
@@ -25,7 +25,7 @@ export const resource_file: ResourceHandlerDecl = {
         return {
             info,
             el: ediv({},
-                espan(`File: ${JSON.stringify(info.label)}`),
+                espan(`File: ${JSON.stringify(info.label)} (${display_filesize(info.size!)})`),
                 download_button,
             ),
             on_statechange(_s) { },
@@ -34,7 +34,7 @@ export const resource_file: ResourceHandlerDecl = {
                 const download = StreamDownload(
                     info.size!, info.label ?? "file",
                     position => {
-                        display.status = `${position} / ${info.size}`
+                        display.status = `${display_filesize(position)} / ${display_filesize(info.size!)}`
                     }
                 );
 
@@ -114,7 +114,7 @@ function file_res_inner(file: File): LocalResource {
                 for (let i = 0; i < chunk.length; i += MAX_CHUNK_SIZE) {
                     channel.send(chunk.slice(i, Math.min(i + MAX_CHUNK_SIZE, chunk.length)))
                 }
-                display.status = `${position} / ${file.size} (buffer: ${channel.bufferedAmount})`
+                display.status = `${display_filesize(position)} / ${display_filesize(file.size!)}; (buffer=${display_filesize(channel.bufferedAmount)})`
             }
             const feed_until_full = async () => {
                 // this has to do with a bad browser implementation
