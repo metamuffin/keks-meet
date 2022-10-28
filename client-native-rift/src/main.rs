@@ -249,7 +249,7 @@ impl Action {
 }
 
 struct FileSender {
-    reader_factory: Action, //TODO use Box<dyn Fn() -> DynFut<dyn AsyncRead + Send + Sync> + Send + Sync>,
+    reader_factory: Action, // TODO use Box<dyn Fn() -> DynFut<dyn AsyncRead + Send + Sync> + Send + Sync>,
     info: ProvideInfo,
 }
 
