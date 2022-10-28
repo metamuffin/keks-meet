@@ -170,7 +170,7 @@ function file_res_inner(file: File): LocalResource {
             channel.onclose = _ev => {
                 log("dc", `${user.display_name}: channel closed`);
                 transfers_el.removeChild(display.el)
-                   transfers_abort.delete(abort_cb)
+                transfers_abort.delete(abort_cb)
             }
             transfers_abort.add(abort_cb)
             return channel

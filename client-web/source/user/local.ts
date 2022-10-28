@@ -63,6 +63,8 @@ export class LocalUser extends User {
         this.el.append(r.el)
         this.room.signaling.send_relay({ provide })
 
+        r.el.classList.add("resource")
+        r.el.classList.add(`resource-${r.info.kind}`)
         r.el.append(
             ebutton("Stop", {
                 onclick: () => {

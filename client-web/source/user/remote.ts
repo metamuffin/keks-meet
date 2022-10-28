@@ -97,6 +97,8 @@ export class RemoteUser extends User {
             if (!d) return
             if (d.info.kind == "track" && d.info.track_kind == "audio" && PREFS.optional_audio_default_enable) this.request_resource(d)
             if (d.info.kind == "track" && d.info.track_kind == "video" && PREFS.optional_video_default_enable) this.request_resource(d)
+            d.el.classList.add("resource")
+            d.el.classList.add(`resource-${d.info.kind}`)
             this.el.append(d.el)
             this.resources.set(message.provide.id, d)
         }
