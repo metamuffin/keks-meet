@@ -8,7 +8,7 @@
 import { log } from "../logger.ts";
 import { RemoteUser } from "./remote.ts";
 import { Room } from "../room.ts";
-import { ChatMessage, ProvideInfo } from "../../../common/packets.d.ts";
+import { ChatMessage } from "../../../common/packets.d.ts";
 import { User } from "./mod.ts";
 import { create_camera_res, create_mic_res, create_screencast_res } from "../resource/track.ts";
 import { LocalResource } from "../resource/mod.ts";
@@ -58,9 +58,9 @@ export class LocalUser extends User {
     }
 
     add_resource(r: LocalResource) {
-        this.resources.set(r.info.id, r)
+        const provide = r.info
+        this.resources.set(provide.id, r)
         this.el.append(r.el)
-        const provide: ProvideInfo = r.info
         this.room.signaling.send_relay({ provide })
 
         r.el.append(
@@ -68,8 +68,8 @@ export class LocalUser extends User {
                 onclick: () => {
                     r.destroy()
                     this.el.removeChild(r.el);
-                    this.resources.delete(r.info.id)
-                    this.room.signaling.send_relay({ provide_stop: { id: r.info.id } })
+                    this.resources.delete(provide.id)
+                    this.room.signaling.send_relay({ provide_stop: { id: provide.id } })
                 }
             }),
         )

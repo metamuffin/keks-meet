@@ -56,6 +56,8 @@ export const resource_file: ResourceHandlerDecl = {
                     }
                 );
 
+                let finished = false
+
                 channel.onopen = _ev => {
                     log("dc", `${user.display_name}: channel open`);
                 }
@@ -64,12 +66,23 @@ export const resource_file: ResourceHandlerDecl = {
                 }
                 channel.onclose = _ev => {
                     log("dc", `${user.display_name}: channel closed`);
-                    download.close()
+                    if (!finished) {
+                        log({ warn: true, scope: "dc" }, "transfer failed");
+                        download.abort()
+                    } else {
+                        download.close()
+                    }
                     reset()
                 }
                 channel.onmessage = ev => {
-                    // console.log(ev.data);
-                    download.write(ev.data)
+                    const data: Blob | string = ev.data
+                    if (typeof data == "string") {
+                        if (data == "end") {
+                            finished = true
+                        }
+                    } else {
+                        download.write(data as Blob)
+                    }
                 }
             }
         }
@@ -92,9 +105,12 @@ export function create_file_res(): Promise<LocalResource> {
 
 function file_res_inner(file: File): LocalResource {
     const transfers_el = ediv({})
+    const transfers_abort = new Set<() => void>()
     return {
         info: { kind: "file", id: Math.random().toString(), label: file.name, size: file.size },
-        destroy() { },
+        destroy() {
+            transfers_abort.forEach(abort => abort())
+        },
         el: ediv({ class: "file" },
             espan(`Sharing file: ${JSON.stringify(file.name)}`),
             transfers_el
@@ -111,18 +127,21 @@ function file_res_inner(file: File): LocalResource {
             let position = 0
 
             const finish = async () => {
+                channel.send("end")
                 while (channel.bufferedAmount) {
                     display.status = `Draining buffers… (buffer: ${channel.bufferedAmount})`
                     await sleep(10)
                 }
                 display.status = "Waiting for the channel to close…"
-                return channel.close()
+                channel.close()
             }
             const feed = async () => {
                 const { value: chunk, done }: { value?: Uint8Array, done: boolean } = await reader.read()
                 if (done) return await finish()
                 if (!chunk) return console.warn("no chunk");
                 position += chunk.length
+                // bad spec: https://www.rfc-editor.org/rfc/rfc8831#name-transferring-user-data-on-a
+                // see https://github.com/webrtc-rs/webrtc/pull/304
                 for (let i = 0; i < chunk.length; i += MAX_CHUNK_SIZE) {
                     channel.send(chunk.slice(i, Math.min(i + MAX_CHUNK_SIZE, chunk.length)))
                 }
@@ -135,6 +154,7 @@ function file_res_inner(file: File): LocalResource {
                     await feed()
                 }
             }
+            const abort_cb = () => { channel.close(); }
             channel.onbufferedamountlow = () => feed_until_full()
             channel.onopen = _ev => {
                 display.status = "Buffering…"
@@ -150,7 +170,9 @@ function file_res_inner(file: File): LocalResource {
             channel.onclose = _ev => {
                 log("dc", `${user.display_name}: channel closed`);
                 transfers_el.removeChild(display.el)
+                   transfers_abort.delete(abort_cb)
             }
+            transfers_abort.add(abort_cb)
             return channel
         }
     }

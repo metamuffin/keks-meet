@@ -4,7 +4,7 @@ import { SW } from "./init.ts"
 function FallbackStreamDownload(size: number, filename?: string, progress?: (position: number) => void) {
     log({ scope: "*", warn: true }, "downloading to memory because serviceworker is not available")
     let position = 0
-    const buffer = new Uint8Array(size)
+    let buffer = new Uint8Array(size)
     return {
         close() {
             const a = document.createElement("a")
@@ -12,6 +12,7 @@ function FallbackStreamDownload(size: number, filename?: string, progress?: (pos
             a.download = filename ?? "file"
             a.click()
         },
+        abort() { buffer = new Uint8Array(); /* have fun gc */ },
         write(chunk: Blob) {
             const reader = new FileReader();
             reader.onload = function (event) {
@@ -56,6 +57,9 @@ export function StreamDownload({ size, filename, cancel, progress }: {
     return {
         close() {
             port1.postMessage("end")
+        },
+        abort() {
+            port1.postMessage("abort")
         },
         write(chunk: Blob) {
             const reader = new FileReader();
