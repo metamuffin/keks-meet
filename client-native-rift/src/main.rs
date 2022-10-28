@@ -194,7 +194,7 @@ impl EventHandler for Handler {
                                     .await
                                     .as_mut()
                                     .unwrap()
-                                    .write(&mesg.data)
+                                    .write_all(&mesg.data)
                                     .await
                                     .unwrap();
                             })
