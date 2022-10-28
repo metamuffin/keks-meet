@@ -68,10 +68,10 @@ export class LocalUser extends User {
                 onclick: () => {
                     r.destroy()
                     this.el.removeChild(r.el);
+                    this.resources.delete(r.info.id)
                     this.room.signaling.send_relay({ provide_stop: { id: r.info.id } })
                 }
             }),
-
         )
     }
 }

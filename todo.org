@@ -1,32 +1,35 @@
 #+TITLE: keks-meet todo list
 #+AUTHOR: metamuffin
-#+TODO: TODO PAUSED ABANDONED | DONE
+#+TODO: TODO PAUSED ABANDONED | PARTIAL DONE
 
 
 * client-web
-** Make the optional streams UI prettier
+** TODO Make the optional streams UI prettier
 ** Maybe group tracks in streams to make sure everything is in sync
 ** How do we implement global hotkeys?
 ** Dont use websocket to send images to not block anything else
-** File transfers via data channel (rift)
+** PARTIAL File transfers via data channel (rift)
+CLOSED: [2022-10-28 Fri 21:48]
 *** client-web: cancel transfer
-** Native client
+** TODO Native client
 ** Have a security professional look at the code
 ** Test some options like `camera_facing_mode`
 ** Signing key for each user
 *** Built-in storage for known keys
 ** Relay RTC when there are a lot of clients
-** Prevent join notification bypass by not identifying
+** ABANDONED Prevent join notification bypass by not identifying
 ** Tray icon for native
 ** Pin js by bookmarking data:text/html loader page
 ** add "contributing" stuff to readme
-** download files in a streaming workaround using service worker
+** PARTIAL download files in a streaming workaround using service worker
+CLOSED: [2022-10-28 Fri 21:48]
 *** impl backpressure
 *** handle all failure events
 ** service worker to implement manual updates
-** open chat links in a new tab
+** PARTIAL open chat links in a new tab
+CLOSED: [2022-10-28 Fri 21:47]
+*** data urls are slow
 ** increase message size again when https://github.com/webrtc-rs/webrtc/pull/304 is resolved
 ** modularize everything
 *** (Loader), Core, Notifications, Track res, Microphone, Video, Keybinds, Chat, lsvp?
-
 
