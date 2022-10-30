@@ -4,13 +4,14 @@
 
 
 * client-web
-** TODO Make the optional streams UI prettier
+** TODO Make the optional streams UI pretdtier
 ** Maybe group tracks in streams to make sure everything is in sync
 ** How do we implement global hotkeys?
 ** Dont use websocket to send images to not block anything else
 ** PARTIAL File transfers via data channel (rift)
 CLOSED: [2022-10-28 Fri 21:48]
-*** client-web: cancel transfer
+*** DONE client-web: cancel transfer
+CLOSED: [2022-10-29 Sat 17:29]
 ** TODO Native client
 ** Have a security professional look at the code
 ** Test some options like `camera_facing_mode`
@@ -26,10 +27,10 @@ CLOSED: [2022-10-28 Fri 21:48]
 *** impl backpressure
 *** handle all failure events
 ** service worker to implement manual updates
+*** only accept signed js
 ** PARTIAL open chat links in a new tab
 CLOSED: [2022-10-28 Fri 21:47]
-*** data urls are slow
-** increase message size again when https://github.com/webrtc-rs/webrtc/pull/304 is resolved
+*** data urls are 
 ** modularize everything
 *** (Loader), Core, Notifications, Track res, Microphone, Video, Keybinds, Chat, lsvp?
 
