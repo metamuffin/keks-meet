@@ -307,6 +307,7 @@ impl LocalResource for FileSender {
                     .await;
             }
             {
+                channel.set_buffered_amount_low_threshold(1 << 20).await;
                 let reader = reader.clone();
                 let channel2 = channel.clone();
                 channel
@@ -344,8 +345,6 @@ impl LocalResource for FileSender {
                     })
                     .await;
             }
-
-            channel.set_buffered_amount_low_threshold(1 << 20).await;
 
             channel
                 .on_error(box move |err| Box::pin(async move { error!("channel error: {err}") }))
