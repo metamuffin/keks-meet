@@ -18,6 +18,7 @@ use log::{debug, error, info, warn};
 use std::{
     os::unix::prelude::MetadataExt,
     pin::Pin,
+    process::exit,
     sync::{
         atomic::{AtomicUsize, Ordering},
         Arc,
@@ -55,6 +56,9 @@ pub struct Args {
     secret: String,
     #[clap(subcommand)]
     action: Action,
+    /// end after completion of the first transfer
+    #[clap(short, long)]
+    one_file: bool,
 }
 
 async fn run() {
@@ -155,6 +159,7 @@ impl EventHandler for Handler {
                         Arc::new(RwLock::new(None));
                     {
                         let writer = writer.clone();
+                        let s = s.clone();
                         dc.on_open(box move || {
                             let s = s.clone();
                             let writer = writer.clone();
@@ -167,11 +172,16 @@ impl EventHandler for Handler {
                     }
                     {
                         let writer = writer.clone();
+                        let args = s.args.clone();
                         dc.on_close(box move || {
                             let writer = writer.clone();
+                            let args = args.clone();
                             Box::pin(async move {
                                 info!("channel closed");
                                 *writer.write().await = None;
+                                if args.one_file {
+                                    exit(0);
+                                }
                             })
                         })
                         .await;
@@ -334,6 +344,9 @@ impl LocalResource for FileSender {
                     })
                     .await;
             }
+
+            channel.set_buffered_amount_low_threshold(1 << 20).await;
+
             channel
                 .on_error(box move |err| Box::pin(async move { error!("channel error: {err}") }))
                 .await;

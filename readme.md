@@ -83,12 +83,19 @@ system works as follows:
 | `SPC C-c` | End all tracks                                          |
 | `C-v`\*   | Paste image in chat (does not require chat to be shown) |
 
+## Debugging
+
+- If a connection cant be established, look at it with `webrtc_debug` enabled.
+- In case downloading files doesn't work, check if the service worker was
+  installed correctly by visiting `/swtest`
+- If it still doesn't work, file a bug report.
+
 ## Parameters
 
 Some configuration parameters can be added like query params but **after** the
 section. (e.g `/room#mymeeting?username=alice`) The page will not automatically
 reload if the section changes. Booleans can be either `1`, `true`, `yes` or
-their opposites. I convenience function for changing params is also exported:
+their opposites. A convenience function for changing params is also exported:
 `window.change_pref(key, value)`
 
 | Option name                     | Type    | Default     | Description                                                          |
