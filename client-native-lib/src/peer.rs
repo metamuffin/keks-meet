@@ -102,6 +102,34 @@ impl Peer {
         {
             let weak = Arc::<Peer>::downgrade(&peer);
             peer.peer_connection
+                .on_track(box move |track_remote, receiver| {
+                    let receiver = receiver.unwrap();
+                    let track_remote = track_remote.unwrap();
+                    let peer = weak.upgrade().unwrap();
+                    Box::pin(async move {
+                        let id = &track_remote.stream_id().await;
+                        if let Some(res) = peer.remote_provided.read().await.get(id) {
+                            info!("track for ({:?}) '{:?}'", res.id, res.label);
+                            peer.inst
+                                .event_handler
+                                .resource_connected(
+                                    peer.clone(),
+                                    res,
+                                    TransportChannel::Track(track_remote),
+                                )
+                                .await;
+                        } else {
+                            warn!("got unassociated track; stopping receiver");
+                            receiver.stop().await.unwrap();
+                        }
+                    })
+                })
+                .await;
+        }
+
+        {
+            let weak = Arc::<Peer>::downgrade(&peer);
+            peer.peer_connection
                 .on_data_channel(box move |dc| {
                     let peer = weak.upgrade().unwrap();
                     Box::pin(async move {

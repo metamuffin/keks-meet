@@ -35,6 +35,7 @@ pub struct Config {
 pub(crate) fn build_api() -> webrtc::api::API {
     let mut media_engine = MediaEngine::default();
     media_engine.register_default_codecs().unwrap();
+    
     let mut registry = Registry::new();
     registry = register_default_interceptors(registry, &mut media_engine).unwrap();
     APIBuilder::new()
@@ -59,7 +60,7 @@ pub trait EventHandler: Send + Sync + 'static {
         resource: &ProvideInfo,
         channel: TransportChannel,
     ) -> DynFut<()>;
-    fn on_relay(&self, peer: Arc<Peer>, message: &RelayMessage) -> DynFut<()> {
+    fn on_relay(&self, _peer: Arc<Peer>, _message: &RelayMessage) -> DynFut<()> {
         Box::pin(async move {})
     }
 }
