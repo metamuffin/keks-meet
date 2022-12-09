@@ -1,5 +1,5 @@
 
-.PHONY: run client-build server-run server-build watch
+.PHONY: run client-build server-run server-build watch install
 build: client-build server-build
 run: client-build server-run
 client-build:
@@ -11,3 +11,8 @@ server-build:
 watch:
 	make -C client-web watch &
 	make -C server watch
+install:
+	cargo install --path server
+	cargo install --path client-native-gui
+	cargo install --path client-native-rift 
+	cargo install --path client-native-export-track
