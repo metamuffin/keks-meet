@@ -2,17 +2,19 @@
 
 use async_std::task::block_on;
 use client_native_lib::{
-    instance::Instance, peer::Peer, protocol::RelayMessage, Config, EventHandler,
+    instance::Instance,
+    peer::Peer,
+    protocol::{ProvideInfo, RelayMessage},
+    Config, EventHandler,
 };
-use eframe::{egui, epaint::ahash::HashMap};
+use eframe::egui;
 use egui::{Ui, Visuals};
 use std::{
-    future::Future,
+    collections::{HashMap, HashSet},
     ops::Deref,
-    pin::Pin,
     sync::{Arc, RwLock},
 };
-use tokio::task::{block_in_place, JoinHandle};
+use tokio::task::JoinHandle;
 
 #[tokio::main]
 async fn main() {
@@ -37,30 +39,33 @@ async fn main() {
 }
 
 enum App {
-    Prejoin(String),
+    Prejoin(String, String),
     Joining(Option<JoinHandle<Ingame>>),
     Ingame(Ingame),
 }
 
 impl App {
     pub fn new() -> Self {
-        Self::Prejoin("longtest".to_string())
+        Self::Prejoin("longtest".to_string(), "blub".to_string())
     }
 }
 
 impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| match self {
-            App::Prejoin(secret) => {
+            App::Prejoin(secret, username) => {
                 ui.heading("Join a meeting");
                 ui.label("Room secret:");
                 ui.text_edit_singleline(secret);
+                ui.label("Username:");
+                ui.text_edit_singleline(username);
                 if ui.button("Join").clicked() {
                     let secret = secret.clone();
+                    let username = username.clone();
                     *self = Self::Joining(Some(tokio::spawn(async move {
                         Ingame::new(Config {
                             secret,
-                            username: "blub".to_string(),
+                            username,
                             signaling_uri: "wss://meet.metamuffin.org".to_string(),
                         })
                         .await
@@ -95,8 +100,16 @@ impl Ingame {
     }
 
     pub fn ui(&self, ui: &mut Ui) {
-        for (pid, peer) in self.handler.peers.read().unwrap().deref() {
-            ui.collapsing(peer.display_name(), |ui| {});
+        for (_pid, peer) in self.handler.peers.read().unwrap().deref() {
+            ui.collapsing(peer.display_name(), |ui| {
+                for (_rid, resource) in peer.resources.iter() {
+                    ui.label(&format!(
+                        "{} {} {:?}",
+                        resource.id, resource.kind, resource.label
+                    ));
+                    if ui.button("Request").clicked() {}
+                }
+            });
         }
     }
 }
@@ -107,6 +120,7 @@ struct Handler {
 
 struct GuiPeer {
     peer: Arc<Peer>,
+    resources: HashMap<String, ProvideInfo>,
     username: Option<String>,
 }
 
@@ -134,6 +148,7 @@ impl EventHandler for Handler {
         self.peers.write().unwrap().insert(
             peer.id,
             GuiPeer {
+                resources: HashMap::new(),
                 peer: peer.clone(),
                 username: None,
             },
@@ -154,6 +169,9 @@ impl EventHandler for Handler {
         peer: std::sync::Arc<client_native_lib::peer::Peer>,
         info: client_native_lib::protocol::ProvideInfo,
     ) -> client_native_lib::DynFut<()> {
+        if let Some(gp) = self.peers.write().unwrap().get_mut(&peer.id) {
+            gp.resources.insert(info.id.clone(), info);
+        }
         Box::pin(async move {})
     }
 
@@ -162,6 +180,9 @@ impl EventHandler for Handler {
         peer: std::sync::Arc<client_native_lib::peer::Peer>,
         id: String,
     ) -> client_native_lib::DynFut<()> {
+        if let Some(gp) = self.peers.write().unwrap().get_mut(&peer.id) {
+            gp.resources.remove(&id);
+        }
         Box::pin(async move {})
     }
 

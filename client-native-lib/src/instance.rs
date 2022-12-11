@@ -113,7 +113,8 @@ impl Instance {
     pub async fn on_relay(&self, sender: usize, p: RelayMessage) {
         debug!("(relay) <- ({sender}) {p:?}");
         if let Some(peer) = self.peers.read().await.get(&sender) {
-            peer.on_relay(p).await
+            peer.on_relay(p.clone()).await;
+            self.event_handler.on_relay(peer.to_owned(), &p).await;
         } else {
             warn!("got a packet from a non-existent peer")
         }
