@@ -1,6 +1,10 @@
 #![feature(box_syntax)]
 
+pub mod chat;
+
 use async_std::task::block_on;
+use chat::Chat;
+use clap::Parser;
 use client_native_lib::{
     instance::Instance,
     peer::Peer,
@@ -14,13 +18,12 @@ use client_native_lib::{
 };
 use crossbeam_channel::Sender;
 use eframe::egui;
-use egui::{Ui, Visuals};
+use egui::{ScrollArea, Ui, Visuals};
 use log::{debug, error, warn};
 use std::{
     collections::{HashMap, VecDeque},
     fs::File,
     io::Write,
-    ops::Deref,
     sync::{
         atomic::{AtomicBool, Ordering},
         Arc, RwLock,
@@ -30,6 +33,16 @@ use std::{
 };
 use tokio::task::JoinHandle;
 
+#[derive(Parser)]
+#[clap(about)]
+/// A graphical interface to keks-meet conferences
+struct Args {
+    #[arg(short = 'R', long, default_value = "")]
+    default_room_name: String,
+    #[arg(short = 'U', long, default_value = "alice")]
+    default_username: String,
+}
+
 #[tokio::main]
 async fn main() {
     env_logger::builder()
@@ -37,6 +50,8 @@ async fn main() {
         .filter_module("client_native_lib", log::LevelFilter::Info)
         .parse_env("LOG")
         .init();
+
+    let args = Args::parse();
 
     let options = eframe::NativeOptions::default();
     eframe::run_native(
@@ -47,7 +62,7 @@ async fn main() {
                 dark_mode: true,
                 ..Default::default()
             });
-            Box::new(App::new())
+            Box::new(App::new(args))
         }),
     );
 }
@@ -58,16 +73,21 @@ enum App {
     Ingame(Ingame),
 }
 
+#[derive(Clone)]
+// TODO
+#[allow(dead_code)]
 struct Ingame {
     pub instance: Arc<Instance>,
     pub handler: Arc<Handler>,
+    pub chat: Arc<RwLock<Chat>>,
 }
 
-struct Handler {
-    peers: RwLock<HashMap<usize, GuiPeer>>,
+pub struct Handler {
+    k: RwLock<Option<Ingame>>,
+    peers: RwLock<HashMap<usize, Arc<RwLock<GuiPeer>>>>,
 }
 
-struct GuiPeer {
+pub struct GuiPeer {
     peer: Arc<Peer>,
     resources: HashMap<String, GuiResource>,
     username: Option<String>,
@@ -87,8 +107,8 @@ enum GuiResourceState {
 }
 
 impl App {
-    pub fn new() -> Self {
-        Self::Prejoin("longtest".to_string(), "blub".to_string())
+    pub fn new(args: Args) -> Self {
+        Self::Prejoin(args.default_room_name, args.default_username)
     }
 }
 
@@ -134,17 +154,42 @@ impl Ingame {
             let instance = instance.clone();
             tokio::spawn(instance.receive_loop());
         }
-        Self { instance, handler }
+        let k = Self {
+            chat: Arc::new(RwLock::new(Chat::new(instance.clone()))),
+            instance,
+            handler,
+        };
+        *k.handler.k.write().unwrap() = Some(k.clone());
+        k
     }
 
-    pub fn ui(&self, ui: &mut Ui) {
-        for peer in self.handler.peers.write().unwrap().values_mut() {
-            ui.collapsing(peer.display_name(), |ui| {
-                for resource in peer.resources.values_mut() {
-                    resource.ui(ui, &peer.peer)
+    pub fn ui(&mut self, ui: &mut Ui) {
+        egui::SidePanel::left("chat")
+            .resizable(true)
+            .default_width(100.0)
+            .width_range(100.0..=1000.0)
+            .show_inside(ui, |ui| {
+                self.chat.write().unwrap().ui(ui);
+                ui.allocate_space(ui.available_size());
+            });
+        egui::CentralPanel::default().show_inside(ui, |ui| {
+            self.ui_user_list(ui);
+        });
+    }
+    pub fn ui_user_list(&self, ui: &mut Ui) {
+        ScrollArea::vertical()
+            .id_source("user-list")
+            .show(ui, |ui| {
+                for gp in self.handler.peers.write().unwrap().values_mut() {
+                    let mut gp = gp.write().unwrap();
+                    ui.collapsing(gp.display_name(), |ui| {
+                        let peer = gp.peer.clone();
+                        for resource in gp.resources.values_mut() {
+                            resource.ui(ui, &peer)
+                        }
+                    });
                 }
             });
-        }
     }
 }
 impl GuiResource {
@@ -190,6 +235,7 @@ impl GuiResource {
 impl Handler {
     pub fn new() -> Self {
         Self {
+            k: RwLock::new(None),
             peers: Default::default(),
         }
     }
@@ -210,11 +256,11 @@ impl EventHandler for Handler {
     ) -> client_native_lib::DynFut<()> {
         self.peers.write().unwrap().insert(
             peer.id,
-            GuiPeer {
+            Arc::new(RwLock::new(GuiPeer {
                 resources: HashMap::new(),
                 peer: peer.clone(),
                 username: None,
-            },
+            })),
         );
         Box::pin(async move {})
     }
@@ -233,7 +279,7 @@ impl EventHandler for Handler {
         info: client_native_lib::protocol::ProvideInfo,
     ) -> client_native_lib::DynFut<()> {
         if let Some(gp) = self.peers.write().unwrap().get_mut(&peer.id) {
-            gp.resources.insert(
+            gp.write().unwrap().resources.insert(
                 info.id.clone(),
                 GuiResource {
                     info,
@@ -250,7 +296,7 @@ impl EventHandler for Handler {
         id: String,
     ) -> client_native_lib::DynFut<()> {
         if let Some(gp) = self.peers.write().unwrap().get_mut(&peer.id) {
-            gp.resources.remove(&id);
+            gp.write().unwrap().resources.remove(&id);
         }
         Box::pin(async move {})
     }
@@ -261,13 +307,14 @@ impl EventHandler for Handler {
         resource: &client_native_lib::protocol::ProvideInfo,
         channel: client_native_lib::peer::TransportChannel,
     ) -> client_native_lib::DynFut<()> {
-        if let Some(gp) = self.peers.write().unwrap().get_mut(&peer.id) {
+        if let Some(gp) = self.peers.write().unwrap().get(&peer.id) {
+            let mut gp = gp.write().unwrap();
+            let peer = gp.peer.clone();
             if let Some(gr) = gp.resources.get_mut(&resource.id) {
+                let state = gr.state.clone();
                 *gr.state.write().unwrap() = GuiResourceState::Connected;
                 match channel {
                     client_native_lib::peer::TransportChannel::Track(track) => {
-                        let peer = gp.peer.clone();
-                        let state = gr.state.clone();
                         tokio::task::spawn_blocking(move || {
                             play(peer, track);
                             *state.write().unwrap() = GuiResourceState::Available;
@@ -287,10 +334,20 @@ impl EventHandler for Handler {
         peer: Arc<Peer>,
         message: &client_native_lib::protocol::RelayMessage,
     ) -> client_native_lib::DynFut<()> {
-        let mut guard = self.peers.write().unwrap();
-        let p = guard.get_mut(&peer.id).unwrap();
+        let guard = self.peers.read().unwrap();
+        let mut p = guard.get(&peer.id).unwrap().write().unwrap();
         match message.clone() {
             RelayMessage::Identify { username } => p.username = Some(username),
+            RelayMessage::Chat(message) => self
+                .k
+                .read()
+                .unwrap()
+                .as_ref()
+                .unwrap()
+                .chat
+                .write()
+                .unwrap()
+                .add(Some(guard.get(&peer.id).unwrap().clone()), message),
             _ => (),
         };
         Box::pin(async move {})
@@ -391,16 +448,14 @@ pub fn play(peer: Arc<Peer>, track: Arc<TrackRemote>) {
         )
     };
     let proto_ctx = mpv.create_protocol_context();
+    let uri = format!("keks-meet-track://{}", rid);
     proto_ctx.register(proto).unwrap();
-    mpv.playlist_load_files(&[(
-        &format!("keks-meet-track://{}", rid),
-        libmpv::FileState::AppendPlay,
-        None,
-    )])
-    .unwrap();
+    mpv.playlist_load_files(&[(&uri, libmpv::FileState::AppendPlay, None)])
+        .unwrap();
+    mpv.command("show-text", &[&uri, "2000"]).unwrap();
 
     block_on(track.onmute(move || {
-        debug!("mute");
+        debug!("track muted");
         let _ = exit_tx.send(());
         Box::pin(async move {})
     }));

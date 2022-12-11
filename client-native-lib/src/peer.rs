@@ -177,7 +177,7 @@ impl Peer {
     }
 
     pub async fn send_relay(&self, inner: RelayMessage) {
-        self.inst.send_relay(self.id, inner).await
+        self.inst.send_relay(Some(self.id), inner).await
     }
 
     pub async fn on_relay(self: &Arc<Self>, p: RelayMessage) {

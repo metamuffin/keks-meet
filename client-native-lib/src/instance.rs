@@ -120,14 +120,14 @@ impl Instance {
         }
     }
 
-    pub async fn send_relay(&self, recipient: usize, inner: RelayMessage) {
-        debug!("(relay) -> ({recipient}) {inner:?}");
+    pub async fn send_relay(&self, recipient: Option<usize>, inner: RelayMessage) {
+        debug!("(relay) -> ({recipient:?}) {inner:?}");
         self.conn
             .send
             .write()
             .await
             .send(ServerboundPacket::Relay {
-                recipient: Some(recipient),
+                recipient,
                 message: self.key.encrypt(
                     &serde_json::to_string(&RelayMessageWrapper {
                         sender: self.my_id.read().await.expect("not ready to relay yet.."),
