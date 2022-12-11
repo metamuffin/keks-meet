@@ -10,8 +10,7 @@ use client_native_lib::{
 use eframe::egui;
 use egui::{Ui, Visuals};
 use std::{
-    collections::{HashMap, HashSet},
-    ops::Deref,
+    collections::HashMap,
     sync::{Arc, RwLock},
 };
 use tokio::task::JoinHandle;
@@ -42,6 +41,32 @@ enum App {
     Prejoin(String, String),
     Joining(Option<JoinHandle<Ingame>>),
     Ingame(Ingame),
+}
+
+struct Ingame {
+    instance: Arc<Instance>,
+    handler: Arc<Handler>,
+}
+
+struct Handler {
+    peers: RwLock<HashMap<usize, GuiPeer>>,
+}
+
+struct GuiPeer {
+    peer: Arc<Peer>,
+    resources: HashMap<String, GuiResource>,
+    username: Option<String>,
+}
+
+struct GuiResource {
+    info: ProvideInfo,
+    state: GuiResourceState,
+}
+
+enum GuiResourceState {
+    Available,
+    Connecting,
+    Connected,
 }
 
 impl App {
@@ -83,10 +108,6 @@ impl eframe::App for App {
     }
 }
 
-struct Ingame {
-    instance: Arc<Instance>,
-    handler: Arc<Handler>,
-}
 impl Ingame {
     pub async fn new(config: Config) -> Self {
         let handler = Arc::new(Handler::new());
@@ -100,28 +121,46 @@ impl Ingame {
     }
 
     pub fn ui(&self, ui: &mut Ui) {
-        for (_pid, peer) in self.handler.peers.read().unwrap().deref() {
+        for peer in self.handler.peers.write().unwrap().values_mut() {
             ui.collapsing(peer.display_name(), |ui| {
-                for (_rid, resource) in peer.resources.iter() {
-                    ui.label(&format!(
-                        "{} {} {:?}",
-                        resource.id, resource.kind, resource.label
-                    ));
-                    if ui.button("Request").clicked() {}
+                for resource in peer.resources.values_mut() {
+                    resource.ui(ui, &peer.peer)
                 }
             });
         }
     }
 }
-
-struct Handler {
-    peers: RwLock<HashMap<usize, GuiPeer>>,
-}
-
-struct GuiPeer {
-    peer: Arc<Peer>,
-    resources: HashMap<String, ProvideInfo>,
-    username: Option<String>,
+impl GuiResource {
+    pub fn ui(&mut self, ui: &mut Ui, peer: &Arc<Peer>) {
+        ui.label(&format!(
+            "{} {} {:?}",
+            self.info.id, self.info.kind, self.info.label
+        ));
+        match self.state {
+            GuiResourceState::Available => {
+                if ui.button("Enable").clicked() {
+                    let id = self.info.id.clone();
+                    let peer = peer.clone();
+                    self.state = GuiResourceState::Connecting;
+                    tokio::spawn(async move { peer.request_resource(id).await });
+                }
+            }
+            GuiResourceState::Connecting => {
+                ui.horizontal(|ui| {
+                    ui.spinner();
+                    ui.label("Connecting...")
+                });
+            }
+            GuiResourceState::Connected => {
+                if ui.button("Disable").clicked() {
+                    let id = self.info.id.clone();
+                    let peer = peer.clone();
+                    self.state = GuiResourceState::Available;
+                    tokio::spawn(async move { peer.request_stop_resource(id).await });
+                }
+            }
+        }
+    }
 }
 
 impl Handler {
@@ -170,7 +209,13 @@ impl EventHandler for Handler {
         info: client_native_lib::protocol::ProvideInfo,
     ) -> client_native_lib::DynFut<()> {
         if let Some(gp) = self.peers.write().unwrap().get_mut(&peer.id) {
-            gp.resources.insert(info.id.clone(), info);
+            gp.resources.insert(
+                info.id.clone(),
+                GuiResource {
+                    info,
+                    state: GuiResourceState::Available,
+                },
+            );
         }
         Box::pin(async move {})
     }
@@ -192,6 +237,13 @@ impl EventHandler for Handler {
         resource: &client_native_lib::protocol::ProvideInfo,
         channel: client_native_lib::peer::TransportChannel,
     ) -> client_native_lib::DynFut<()> {
+        if let Some(gp) = self.peers.write().unwrap().get_mut(&peer.id) {
+            if let Some(gr) = gp.resources.get_mut(&resource.id) {
+                gr.state = GuiResourceState::Connected
+
+                // TODO
+            }
+        }
         Box::pin(async move {})
     }
 
