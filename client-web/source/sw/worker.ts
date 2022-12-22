@@ -28,7 +28,6 @@ self.addEventListener("unload", () => {
 const streams = new Map<string, { readable: ReadableStream, size: number }>()
 
 self.addEventListener("message", ev => {
-    console.log(ev);
     const { path, size } = ev.data, port = ev.ports[0]
     const readable = port_to_readable(port)
     streams.set(path, { readable, size })

@@ -92,7 +92,6 @@ export class RemoteUser extends User {
             if (PREFS.notify_join) notify(`${this.display_name} joined`)
         }
         if (message.provide) {
-            console.log(message.provide.id);
             const d = new_remote_resource(this, message.provide)
             if (!d) return
             if (d.info.kind == "track" && d.info.track_kind == "audio" && PREFS.optional_audio_default_enable) this.request_resource(d)
@@ -171,14 +170,12 @@ export class RemoteUser extends User {
             let stuff = "";
             stuff += `ice-conn=${this.pc.iceConnectionState}; ice-gathering=${this.pc.iceGatheringState}; ice-trickle=${this.pc.canTrickleIceCandidates}; signaling=${this.pc.signalingState};\n`
             stats.forEach(s => {
-                // console.log("stat", s);
                 if (s.type == "candidate-pair" && s.selected) {
                     //@ts-ignore trust me, this works
                     if (!stats.get) return console.warn("no RTCStatsReport.get");
                     //@ts-ignore trust me, this works
                     const cpstat = stats.get(s.localCandidateId)
                     if (!cpstat) return console.warn("no stats");
-                    // console.log("cp", cpstat);
                     stuff += `via ${cpstat.candidateType}:${cpstat.protocol}:${cpstat.address}\n`
                 } else if (s.type == "codec") {
                     stuff += `using ${s.codecType ?? "dec/enc"}:${s.mimeType}(${s.sdpFmtpLine})\n`
