@@ -15,7 +15,10 @@ import { LocalResource, ResourceHandlerDecl } from "./mod.ts";
 export const resource_track: ResourceHandlerDecl = {
     kind: "track",
     new_remote: (info, _user, enable) => {
-        const enable_button = ebutton("Enable", {
+        let enable_label = `Enable ${info.track_kind}`
+        if (info.label) enable_label += ` "${info.label}"`
+
+        const enable_button = ebutton(enable_label, {
             onclick: self => {
                 self.disabled = true;
                 self.textContent = "Awaiting track…";
@@ -34,7 +37,7 @@ export const resource_track: ResourceHandlerDecl = {
                         this.el.appendChild(enable_button)
                         self.disabled = true
                         enable_button.disabled = false
-                        enable_button.textContent = "Enable";
+                        enable_button.textContent = enable_label;
                         self.remove()
                     }
                 }))
@@ -67,6 +70,7 @@ function create_track_display(track: TrackHandle): HTMLElement {
     media_el.classList.add("media")
     media_el.autoplay = true
     media_el.controls = true
+    media_el.addEventListener("pause", () => media_el.play())
     if (track.local) media_el.muted = true
     el.append(media_el)
     track.addEventListener("ended", () => {
