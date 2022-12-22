@@ -12,7 +12,7 @@
     border: 0px solid transparent;
     border-radius: 5px;
     padding: 1em;
-    margin: .5em;
+    margin: 0.5em;
     vertical-align: top;
     min-width: fit-content;
     height: 13em;
@@ -46,4 +46,16 @@
 }
 .local-controls::before {
     content: "|";
+}
+
+.transfer-status {
+    background-color: #00000040;
+}
+.progress-bar {
+    z-index: -1;
+    padding: 0px;
+    margin: 0px;
+    height: 6px;
+    border-radius: 3px;
+    background-color: var(--ac-light);
 }

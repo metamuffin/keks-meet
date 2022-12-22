@@ -8,6 +8,7 @@
 import { display_filesize, ebutton, ediv, espan, sleep } from "../helper.ts";
 import { log } from "../logger.ts";
 import { StreamDownload } from "../sw/download_stream.ts";
+import { RemoteUser } from "../user/remote.ts";
 import { LocalResource, ResourceHandlerDecl } from "./mod.ts";
 
 const MAX_CHUNK_SIZE = 1 << 15;
@@ -32,7 +33,7 @@ export const resource_file: ResourceHandlerDecl = {
             on_enable(channel, disable) {
                 if (!(channel instanceof RTCDataChannel)) throw new Error("not a data channel");
 
-                const display = transfer_status_el()
+                const display = transfer_status_el(user)
                 this.el.appendChild(display.el)
                 const reset = () => {
                     download_button.disabled = false
@@ -47,6 +48,7 @@ export const resource_file: ResourceHandlerDecl = {
                         filename: info.label ?? "file",
                         progress(position) {
                             display.status = `${display_filesize(position)} / ${display_filesize(info.size!)}`
+                            display.progress = position / info.size!
                         },
                         cancel() {
                             channel.close()
@@ -120,8 +122,8 @@ function file_res_inner(file: File): LocalResource {
             channel.bufferedAmountLowThreshold = 1 << 16 // this appears to be the buffer size in firefox for reading files
             const reader = file.stream().getReader()
 
-            console.log(`${user.display_name} started transfer`);
-            const display = transfer_status_el()
+            log("dc", `${user.display_name} started transfer`);
+            const display = transfer_status_el(user)
             transfers_el.appendChild(display.el)
             display.status = "Waiting for data channel to open…"
             let position = 0
@@ -146,6 +148,7 @@ function file_res_inner(file: File): LocalResource {
                     channel.send(chunk.slice(i, Math.min(i + MAX_CHUNK_SIZE, chunk.length)))
                 }
                 display.status = `${display_filesize(position)} / ${display_filesize(file.size!)}; (buffer=${display_filesize(channel.bufferedAmount)})`
+                display.progress = position / file.size!
             }
             const feed_until_full = async () => {
                 // this has to do with a bad browser implementation
@@ -178,12 +181,16 @@ function file_res_inner(file: File): LocalResource {
     }
 }
 
-function transfer_status_el() {
+function transfer_status_el(remote: RemoteUser) {
     const status = espan("…")
+    const bar = ediv({ class: "progress-bar" });
     return {
-        el: ediv({ class: "progress" }, status),
+        el: ediv({ class: "transfer-status" }, status, bar),
         set status(s: string) {
-            status.textContent = s
+            status.textContent = `${remote.display_name}: ${s}`
+        },
+        set progress(n: number) {
+            bar.style.width = `${n * 100}%`
         }
     }
 }
