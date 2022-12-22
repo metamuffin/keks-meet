@@ -4,16 +4,17 @@ a simple secure web conferencing application
 
 ## Features
 
-- Rooms
-- Different stream types
+- Able to share different kinds of media:
   - Camera
   - Microphone
   - Screen capture
-- Multiple streams
-- Noise suppression (rnnoise)
+  - Files
 - End-to-end-encryption
 - Peer-to-peer data transmission
-- Chat (text and images)
+- Multiple streams of any type
+- Noise suppression (using RNNoise)
+- Rooms (created on demand, do not persist)
+- Chat (supports text and images)
 
 ## Licence
 
@@ -29,7 +30,7 @@ For trying it out, a hosted version is available on
 pacman -S --needed deno rustup make coreutils; rustup install nightly
 git clone https://codeberg.org/metamuffin/keks-meet.git
 cd keks-meet
-make run
+make run # or `make build`
 ```
 
 When changing code, use `make watch` to re-build things automatically as needed.
@@ -42,7 +43,7 @@ If you use this project or have any suggestions, please
 
 _Rift_ is similar to the
 [magic wormhole](https://github.com/magic-wormhole/magic-wormhole), except that
-it's peer-to-peer. It reuses the keks-meet signaling server to establish a
+it's peer-to-peer. It reuses the keks-meet signaling protocol to establish a
 WebRTC data channel.
 
 ```sh
