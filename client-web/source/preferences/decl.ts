@@ -32,6 +32,8 @@ export const PREF_DECLS = {
     camera_facing_mode: { type: optional(string), possible_values: ["environment", "user"], description: "Prefer user-facing or env-facing camera" },
     auto_gain_control: { type: bool, description: "Automatically adjust mic gain" },
     echo_cancellation: { type: bool, description: "Cancel echo" },
+    audio_activity_threshold: { type: number, optional: true, default: 0.003, description: "Audio activity threshold" },
+
     // TODO differenciate between mic, cam and screen
     optional_audio_default_enable: { type: bool, default: true, description: "Enable audio tracks by default" },
     optional_video_default_enable: { type: bool, default: false, description: "Enable video tracks by default" },

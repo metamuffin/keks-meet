@@ -62,22 +62,53 @@ export function new_local_track(info: ProvideInfo, track: TrackHandle): LocalRes
 }
 
 function create_track_display(track: TrackHandle): HTMLElement {
-    const el = document.createElement("div")
     const is_video = track.kind == "video"
-    const media_el = is_video ? document.createElement("video") : document.createElement("audio")
+    const is_audio = track.kind == "audio"
+
     const stream = new MediaStream([track.track])
+
+    const el = document.createElement("div")
+
+    const media_el = is_video
+        ? document.createElement("video")
+        : document.createElement("audio")
+
     media_el.srcObject = stream
     media_el.classList.add("media")
     media_el.autoplay = true
     media_el.controls = true
     media_el.addEventListener("pause", () => media_el.play())
+
     if (track.local) media_el.muted = true
     el.append(media_el)
     track.addEventListener("ended", () => {
         media_el.srcObject = null // TODO // TODO figure out why i wrote todo here
         el.remove()
     })
+
+    if (is_audio && PREFS.audio_activity_threshold !== undefined) check_volume(stream, vol => {
+        const active = vol > PREFS.audio_activity_threshold
+        if (active != el.classList.contains("audio-active")) {
+            if (active) el.classList.add("audio-active")
+            else el.classList.remove("audio-active")
+        }
+    })
+
     return el
+}
+
+function check_volume(track: MediaStream, cb: (vol: number) => void) {
+    const ctx = new AudioContext();
+    const s = ctx.createMediaStreamSource(track)
+    const a = ctx.createAnalyser()
+    s.connect(a)
+    const samples = new Float32Array(a.fftSize);
+    setInterval(() => {
+        a.getFloatTimeDomainData(samples);
+        let sum = 0.0;
+        for (const amplitude of samples) { sum += amplitude * amplitude; }
+        cb(Math.sqrt(sum / samples.length))
+    }, 1000 / 15)
 }
 
 export async function create_camera_res() {
