@@ -36,6 +36,9 @@ make run # or `make build`
 When changing code, use `make watch` to re-build things automatically as needed.
 (run `cargo install systemfd cargo-watch` if needed)
 
+The server's bind address can be controlled using the `BIND` environment
+variable.
+
 If you use this project or have any suggestions, please
 [contact me](https://metamuffin.org/contact)
 
@@ -74,15 +77,15 @@ system works as follows:
 
 ## Keybinds
 
-| Keybind   | Action                                                  |
-| --------- | ------------------------------------------------------- |
-| `C-RET`   | Toggle chat                                             |
-| `M`       | Add microphone track                                    |
-| `R`       | Add microphone track (but with your left hand)          |
-| `C`       | Add camera track                                        |
-| `S`       | Add screencast track                                    |
-| `C-c`     | End all tracks                                          |
-| `C-v`\*   | Paste image in chat (does not require chat to be shown) |
+| Keybind | Action                                                  |
+| ------- | ------------------------------------------------------- |
+| `C-RET` | Toggle chat                                             |
+| `M`     | Add microphone track                                    |
+| `R`     | Add microphone track (but with your left hand)          |
+| `C`     | Add camera track                                        |
+| `S`     | Add screencast track                                    |
+| `C-c`   | End all tracks                                          |
+| `C-v`\* | Paste image in chat (does not require chat to be shown) |
 
 ## Debugging
 
