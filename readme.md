@@ -76,12 +76,12 @@ system works as follows:
 
 | Keybind   | Action                                                  |
 | --------- | ------------------------------------------------------- |
-| `RET`     | Toggle chat                                             |
-| `SPC M`   | Add microphone track                                    |
-| `SPC R`   | Add microphone track (but with your left hand)          |
-| `SPC C`   | Add camera track                                        |
-| `SPC S`   | Add screencast track                                    |
-| `SPC C-c` | End all tracks                                          |
+| `C-RET`   | Toggle chat                                             |
+| `M`       | Add microphone track                                    |
+| `R`       | Add microphone track (but with your left hand)          |
+| `C`       | Add camera track                                        |
+| `S`       | Add screencast track                                    |
+| `C-c`     | End all tracks                                          |
 | `C-v`\*   | Paste image in chat (does not require chat to be shown) |
 
 ## Debugging

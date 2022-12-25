@@ -4,6 +4,9 @@
 
 
 * client-web
+** TODO mute
+** TODO voice activity indicators
+** TODO fix tabbing order for chat
 ** TODO Make the optional streams UI prettier
 ** ABANDONED Maybe group tracks in streams to make sure everything is in sync
 ** How do we implement global hotkeys?

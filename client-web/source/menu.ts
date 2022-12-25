@@ -5,7 +5,7 @@
 */
 /// <reference lib="dom" />
 
-import { ebutton, ediv, ep, OverlayUi } from "./helper.ts"
+import { ebutton, ediv, efooter, enav, ep, OverlayUi } from "./helper.ts"
 import { VERSION } from "./index.ts"
 import { PrefUi } from "./preferences/ui.ts"
 import { create_file_res } from "./resource/file.ts";
@@ -26,7 +26,7 @@ export class MenuBr extends OverlayUi {
             return p
         }
 
-        super(ediv({ class: "menu-br" },
+        super(efooter({ class: "menu-br" },
             ep(`keks-meet ${VERSION}`, { class: "version" }),
             item("License", "https://codeberg.org/metamuffin/keks-meet/raw/branch/master/COPYING"),
             item("Source code", "https://codeberg.org/metamuffin/keks-meet"),
@@ -41,6 +41,7 @@ export class BottomMenu extends OverlayUi {
         const chat_toggle = document.createElement("input")
         chat_toggle.type = "button"
         chat_toggle.value = "Chat"
+        chat_toggle.ariaHasPopup = "menu"
         chat_toggle.onclick = () => {
             room.chat.shown = !room.chat.shown
             if (room.chat.shown) chat_toggle.classList.add("active")
@@ -50,6 +51,7 @@ export class BottomMenu extends OverlayUi {
         const prefs_button = document.createElement("input")
         prefs_button.type = "button"
         prefs_button.value = "Settings"
+        prefs_button.ariaHasPopup = "menu"
 
         const prefs = new PrefUi()
         prefs_button.onclick = () => {
@@ -58,13 +60,13 @@ export class BottomMenu extends OverlayUi {
             else prefs_button.classList.remove("active")
         }
 
-        const local_controls = ediv({ class: "local-controls" },
+        const local_controls = ediv({ class: "local-controls", aria_label: "local resources" },
             ebutton("Microphone", { onclick: () => room.local_user.await_add_resource(create_mic_res()) }),
             ebutton("Camera", { onclick: () => room.local_user.await_add_resource(create_camera_res()) }),
             ebutton("Screen", { onclick: () => room.local_user.await_add_resource(create_screencast_res()) }),
             ebutton("File", { onclick: () => room.local_user.await_add_resource(create_file_res()) }),
         )
 
-        super(ediv({ class: "bottom-menu" }, chat_toggle, prefs_button, local_controls))
+        super(enav({ class: "bottom-menu" }, chat_toggle, prefs_button, local_controls))
     }
 }
