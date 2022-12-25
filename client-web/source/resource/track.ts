@@ -5,7 +5,7 @@
 */
 /// <reference lib="dom" />
 import { ProvideInfo } from "../../../common/packets.d.ts";
-import { ebutton, ediv } from "../helper.ts";
+import { ebutton, ediv, elabel } from "../helper.ts";
 import { log } from "../logger.ts";
 import { on_pref_changed, PREFS } from "../preferences/mod.ts";
 import { get_rnnoise_node } from "../rnnoise.ts";
@@ -48,11 +48,12 @@ export const resource_track: ResourceHandlerDecl = {
     }
 }
 
-export function new_local_track(info: ProvideInfo, track: TrackHandle): LocalResource {
+export function new_local_track(info: ProvideInfo, track: TrackHandle, ...extra_controls: HTMLElement[]): LocalResource {
     return {
         info,
         el: ediv({},
-            create_track_display(track)
+            create_track_display(track),
+            ...extra_controls
         ),
         destroy() { track.end() },
         on_request(_user, _create_channel) {
@@ -172,5 +173,16 @@ export async function create_mic_res() {
         clear_gain_cb()
         destination.disconnect()
     })
-    return new_local_track({ id: t.id, kind: "track", track_kind: "audio", label: "Microphone" }, t)
+
+    const mute = document.createElement("input")
+    mute.type = "checkbox"
+    mute.onchange = () => {
+        log("media", mute.checked ? "muted" : "unmuted")
+        if (mute.checked) gain.gain.value = Number.MIN_VALUE
+        else gain.gain.value = PREFS.microphone_gain
+    }
+    const mute_label = elabel("Mute", { class: "check-button" })
+    mute_label.prepend(mute)
+
+    return new_local_track({ id: t.id, kind: "track", track_kind: "audio", label: "Microphone" }, t, mute_label)
 }

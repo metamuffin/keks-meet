@@ -71,5 +71,5 @@
 }
 
 .resource-track>div.audio-active {
-    border: 2px solid rgb(37, 228, 37);
+    border: 2px solid var(--ac-light);
 }

@@ -46,20 +46,24 @@ button {
     border: 0px solid transparent;
     border-radius: 3px;
 }
+
 input[type="button"]:hover,
 button:hover {
     filter: brightness(130%);
 }
+
 input[type="button"].active,
 button.active {
     filter: hue-rotate(20deg);
 }
+
 input[type="text"],
 select,
 input[type="number"] {
     background-color: var(--bg-dark);
     border: 1px solid var(--ac-light);
 }
+
 input:disabled,
 button:disabled {
     filter: sepia(90%);
@@ -71,13 +75,16 @@ button:disabled {
     left: 50vw;
     transform: translate(-50%, -50%);
 }
+
 .start-box p {
     margin-bottom: 0.5em;
 }
+
 .start-box input[type="text"] {
     margin: 0.5em;
     font-size: xx-large;
 }
+
 .start-box input[type="button"] {
     margin: 0.5em;
     font-size: x-large;
