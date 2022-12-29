@@ -51,7 +51,7 @@ window.onbeforeunload = ev => {
 let r: Room;
 export async function main() {
     log("*", "starting up")
-    document.body.querySelectorAll("p").forEach(e => e.remove())
+    document.body.innerHTML = "" // remove existing elements
     const room_name = load_params().rname
 
     if (!globalThis.RTCPeerConnection) return log({ scope: "webrtc", error: true }, "WebRTC not supported.")
