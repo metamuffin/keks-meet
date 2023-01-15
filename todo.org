@@ -4,6 +4,7 @@
 
 
 * client-web
+** show who is watching your stream
 ** TODO Make the optional streams UI prettier
 ** ABANDONED Maybe group tracks in streams to make sure everything is in sync
 ** How do we implement global hotkeys?
@@ -13,7 +14,8 @@ CLOSED: [2022-10-28 Fri 21:48]
 *** DONE client-web: cancel transfer
 CLOSED: [2022-10-29 Sat 17:29]
 *** TODO rsync-like functionality
-** TODO Native client
+** PARTIAL Native client
+CLOSED: [2022-12-22 Thu 08:51]
 ** DONE Test some options like `camera_facing_mode`
 CLOSED: [2022-12-11 Sun 21:57]
 ** PAUSED Signing key for each user

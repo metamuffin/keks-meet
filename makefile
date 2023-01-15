@@ -12,7 +12,7 @@ watch:
 	make -C client-web watch &
 	make -C server watch
 install:
-	cargo install --path server
-	cargo install --path client-native-gui
-	cargo install --path client-native-rift 
-	cargo install --path client-native-export-track
+	cargo +nightly install --force --path server
+	cargo +nightly install --force --path client-native-gui
+	cargo +nightly install --force --path client-native-rift 
+	cargo +nightly install --force --path client-native-export-track
