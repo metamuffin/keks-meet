@@ -5,9 +5,12 @@
 
 * client-web
 ** show who is watching your stream
+** DONE mute
+** DONE voice activity indicators
+** ABANDONED fix tabbing order for chat
 ** TODO Make the optional streams UI prettier
 ** ABANDONED Maybe group tracks in streams to make sure everything is in sync
-** How do we implement global hotkeys?
+** ABANDONED How do we implement global hotkeys?
 ** ABANDONED Dont use websocket to send images to not block anything else
 ** PARTIAL File transfers via data channel (rift)
 CLOSED: [2022-10-28 Fri 21:48]

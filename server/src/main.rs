@@ -12,6 +12,8 @@ use log::{debug, error};
 use room::Room;
 use std::collections::HashMap;
 use std::convert::Infallible;
+use std::net::SocketAddr;
+use std::str::FromStr;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use warp::hyper::Server;
@@ -69,13 +71,8 @@ async fn run() {
         Server::from_tcp(l).unwrap()
     } else {
         Server::bind(
-            &(
-                [127, 0, 0, 1],
-                std::env::var("PORT")
-                    .map(|p| p.parse().unwrap())
-                    .unwrap_or(8080),
-            )
-                .into(),
+            &SocketAddr::from_str(&std::env::var("BIND").unwrap_or(String::from("127.0.0.1:8080")))
+                .unwrap(),
         )
     };
     let service = warp::service(routes);

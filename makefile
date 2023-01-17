@@ -11,6 +11,9 @@ server-build:
 watch:
 	make -C client-web watch &
 	make -C server watch
+watch-public:
+	make -C client-web watch &
+	make -C server watch-public
 install:
 	cargo +nightly install --force --path server
 	cargo +nightly install --force --path client-native-gui

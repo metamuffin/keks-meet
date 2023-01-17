@@ -5,7 +5,7 @@
 */
 /// <reference lib="dom" />
 
-import { ebr, ebutton, ediv, elabel, espan, etd, etr, OverlayUi } from "../helper.ts";
+import { ebr, ebutton, ediv, eh2, elabel, espan, etd, etr, OverlayUi } from "../helper.ts";
 import { PREF_DECLS } from "./decl.ts";
 import { change_pref, on_pref_changed, PrefDecl, PREFS } from "./mod.ts";
 
@@ -65,7 +65,7 @@ export class PrefUi extends OverlayUi {
             if (decl.default === undefined || decl.optional) {
                 const use_opt = document.createElement("input")
                 use_opt.type = "checkbox"
-                use_opt.id = id
+                use_opt.id = "enable-" + id
                 use_opt.checked = PREFS[key] !== undefined
                 if (prim_control) prim_control.disabled = !use_opt.checked
                 use_opt.onchange = () => {
@@ -79,10 +79,10 @@ export class PrefUi extends OverlayUi {
                 use_opt_ = use_opt;
             }
 
-            const label = elabel(decl.description ?? `[${key}]`, { id })
+            const label = elabel(decl.description ?? `[${key}]`, { for: id })
             return etr({ class: "pref" }, etd({}, label), etd({}, use_opt_ ?? ""), etd({}, prim_control ?? ""))
         })
-        
+
         const notification_perm = Notification.permission == "granted" ? ediv() : ediv({},
             espan("For keks-meet to send notifications, it needs you to grant permission: "),
             ebutton("Grant", { onclick: () => Notification.requestPermission() }),
@@ -95,7 +95,6 @@ export class PrefUi extends OverlayUi {
         const table = document.createElement("table")
         table.append(...rows)
 
-        super(ediv({ class: "prefs-overlay" }, notification_perm, reset, ebr(), table))
+        super(ediv({ class: "prefs-overlay" }, eh2("Settings"), notification_perm, ebr(), table, ebr(), reset))
     }
-
 }

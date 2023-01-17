@@ -6,7 +6,7 @@
 /// <reference lib="dom" />
 
 import { ChatMessage } from "../../common/packets.d.ts";
-import { ediv, espan, image_view, notify, OverlayUi } from "./helper.ts";
+import { ediv, esection, espan, image_view, notify, OverlayUi } from "./helper.ts";
 import { log } from "./logger.ts";
 import { PREFS } from "./preferences/mod.ts";
 import { Room } from "./room.ts";
@@ -20,13 +20,15 @@ export class Chat extends OverlayUi {
 
     constructor(public room: Room) {
         const send = document.createElement("input")
+        send.ariaLabel = "send message"
         send.type = "text"
+        send.placeholder = "send a message..."
 
-        const messages = ediv({ class: "messages" })
+        const messages = ediv({ class: "messages", aria_live: "polite" })
         const controls = ediv({ class: "controls" })
         controls.append(send)
         messages.append(document.createElement("hr"))
-        super(ediv({ class: "chat" }, messages, controls))
+        super(esection({ class: "chat", aria_label: "chat", role: "dialog" }, messages, controls))
         this.messages = messages
         this.controls = controls
         this.send_el = send
@@ -61,6 +63,7 @@ export class Chat extends OverlayUi {
         }
     }
 
+    on_show(): void { this.focus() }
     focus() { this.send_el.focus() }
     send(msg: ChatMessage) {
         this.room.local_user.chat(msg)

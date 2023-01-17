@@ -192,21 +192,29 @@ impl EventHandler for Handler {
                             let writer = writer.clone();
                             let pos = pos.clone();
                             Box::pin(async move {
-                                let pos = pos.fetch_add(mesg.data.len(), Ordering::Relaxed);
-                                info!(
-                                    "recv {:?} ({} of {})",
-                                    mesg.data.len(),
-                                    humansize::format_size(pos, DECIMAL),
-                                    humansize::format_size(resource.size.unwrap_or(0), DECIMAL),
-                                );
-                                writer
-                                    .write()
-                                    .await
-                                    .as_mut()
-                                    .unwrap()
-                                    .write_all(&mesg.data)
-                                    .await
-                                    .unwrap();
+                                // TODO
+                                if mesg.is_string {
+                                    let s = String::from_utf8((&mesg.data).to_vec()).unwrap();
+                                    if &s == "end" {
+                                        info!("EOF reached")
+                                    }
+                                } else {
+                                    let pos = pos.fetch_add(mesg.data.len(), Ordering::Relaxed);
+                                    info!(
+                                        "recv {:?} ({} of {})",
+                                        mesg.data.len(),
+                                        humansize::format_size(pos, DECIMAL),
+                                        humansize::format_size(resource.size.unwrap_or(0), DECIMAL),
+                                    );
+                                    writer
+                                        .write()
+                                        .await
+                                        .as_mut()
+                                        .unwrap()
+                                        .write_all(&mesg.data)
+                                        .await
+                                        .unwrap();
+                                }
                             })
                         })
                     }

@@ -6,7 +6,7 @@
 /// <reference lib="dom" />
 
 import { init_serviceworker } from "./sw/init.ts";
-import { ediv, OVERLAYS } from "./helper.ts";
+import { esection, OVERLAYS } from "./helper.ts";
 import { setup_keybinds } from "./keybinds.ts";
 import { log, LOGGER_CONTAINER } from "./logger.ts"
 import { BottomMenu, MenuBr } from "./menu.ts";
@@ -15,7 +15,7 @@ import { SignalingConnection } from "./protocol/mod.ts";
 import { Room } from "./room.ts"
 
 export const VERSION = "0.1.12"
-export const ROOM_CONTAINER = ediv({ class: "room" })
+export const ROOM_CONTAINER = esection({ class: "room", aria_label: "user list" })
 
 export const RTC_CONFIG: RTCConfiguration = {
     iceServers: [
