@@ -44,11 +44,11 @@ async fn run() {
     let assets: _ = warp::path("assets").and(warp::fs::dir("../client-web/public/assets"));
     let sw_script: _ = warp::path("sw.js").and(warp::fs::file("../client-web/public/assets/sw.js"));
     let favicon: _ = warp::path!("favicon.ico").map(|| "");
-    let old_format_redirect: _ = warp::path!("room" / String).map(|rname| {
+    let old_format_redirect: _ = warp::path!("room" / String).map(|rsecret| {
         reply::with_header(
             StatusCode::MOVED_PERMANENTLY,
             header::LOCATION,
-            format!("/room#{rname}?warn_redirect=true"),
+            format!("/room#{rsecret}?warn_redirect=true"),
         )
         .into_response()
     });
@@ -106,20 +106,20 @@ async fn handle_rejection(err: Rejection) -> Result<impl Reply, Infallible> {
     Ok(warp::reply::with_status(json, code))
 }
 
-fn signaling_connect(rname: String, rooms: Rooms, ws: warp::ws::Ws) -> impl Reply {
-    async fn inner(sock: WebSocket, rname: String, rooms: Rooms) {
+fn signaling_connect(rsecret: String, rooms: Rooms, ws: warp::ws::Ws) -> impl Reply {
+    async fn inner(sock: WebSocket, rsecret: String, rooms: Rooms) {
         debug!("ws upgrade");
         let mut guard = rooms.write().await;
         let room = guard
-            .entry(rname.clone())
+            .entry(rsecret.clone())
             .or_insert_with(|| Default::default())
             .to_owned();
         drop(guard);
 
         room.client_connect(sock).await;
         if room.should_remove().await {
-            rooms.write().await.remove(&rname);
+            rooms.write().await.remove(&rsecret);
         }
     }
-    ws.on_upgrade(move |sock| inner(sock, rname, rooms))
+    ws.on_upgrade(move |sock| inner(sock, rsecret, rooms))
 }

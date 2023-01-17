@@ -52,17 +52,17 @@ let r: Room;
 export async function main() {
     log("*", "starting up")
     document.body.querySelectorAll("p").forEach(e => e.remove())
-    const room_name = load_params().rname
+    const room_secret = load_params().rsecret
 
     if (!globalThis.RTCPeerConnection) return log({ scope: "webrtc", error: true }, "WebRTC not supported.")
     if (!globalThis.isSecureContext) log({ scope: "*", warn: true }, "This page is not in a 'Secure Context'")
     if (!globalThis.crypto.subtle) return log({ scope: "crypto", error: true }, "SubtleCrypto not availible")
     if (!globalThis.navigator.serviceWorker) log({ scope: "*", warn: true }, "Your browser does not support the Service Worker API, some features dont work without it.")
-    if (room_name.length < 8) log({ scope: "crypto", warn: true }, "Room name is very short. e2ee is insecure!")
-    if (room_name.length == 0) return window.location.href = "/" // send them back to the start page
-    if (PREFS.warn_redirect) log({ scope: "crypto", warn: true }, "You were redirected from the old URL format. The server knows the room name now - e2ee is insecure!")
+    if (room_secret.length < 8) log({ scope: "crypto", warn: true }, "Room name is very short. e2ee is insecure!")
+    if (room_secret.length == 0) return window.location.href = "/" // send them back to the start page
+    if (PREFS.warn_redirect) log({ scope: "crypto", warn: true }, "You were redirected from the old URL format. The server knows the room secret now - e2ee is insecure!")
 
-    const conn = await (new SignalingConnection().connect(room_name))
+    const conn = await (new SignalingConnection().connect(room_secret))
     r = new Room(conn)
 
     setup_keybinds(r)

@@ -43,7 +43,7 @@ use tokio::task::JoinHandle;
 /// A graphical interface to keks-meet conferences
 struct Args {
     #[arg(short = 'R', long, default_value = "")]
-    default_room_name: String,
+    default_room_secret: String,
     #[arg(short = 'U', long, default_value = "alice")]
     default_username: String,
 }
@@ -113,7 +113,7 @@ enum GuiResourceState {
 
 impl App {
     pub fn new(args: Args) -> Self {
-        Self::Prejoin(args.default_room_name, args.default_username)
+        Self::Prejoin(args.default_room_secret, args.default_username)
     }
 }
 
