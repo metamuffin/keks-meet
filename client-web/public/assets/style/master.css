@@ -12,7 +12,6 @@
 
 * {
     font-family: "Ubuntu", sans-serif;
-    font-weight: 300;
     color: white;
     margin: 0px;
     padding: 0px;
@@ -22,11 +21,19 @@
     --bg: #151315;
     --bg-dark: #070707;
     --ac: #5e3f84;
-    --ac-light: #7c43bd;
     --ac-dark: #2d0d52;
+    --ac-light: #7c43bd;
+    --ac-dark-transparent: #2d0d52c9;
+}
+
+body.start {
+    background-image: linear-gradient(var(--ac-dark-transparent), black 150%), url("./tile-backdrop.svg");
+    background-size: 40vw;
+    background-color: var(--ac-dark);
 }
 
 body {
+    font-weight: 300;
     background-color: var(--bg-dark);
     height: 100vh;
     width: 100vw;
@@ -34,9 +41,13 @@ body {
 }
 
 h1 {
+    text-shadow: 0px 0px 20px rgba(0,0,0,0.75);
+    font-size: 5em;
     font-weight: 700;
-    margin: 1em;
+    text-align: center;
+    margin-bottom: 0.1em;
 }
+
 
 input[type="button"],
 button {
@@ -78,15 +89,28 @@ button:disabled {
 
 .start-box p {
     margin-bottom: 0.5em;
+    font-size: x-large;
 }
 
 .start-box input[type="text"] {
-    margin: 0.5em;
+    margin: 2em 0 1em 0;
     font-size: xx-large;
 }
 
 .start-box input[type="button"] {
-    margin: 0.5em;
+    margin: 1em 0 1em 0;
+    font-size: x-large;
+    width: 100%;
+}
+
+.start-box .description {
+    margin-bottom: 1.5em;
+    font-size: xx-large;
+    text-align: center;
+}
+
+#room-id-input {
+    padding: 0.5em;
     font-size: x-large;
     width: calc(100% - 1em);
 }
