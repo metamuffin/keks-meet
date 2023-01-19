@@ -28,6 +28,7 @@
 
 body.start {
     background-image: linear-gradient(var(--ac-dark-transparent), black 150%), url("./tile-backdrop.svg");
+    background-attachment: fixed;
     background-size: 40vw;
     background-color: var(--ac-dark);
 }
@@ -114,7 +115,7 @@ button:disabled {
     width: calc(100% - 1em);
 }
 
-@media (max-width : 800px) {
+@media (max-width : 800px), (max-height: 700px) {
     h1 {
         font-size: xxx-large;
     }
