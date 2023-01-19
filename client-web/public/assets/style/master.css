@@ -105,7 +105,6 @@ button:disabled {
 
 .start-box .description {
     margin-bottom: 1.5em;
-    font-size: xx-large;
     text-align: center;
 }
 
@@ -113,4 +112,44 @@ button:disabled {
     padding: 0.5em;
     font-size: x-large;
     width: calc(100% - 1em);
+}
+
+@media (max-width : 800px) {
+    h1 {
+        font-size: xxx-large;
+    }
+
+    .start-box {
+        position: relative;
+        top: 0;
+        left: 0;
+        transform: none;
+        width: 90%;
+        margin: 0 auto;
+        margin-top: 1em;
+    }
+
+    .start-box .description {
+        margin-bottom: 0.5em;
+        font-size: large;
+    }
+
+    .start-box p {
+        margin-bottom: 0.5em;
+        font-size: large;
+    }
+
+    .start-box input[type="text"] {
+        margin: 1em 0 0.5em 0;
+        font-size: large;
+    }
+    
+    .start-box input[type="button"] {
+        margin: 0.5em 0 0.5em 0;
+        font-size: large;
+    }
+
+    #room-id-input {
+        font-size: large;
+    }
 }
