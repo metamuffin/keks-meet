@@ -50,6 +50,7 @@ window.onbeforeunload = ev => {
 
 let r: Room;
 export async function main() {
+    document.body.append(LOGGER_CONTAINER)
     log("*", "starting up")
     document.body.querySelectorAll("p").forEach(e => e.remove())
     const room_secret = load_params().rsecret
@@ -70,7 +71,7 @@ export async function main() {
         new BottomMenu(r).shown = true
         new MenuBr().shown = true
     }
-    document.body.append(ROOM_CONTAINER, OVERLAYS, LOGGER_CONTAINER)
+    document.body.prepend(ROOM_CONTAINER, OVERLAYS)
 
     if (globalThis.navigator.serviceWorker) init_serviceworker()
 }
