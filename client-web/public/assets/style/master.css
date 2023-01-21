@@ -29,7 +29,7 @@
 body.start {
     background-image: linear-gradient(var(--ac-dark-transparent), black 150%), url("./tile-backdrop.svg");
     background-attachment: fixed;
-    background-size: 40vw;
+    background-size: cover, 40vw;
     background-color: var(--ac-dark);
 }
 
