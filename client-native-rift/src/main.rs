@@ -23,6 +23,7 @@ use std::{
         atomic::{AtomicUsize, Ordering},
         Arc,
     },
+    time::Duration,
 };
 use tokio::{
     fs::{self, File},
@@ -307,8 +308,8 @@ impl LocalResource for FileSender {
                 })
             }
             {
-                channel.set_buffered_amount_low_threshold(1 << 20).await;
                 let reader = reader.clone();
+                let pos = pos.clone();
                 let channel2 = channel.clone();
                 channel
                     .on_buffered_amount_low(box move || {
@@ -344,8 +345,8 @@ impl LocalResource for FileSender {
                         })
                     })
                     .await;
+                channel.set_buffered_amount_low_threshold(1).await;
             }
-
             channel.on_error(box move |err| Box::pin(async move { error!("channel error: {err}") }))
         })
     }
