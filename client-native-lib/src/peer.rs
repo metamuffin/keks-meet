@@ -69,34 +69,28 @@ impl Peer {
             .on_peer_connection_state_change(Box::new(move |s: RTCPeerConnectionState| {
                 info!("connection state changed: {s}");
                 Box::pin(async {})
-            }))
-            .await;
-
+            }));
         {
             let weak = Arc::<Peer>::downgrade(&peer);
-            peer.peer_connection
-                .on_ice_candidate(box move |c| {
-                    if let Some(peer) = weak.upgrade() {
-                        Box::pin(async move {
-                            if let Some(c) = c {
-                                peer.on_ice_candidate(c).await
-                            }
-                        })
-                    } else {
-                        Box::pin(async move {})
-                    }
-                })
-                .await;
+            peer.peer_connection.on_ice_candidate(box move |c| {
+                if let Some(peer) = weak.upgrade() {
+                    Box::pin(async move {
+                        if let Some(c) = c {
+                            peer.on_ice_candidate(c).await
+                        }
+                    })
+                } else {
+                    Box::pin(async move {})
+                }
+            })
         }
 
         {
             let weak = Arc::<Peer>::downgrade(&peer);
-            peer.peer_connection
-                .on_negotiation_needed(box move || {
-                    let peer = weak.upgrade().unwrap();
-                    Box::pin(async { peer.on_negotiation_needed().await })
-                })
-                .await;
+            peer.peer_connection.on_negotiation_needed(box move || {
+                let peer = weak.upgrade().unwrap();
+                Box::pin(async { peer.on_negotiation_needed().await })
+            })
         }
 
         {
@@ -124,37 +118,34 @@ impl Peer {
                         }
                     })
                 })
-                .await;
         }
 
         {
             let weak = Arc::<Peer>::downgrade(&peer);
-            peer.peer_connection
-                .on_data_channel(box move |dc| {
-                    let peer = weak.upgrade().unwrap();
-                    Box::pin(async move {
-                        if let Some(res) = peer
-                            .remote_provided
-                            .read()
-                            .await
-                            .get(&dc.label().to_string())
-                        {
-                            info!("data channel for ({:?}) '{:?}'", res.id, res.label);
-                            peer.inst
-                                .event_handler
-                                .resource_connected(
-                                    peer.clone(),
-                                    res,
-                                    TransportChannel::DataChannel(dc),
-                                )
-                                .await;
-                        } else {
-                            warn!("got unassociated data channel; closed connection");
-                            dc.close().await.unwrap();
-                        }
-                    })
+            peer.peer_connection.on_data_channel(box move |dc| {
+                let peer = weak.upgrade().unwrap();
+                Box::pin(async move {
+                    if let Some(res) = peer
+                        .remote_provided
+                        .read()
+                        .await
+                        .get(&dc.label().to_string())
+                    {
+                        info!("data channel for ({:?}) '{:?}'", res.id, res.label);
+                        peer.inst
+                            .event_handler
+                            .resource_connected(
+                                peer.clone(),
+                                res,
+                                TransportChannel::DataChannel(dc),
+                            )
+                            .await;
+                    } else {
+                        warn!("got unassociated data channel; closed connection");
+                        dc.close().await.unwrap();
+                    }
                 })
-                .await;
+            })
         }
         peer
     }
@@ -228,10 +219,8 @@ impl Peer {
 
     pub async fn on_ice_candidate(&self, candidate: RTCIceCandidate) {
         debug!("publishing local ICE candidate");
-        self.send_relay(RelayMessage::IceCandidate(
-            candidate.to_json().await.unwrap(),
-        ))
-        .await;
+        self.send_relay(RelayMessage::IceCandidate(candidate.to_json().unwrap()))
+            .await;
     }
     pub async fn on_remote_ice_candidate(&self, candidate: RTCIceCandidateInit) {
         debug!("adding remote ICE candidate");
