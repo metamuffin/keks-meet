@@ -40,6 +40,7 @@ macro_rules! s_asset_dir {
                 _ if path.ends_with(".wasm") => "application/wasm",
                 _ if path.ends_with(".js") => "application/javascript",
                 _ if path.ends_with(".css") => "text/css",
+                _ if path.ends_with(".svg") => "image/svg+xml",
                 _ => "application/octet-stream",
             };
             DIR.get_file(path)
