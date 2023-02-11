@@ -3,6 +3,7 @@
     which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
     Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
 */
+pub mod assets;
 pub mod protocol;
 pub mod room;
 
@@ -41,10 +42,10 @@ async fn run() {
         .and(warp::ws())
         .map(signaling_connect);
 
-    let index: _ = warp::path!().and(warp::fs::file("../client-web/public/start.html"));
-    let room: _ = warp::path!("room").and(warp::fs::file("../client-web/public/app.html"));
-    let assets: _ = warp::path("assets").and(warp::fs::dir("../client-web/public/assets"));
-    let sw_script: _ = warp::path("sw.js").and(warp::fs::file("../client-web/public/assets/sw.js"));
+    let index: _ = warp::path!().and(s_file!("client-web/public/start.html"));
+    let room: _ = warp::path!("room").and(s_file!("client-web/public/app.html"));
+    let assets: _ = warp::path("assets").and(s_asset_dir!());
+    let sw_script: _ = warp::path("sw.js").and(s_file!("client-web/public/assets/sw.js"));
     let favicon: _ = warp::path!("favicon.ico").map(|| "");
     let old_format_redirect: _ = warp::path!("room" / String).map(|rsecret| {
         reply::with_header(
