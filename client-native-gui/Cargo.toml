@@ -14,8 +14,8 @@ log = "0.4"
 anyhow = "1.0.69"
 crossbeam-channel = "0.5.6"
 
-egui = "0.20.1"
-eframe = "0.20.1"
+egui = "0.21.0"
+eframe = "0.21.0"
 
 libmpv = { git = "https://github.com/sirno/libmpv-rs.git", branch = "upgrade-libmpv" }
 
