@@ -37,7 +37,9 @@ When changing code, use `make watch` to re-build things automatically as needed.
 (run `cargo install systemfd cargo-watch` if needed)
 
 The server's bind address can be controlled using the `BIND` environment
-variable.
+variable. In production you can also activate the `standalone` feature to embed
+all assets into the binary; This speeds it up and allows the server to run from
+just the binary.
 
 If you use this project or have any suggestions, please
 [contact me](https://metamuffin.org/contact)
