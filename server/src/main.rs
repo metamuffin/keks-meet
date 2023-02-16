@@ -42,10 +42,15 @@ async fn run() {
         .and(warp::ws())
         .map(signaling_connect);
 
+    // TODO add cache policy headers
+
     let index: _ = warp::path!().and(s_file!("client-web/public/start.html", "text/html"));
     let room: _ = warp::path!("room").and(s_file!("client-web/public/app.html", "text/html"));
     let assets: _ = warp::path("assets").and(s_asset_dir!());
-    let sw_script: _ = warp::path("sw.js").and(s_file!("client-web/public/assets/sw.js", "application/javascript"));
+    let sw_script: _ = warp::path("sw.js").and(s_file!(
+        "client-web/public/assets/sw.js",
+        "application/javascript"
+    ));
     let favicon: _ = warp::path!("favicon.ico").map(|| "");
     let old_format_redirect: _ = warp::path!("room" / String).map(|rsecret| {
         reply::with_header(
