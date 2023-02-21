@@ -30,11 +30,15 @@ For trying it out, a hosted version is available on
 pacman -S --needed deno rustup make coreutils; rustup install nightly
 git clone https://codeberg.org/metamuffin/keks-meet.git
 cd keks-meet
+cp config/client.example.toml config/client.toml # use the example config. the defaults work.
 make run # or `make build`
 ```
 
 When changing code, use `make watch` to re-build things automatically as needed.
 (run `cargo install systemfd cargo-watch` if needed)
+
+The client configuration file (`config/client.toml`) configures the client and
+requires server recompilation on change for now.
 
 The server's bind address can be controlled using the `BIND` environment
 variable. In production you can also activate the `standalone` feature to embed
