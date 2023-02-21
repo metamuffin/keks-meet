@@ -47,7 +47,7 @@ impl Chat {
                 };
             }
             let r = TextEdit::singleline(&mut self.input_line).show(ui).response;
-            if r.lost_focus() && r.ctx.input().key_down(Key::Enter) {
+            if r.lost_focus() && r.ctx.input(|i| i.key_down(Key::Enter)) {
                 self.send(ChatMesssage::Text(self.input_line.to_owned()));
                 self.input_line = "".into();
                 r.request_focus();

@@ -69,7 +69,8 @@ async fn main() {
             });
             Box::new(App::new(args))
         }),
-    );
+    )
+    .unwrap();
 }
 
 enum App {
@@ -478,6 +479,7 @@ async fn track_to_raw(
         let (packet, _) = track.read_rtp().await?;
         if !packet.payload.is_empty() {
             let raw_payload = cached_packet.depacketize(&packet.payload)?;
+            // let raw_payload = packet.payload;
             if raw_payload.len() != 0 {
                 debug!("writing {} bytes", raw_payload.len());
 

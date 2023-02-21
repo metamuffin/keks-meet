@@ -35,7 +35,6 @@ pub struct Config {
 pub(crate) fn build_api() -> webrtc::api::API {
     let mut media_engine = MediaEngine::default();
     media_engine.register_default_codecs().unwrap();
-    
     let mut registry = Registry::new();
     registry = register_default_interceptors(registry, &mut media_engine).unwrap();
     APIBuilder::new()
