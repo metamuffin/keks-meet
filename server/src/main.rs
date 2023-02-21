@@ -4,9 +4,11 @@
     Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
 */
 pub mod assets;
+pub mod config;
 pub mod protocol;
 pub mod room;
 
+use config::ClientConfig;
 use hyper::{header, StatusCode};
 use listenfd::ListenFd;
 use log::{debug, error};
@@ -34,6 +36,10 @@ fn main() {
 async fn run() {
     env_logger::init_from_env("LOG");
 
+    let client_config: ClientConfig = toml::from_str(include_str!("../../config/client.toml"))
+        .expect("client configuration invalid");
+    let client_config_json = serde_json::to_string(&client_config).unwrap();
+
     let rooms: _ = Rooms::default();
     let rooms: _ = warp::any().map(move || rooms.clone());
 
@@ -51,6 +57,13 @@ async fn run() {
         "client-web/public/assets/sw.js",
         "application/javascript"
     ));
+    let client_config: _ = warp::path!("config.json").map(move || {
+        warp::reply::with_header(
+            client_config_json.clone(),
+            "content-type",
+            "application/json",
+        )
+    });
     let favicon: _ = warp::path!("favicon.ico").map(|| "");
     let old_format_redirect: _ = warp::path!("room" / String).map(|rsecret| {
         reply::with_header(
@@ -65,6 +78,7 @@ async fn run() {
         .or(room)
         .or(index)
         .or(signaling)
+        .or(client_config)
         .or(favicon)
         .or(sw_script)
         .or(old_format_redirect)

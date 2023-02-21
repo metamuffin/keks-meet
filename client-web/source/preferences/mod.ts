@@ -15,6 +15,7 @@ export interface PrefDecl<T> {
     optional?: boolean,
     hidden?: boolean
     allow_url?: boolean
+    require_reload?: boolean,
 }
 
 type Type = "string" | "number" | "bigint" | "boolean" | "symbol" | "undefined" | "object" | "function";

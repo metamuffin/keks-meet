@@ -17,18 +17,14 @@ import { Room } from "./room.ts"
 export const VERSION = "0.1.12"
 export const ROOM_CONTAINER = esection({ class: "room", aria_label: "user list" })
 
-export const RTC_CONFIG: RTCConfiguration = {
-    iceServers: [
-        {
-            urls: [
-                "turn:meet.metamuffin.org:16900",
-                "stun:meet.metamuffin.org:16900"
-            ],
-            username: "keksmeet",
-            credential: "ujCmetg6bm0"
-        },
-    ],
-    iceCandidatePoolSize: 10,
+export interface ClientConfig {
+    appearance: { accent: string }
+    webrtc: {
+        stun: string,
+        turn?: string,
+        turn_user?: string,
+        turn_cred?: string
+    }
 }
 
 export interface User {
@@ -51,7 +47,12 @@ window.onbeforeunload = ev => {
 let r: Room;
 export async function main() {
     document.body.append(LOGGER_CONTAINER)
-    log("*", "starting up")
+    log("*", "loading client config")
+    const config_res = await fetch("/config.json")
+    if (!config_res.ok) return log({ scope: "*", error: true }, "cannot load config")
+    const config: ClientConfig = await config_res.json()
+    log("*", "config loaded. starting")
+
     document.body.querySelectorAll("p").forEach(e => e.remove())
     const room_secret = load_params().rsecret
 
@@ -64,7 +65,16 @@ export async function main() {
     if (PREFS.warn_redirect) log({ scope: "crypto", warn: true }, "You were redirected from the old URL format. The server knows the room secret now - e2ee is insecure!")
 
     const conn = await (new SignalingConnection().connect(room_secret))
-    r = new Room(conn)
+    const rtc_config: RTCConfiguration = {
+        iceCandidatePoolSize: 10,
+        iceServers: [{
+            urls: [config.webrtc.stun, ...(config.webrtc.turn ? [config.webrtc.turn] : [])],
+            credential: config.webrtc.turn_cred,
+            username: config.webrtc.turn_user,
+        }]
+    }
+
+    r = new Room(conn, rtc_config)
 
     setup_keybinds(r)
     r.on_ready = () => {

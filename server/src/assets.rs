@@ -2,7 +2,7 @@
 #[macro_export]
 macro_rules! s_file {
     ($path: literal, $content_type: literal) => {
-        warp::fs::file($path)
+        warp::fs::file(concat!("../", $path))
     };
 }
 
@@ -10,7 +10,7 @@ macro_rules! s_file {
 #[macro_export]
 macro_rules! s_asset_dir {
     () => {
-        warp::fs::dir("client-web/public/assets")
+        warp::fs::dir("../client-web/public/assets")
     };
 }
 
