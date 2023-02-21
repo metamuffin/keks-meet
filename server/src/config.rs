@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ClientConfig {
     webrtc: ClientWebrtcConfig,
-    appearance: ClientAppearanceConfig,
+    appearance: Option<ClientAppearanceConfig>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -16,5 +16,9 @@ pub struct ClientWebrtcConfig {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ClientAppearanceConfig {
-    accent: Option<String>,
+    accent: String,
+    accent_light: String,
+    accent_dark: String,
+    background: String,
+    background_dark: String,
 }

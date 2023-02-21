@@ -18,7 +18,13 @@ export const VERSION = "0.1.12"
 export const ROOM_CONTAINER = esection({ class: "room", aria_label: "user list" })
 
 export interface ClientConfig {
-    appearance: { accent: string }
+    appearance?: {
+        accent: string
+        accent_dark: string
+        accent_light: string
+        background: string
+        background_dark: string
+    }
     webrtc: {
         stun: string,
         turn?: string,
@@ -72,6 +78,14 @@ export async function main() {
             credential: config.webrtc.turn_cred,
             username: config.webrtc.turn_user,
         }]
+    }
+    if (config.appearance) {
+        document.body.style.setProperty("--ac", config.appearance.accent)
+        document.body.style.setProperty("--ac-dark", config.appearance.accent_dark)
+        document.body.style.setProperty("--ac-light", config.appearance.accent_light)
+        document.body.style.setProperty("--bg", config.appearance.background)
+        document.body.style.setProperty("--bg-dark", config.appearance.background_dark)
+
     }
 
     r = new Room(conn, rtc_config)

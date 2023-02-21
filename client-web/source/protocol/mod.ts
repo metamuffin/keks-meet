@@ -33,7 +33,6 @@ export class SignalingConnection {
             this.on_open()
             r()
         })
-        log("ws", "connection opened")
         return this
     }
 
