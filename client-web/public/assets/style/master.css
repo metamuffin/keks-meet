@@ -3,7 +3,7 @@
     which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
     Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
 */
-@import url("https://s.metamuffin.org/static/font-ubuntu/include.css");
+@import url("../font/include.css");
 @import url("./logger.css");
 @import url("./chat.css");
 @import url("./room.css");
