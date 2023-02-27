@@ -9,6 +9,7 @@
 @import url("./room.css");
 @import url("./prefs.css");
 @import url("./menu.css");
+@import url("/overrides.css");
 
 * {
     font-family: "Ubuntu", sans-serif;
@@ -17,17 +18,9 @@
     padding: 0px;
 }
 
-:root {
-    --bg: #151315;
-    --bg-dark: #070707;
-    --ac: #5e3f84;
-    --ac-dark: #2d0d52;
-    --ac-light: #7c43bd;
-    --ac-dark-transparent: #2d0d52c9;
-}
-
 body.start {
-    background-image: linear-gradient(var(--ac-dark-transparent), black 150%), url("./tile-backdrop.svg");
+    background-image: linear-gradient(var(--ac-dark-transparent), black 150%),
+        url("./tile-backdrop.svg");
     background-attachment: fixed;
     background-size: cover, 40vw;
     background-color: var(--ac-dark);
@@ -42,13 +35,12 @@ body {
 }
 
 h1 {
-    text-shadow: 0px 0px 20px rgba(0,0,0,0.75);
+    text-shadow: 0px 0px 20px rgba(0, 0, 0, 0.75);
     font-size: 5em;
     font-weight: 700;
     text-align: center;
     margin-bottom: 0.1em;
 }
-
 
 input[type="button"],
 button {
@@ -115,11 +107,10 @@ button:disabled {
     width: calc(100% - 1em);
 }
 
-@media (max-width : 800px), (max-height: 700px) {
+@media (max-width: 800px), (max-height: 700px) {
     h1 {
         font-size: xxx-large;
     }
-
     .start-box {
         position: relative;
         top: 0;
@@ -129,28 +120,16 @@ button:disabled {
         margin: 0 auto;
         margin-top: 1em;
     }
-
-    .start-box .description {
-        margin-bottom: 0.5em;
-        font-size: large;
-    }
-
     .start-box p {
         margin-bottom: 0.5em;
-        font-size: large;
+        font-size: large !important;
     }
-
     .start-box input[type="text"] {
         margin: 1em 0 0.5em 0;
-        font-size: large;
+        font-size: large !important;
     }
-    
     .start-box input[type="button"] {
         margin: 0.5em 0 0.5em 0;
-        font-size: large;
-    }
-
-    #room-id-input {
-        font-size: large;
+        font-size: large !important;
     }
 }
