@@ -8,7 +8,7 @@ pub mod config;
 pub mod protocol;
 pub mod room;
 
-use config::ClientConfig;
+use config::{ClientAppearanceConfig, ClientConfig};
 use hyper::{header, StatusCode};
 use listenfd::ListenFd;
 use log::{debug, error};
@@ -39,6 +39,7 @@ async fn run() {
     let client_config: ClientConfig = toml::from_str(include_str!("../../config/client.toml"))
         .expect("client configuration invalid");
     let client_config_json = serde_json::to_string(&client_config).unwrap();
+    let client_config_css = css_overrides(&client_config.appearance);
 
     let rooms: _ = Rooms::default();
     let rooms: _ = warp::any().map(move || rooms.clone());
@@ -64,6 +65,9 @@ async fn run() {
             "application/json",
         )
     });
+    let client_config_css: _ = warp::path!("overrides.css").map(move || {
+        warp::reply::with_header(client_config_css.clone(), "content-type", "text/css")
+    });
     let favicon: _ = warp::path!("favicon.ico").map(|| "");
     let old_format_redirect: _ = warp::path!("room" / String).map(|rsecret| {
         reply::with_header(
@@ -82,6 +86,7 @@ async fn run() {
         .or(favicon)
         .or(sw_script)
         .or(old_format_redirect)
+        .or(client_config_css)
         .recover(handle_rejection)
         .with(warp::log("stuff"));
 
@@ -139,4 +144,26 @@ fn signaling_connect(rsecret: String, rooms: Rooms, ws: warp::ws::Ws) -> impl Re
         }
     }
     ws.on_upgrade(move |sock| inner(sock, rsecret, rooms))
+}
+
+fn css_overrides(
+    ClientAppearanceConfig {
+        accent,
+        accent_light,
+        accent_dark,
+        background,
+        background_dark,
+    }: &ClientAppearanceConfig,
+) -> String {
+    format!(
+        r#":root {{
+    --bg: {background};
+    --bg-dark: {background_dark};
+    --ac: {accent};
+    --ac-dark: {accent_dark};
+    --ac-dark-transparent: {accent_dark}c9;
+    --ac-light: {accent_light};
+}}
+"#
+    )
 }

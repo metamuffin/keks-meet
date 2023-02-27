@@ -79,14 +79,6 @@ export async function main() {
             username: config.webrtc.turn_user,
         }]
     }
-    if (config.appearance) {
-        document.body.style.setProperty("--ac", config.appearance.accent)
-        document.body.style.setProperty("--ac-dark", config.appearance.accent_dark)
-        document.body.style.setProperty("--ac-light", config.appearance.accent_light)
-        document.body.style.setProperty("--bg", config.appearance.background)
-        document.body.style.setProperty("--bg-dark", config.appearance.background_dark)
-
-    }
 
     r = new Room(conn, rtc_config)
 
