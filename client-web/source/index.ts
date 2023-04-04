@@ -67,8 +67,8 @@ export async function main() {
 
     setup_keybinds(r)
     r.on_ready = () => {
-        new BottomMenu(r).shown = true
-        new MenuBr().shown = true
+        new BottomMenu(r)
+        new MenuBr()
     }
     document.body.append(ROOM_CONTAINER, OVERLAYS, LOGGER_CONTAINER)
 

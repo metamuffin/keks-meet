@@ -67,6 +67,6 @@ export class BottomMenu extends OverlayUi {
             ebutton("File", { onclick: () => room.local_user.await_add_resource(create_file_res()) }),
         )
 
-        super(enav({ class: "bottom-menu" }, chat_toggle, prefs_button, local_controls))
+        super(enav({ class: "bottom-menu" }, chat_toggle, prefs_button, local_controls), true)
     }
 }
