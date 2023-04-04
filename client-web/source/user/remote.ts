@@ -7,7 +7,7 @@
 
 import { RelayMessage } from "../../../common/packets.d.ts";
 import { notify } from "../helper.ts";
-import { ROOM_CONTAINER, RTC_CONFIG } from "../index.ts"
+import { ROOM_CONTAINER } from "../index.ts"
 import { log } from "../logger.ts"
 import { PREFS } from "../preferences/mod.ts";
 import { new_remote_resource, RemoteResource } from "../resource/mod.ts";
@@ -28,7 +28,7 @@ export class RemoteUser extends User {
         room.remote_users.set(id, this)
 
         log("usermodel", `added remote user: ${this.display_name}`)
-        this.pc = new RTCPeerConnection(RTC_CONFIG)
+        this.pc = new RTCPeerConnection(room.rtc_config)
         this.pc.onicecandidate = ev => {
             if (!ev.candidate) return
             room.signaling.send_relay({ ice_candidate: ev.candidate.toJSON() }, this.id)

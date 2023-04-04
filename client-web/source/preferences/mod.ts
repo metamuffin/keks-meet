@@ -15,6 +15,7 @@ export interface PrefDecl<T> {
     optional?: boolean,
     hidden?: boolean
     allow_url?: boolean
+    require_reload?: boolean,
 }
 
 type Type = "string" | "number" | "bigint" | "boolean" | "symbol" | "undefined" | "object" | "function";
@@ -85,19 +86,19 @@ export function generate_section(): string {
             PREFS_EXPLICIT[key as unknown as keyof typeof PREFS_EXPLICIT]
         )))
     }
-    return load_params().rname + "?" + section.join("&")
+    return load_params().rsecret + "?" + section.join("&")
 }
 
-export function load_params(): { raw_params: { [key: string]: string }, rname: string } {
+export function load_params(): { raw_params: { [key: string]: string }, rsecret: string } {
     const raw_params: Record<string, string> = {}
-    const [rname, param_str] = window.location.hash.substring(1).split("?")
-    if (!param_str) return { rname, raw_params: {} }
+    const [rsecret, param_str] = window.location.hash.substring(1).split("?")
+    if (!param_str) return { rsecret, raw_params: {} }
     for (const kv of param_str.split("&")) {
         const [key, value] = kv.split("=")
         if (key == "prototype") continue
         raw_params[decodeURIComponent(key)] = decodeURIComponent(value)
     }
-    return { raw_params, rname }
+    return { raw_params, rsecret }
 }
 
 function get_param<T>(ty: string, key: string): T | undefined {

@@ -1,3 +1,8 @@
+/*
+    This file is part of keks-meet (https://codeberg.org/metamuffin/keks-meet)
+    which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
+    Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
+*/
 #![feature(box_syntax)]
 
 pub mod chat;
@@ -38,7 +43,7 @@ use tokio::task::JoinHandle;
 /// A graphical interface to keks-meet conferences
 struct Args {
     #[arg(short = 'R', long, default_value = "")]
-    default_room_name: String,
+    default_room_secret: String,
     #[arg(short = 'U', long, default_value = "alice")]
     default_username: String,
 }
@@ -64,7 +69,8 @@ async fn main() {
             });
             Box::new(App::new(args))
         }),
-    );
+    )
+    .unwrap();
 }
 
 enum App {
@@ -108,7 +114,7 @@ enum GuiResourceState {
 
 impl App {
     pub fn new(args: Args) -> Self {
-        Self::Prejoin(args.default_room_name, args.default_username)
+        Self::Prejoin(args.default_room_secret, args.default_username)
     }
 }
 
@@ -473,6 +479,7 @@ async fn track_to_raw(
         let (packet, _) = track.read_rtp().await?;
         if !packet.payload.is_empty() {
             let raw_payload = cached_packet.depacketize(&packet.payload)?;
+            // let raw_payload = packet.payload;
             if raw_payload.len() != 0 {
                 debug!("writing {} bytes", raw_payload.len());
 

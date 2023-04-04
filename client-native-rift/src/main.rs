@@ -167,8 +167,7 @@ impl EventHandler for Handler {
                                 info!("channel opened");
                                 *writer.write().await = Some(s.args.action.create_writer().await)
                             })
-                        })
-                        .await;
+                        });
                     }
                     {
                         let writer = writer.clone();
@@ -183,8 +182,7 @@ impl EventHandler for Handler {
                                     exit(0);
                                 }
                             })
-                        })
-                        .await;
+                        });
                     }
                     {
                         let writer = writer.clone();
@@ -218,13 +216,11 @@ impl EventHandler for Handler {
                             })
                         })
                     }
-                    .await;
                     dc.on_error(box move |err| {
                         Box::pin(async move {
                             error!("data channel errored: {err}");
                         })
-                    })
-                    .await;
+                    });
                 }
             }
         })
@@ -292,31 +288,27 @@ impl LocalResource for FileSender {
             {
                 let reader = reader.clone();
                 let reader_factory = reader_factory.clone();
-                channel
-                    .on_open(box move || {
-                        let reader = reader.clone();
-                        Box::pin(async move {
-                            info!("channel open");
-                            *reader.write().await = Some(reader_factory.create_reader().await);
-                        })
+                channel.on_open(box move || {
+                    let reader = reader.clone();
+                    Box::pin(async move {
+                        info!("channel open");
+                        *reader.write().await = Some(reader_factory.create_reader().await);
                     })
-                    .await;
+                })
             }
             {
                 let reader = reader.clone();
-                channel
-                    .on_close(box move || {
-                        let reader = reader.clone();
-                        Box::pin(async move {
-                            info!("channel closed");
-                            *reader.write().await = None;
-                        })
+                channel.on_close(box move || {
+                    let reader = reader.clone();
+                    Box::pin(async move {
+                        info!("channel closed");
+                        *reader.write().await = None;
                     })
-                    .await;
+                })
             }
             {
-                channel.set_buffered_amount_low_threshold(1 << 20).await;
                 let reader = reader.clone();
+                let pos = pos.clone();
                 let channel2 = channel.clone();
                 channel
                     .on_buffered_amount_low(box move || {
@@ -352,11 +344,9 @@ impl LocalResource for FileSender {
                         })
                     })
                     .await;
+                channel.set_buffered_amount_low_threshold(1).await;
             }
-
-            channel
-                .on_error(box move |err| Box::pin(async move { error!("channel error: {err}") }))
-                .await;
+            channel.on_error(box move |err| Box::pin(async move { error!("channel error: {err}") }))
         })
     }
 }

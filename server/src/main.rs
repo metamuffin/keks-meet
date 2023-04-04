@@ -3,9 +3,12 @@
     which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
     Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
 */
+pub mod assets;
+pub mod config;
 pub mod protocol;
 pub mod room;
 
+use config::{ClientAppearanceConfig, ClientConfig};
 use hyper::{header, StatusCode};
 use listenfd::ListenFd;
 use log::{debug, error};
@@ -33,6 +36,11 @@ fn main() {
 async fn run() {
     env_logger::init_from_env("LOG");
 
+    let client_config: ClientConfig = toml::from_str(include_str!("../../config/client.toml"))
+        .expect("client configuration invalid");
+    let client_config_json = serde_json::to_string(&client_config).unwrap();
+    let client_config_css = css_overrides(&client_config.appearance);
+
     let rooms: _ = Rooms::default();
     let rooms: _ = warp::any().map(move || rooms.clone());
 
@@ -41,16 +49,31 @@ async fn run() {
         .and(warp::ws())
         .map(signaling_connect);
 
-    let index: _ = warp::path!().and(warp::fs::file("../client-web/public/start.html"));
-    let room: _ = warp::path!("room").and(warp::fs::file("../client-web/public/app.html"));
-    let assets: _ = warp::path("assets").and(warp::fs::dir("../client-web/public/assets"));
-    let sw_script: _ = warp::path("sw.js").and(warp::fs::file("../client-web/public/assets/sw.js"));
+    // TODO add cache policy headers
+
+    let index: _ = warp::path!().and(s_file!("client-web/public/start.html", "text/html"));
+    let room: _ = warp::path!("room").and(s_file!("client-web/public/app.html", "text/html"));
+    let assets: _ = warp::path("assets").and(s_asset_dir!());
+    let sw_script: _ = warp::path("sw.js").and(s_file!(
+        "client-web/public/assets/sw.js",
+        "application/javascript"
+    ));
+    let client_config: _ = warp::path!("config.json").map(move || {
+        warp::reply::with_header(
+            client_config_json.clone(),
+            "content-type",
+            "application/json",
+        )
+    });
+    let client_config_css: _ = warp::path!("overrides.css").map(move || {
+        warp::reply::with_header(client_config_css.clone(), "content-type", "text/css")
+    });
     let favicon: _ = warp::path!("favicon.ico").map(|| "");
-    let old_format_redirect: _ = warp::path!("room" / String).map(|rname| {
+    let old_format_redirect: _ = warp::path!("room" / String).map(|rsecret| {
         reply::with_header(
             StatusCode::MOVED_PERMANENTLY,
             header::LOCATION,
-            format!("/room#{rname}?warn_redirect=true"),
+            format!("/room#{rsecret}?warn_redirect=true"),
         )
         .into_response()
     });
@@ -59,9 +82,11 @@ async fn run() {
         .or(room)
         .or(index)
         .or(signaling)
+        .or(client_config)
         .or(favicon)
         .or(sw_script)
         .or(old_format_redirect)
+        .or(client_config_css)
         .recover(handle_rejection)
         .with(warp::log("stuff"));
 
@@ -103,20 +128,42 @@ async fn handle_rejection(err: Rejection) -> Result<impl Reply, Infallible> {
     Ok(warp::reply::with_status(json, code))
 }
 
-fn signaling_connect(rname: String, rooms: Rooms, ws: warp::ws::Ws) -> impl Reply {
-    async fn inner(sock: WebSocket, rname: String, rooms: Rooms) {
+fn signaling_connect(rsecret: String, rooms: Rooms, ws: warp::ws::Ws) -> impl Reply {
+    async fn inner(sock: WebSocket, rsecret: String, rooms: Rooms) {
         debug!("ws upgrade");
         let mut guard = rooms.write().await;
         let room = guard
-            .entry(rname.clone())
+            .entry(rsecret.clone())
             .or_insert_with(|| Default::default())
             .to_owned();
         drop(guard);
 
         room.client_connect(sock).await;
         if room.should_remove().await {
-            rooms.write().await.remove(&rname);
+            rooms.write().await.remove(&rsecret);
         }
     }
-    ws.on_upgrade(move |sock| inner(sock, rname, rooms))
+    ws.on_upgrade(move |sock| inner(sock, rsecret, rooms))
+}
+
+fn css_overrides(
+    ClientAppearanceConfig {
+        accent,
+        accent_light,
+        accent_dark,
+        background,
+        background_dark,
+    }: &ClientAppearanceConfig,
+) -> String {
+    format!(
+        r#":root {{
+    --bg: {background};
+    --bg-dark: {background_dark};
+    --ac: {accent};
+    --ac-dark: {accent_dark};
+    --ac-dark-transparent: {accent_dark}c9;
+    --ac-light: {accent_light};
+}}
+"#
+    )
 }

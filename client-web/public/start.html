@@ -3,20 +3,22 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="A simple secure web conferencing application using webrtc">
         <link rel="stylesheet" href="/assets/style/master.css" />
         <title>keks-meet</title>
     </head>
-    <body>
+    <body class="start">
         <div class="start-box">
             <h1>keks-meet</h2>
-            <p>A web conferencing application using webrtc</p>
+            <p class="description">A simple secure conferencing application using webrtc</p>
+            <br>
             <p>
                 keks-meet is free software! It is licenced under the terms of
                 the third version of the GNU Affero General Public Licence only.
             </p>
             <p>
                 To get started, click 'Join' and share the URL with your
-                partner. You can also optionally customize the url by entering a
+                partner. You can also optionally customize the URL by entering a
                 <b>secure/unguessable(!!!)</b> identifier below.
             </p>
             <noscript>
@@ -28,8 +30,8 @@
                 const room_input = document.createElement("input");
                 room_input.type = "text";
                 room_input.id = "room-id-input";
-                room_input.placeholder = "Room ID";
-                room_input.ariaLabel = "Room ID"
+                room_input.placeholder = "Room Secret";
+                room_input.ariaLabel = "Room Secret"
 
                 const submit = document.createElement("input");
                 submit.type = "button";

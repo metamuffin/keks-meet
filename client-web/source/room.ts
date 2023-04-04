@@ -20,7 +20,7 @@ export class Room {
 
     public on_ready = () => { };
 
-    constructor(public signaling: SignalingConnection) {
+    constructor(public signaling: SignalingConnection, public rtc_config: RTCConfiguration) {
         this.signaling.control_handler = (a) => this.control_handler(a)
         this.signaling.relay_handler = (a, b) => this.relay_handler(a, b)
     }
