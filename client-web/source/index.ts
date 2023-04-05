@@ -59,7 +59,7 @@ export async function main() {
     const config: ClientConfig = await config_res.json()
     log("*", "config loaded. starting")
 
-    document.body.querySelectorAll("p").forEach(e => e.remove())
+    document.body.querySelectorAll(".loading").forEach(e => e.remove())
     const room_secret = load_params().rsecret
 
     if (!globalThis.RTCPeerConnection) return log({ scope: "webrtc", error: true }, "WebRTC not supported.")
