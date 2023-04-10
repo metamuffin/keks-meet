@@ -7,7 +7,7 @@
 
 import { create_camera_res, create_mic_res, create_screencast_res } from "./resource/track.ts";
 import { Room } from "./room.ts"
-import { update_serviceworker } from "./sw/init.ts";
+import { update_serviceworker } from "./sw/client.ts";
 
 export function setup_keybinds(room: Room) {
     // let command_mode = false

@@ -4,8 +4,8 @@
     Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
 */
 /// <reference lib="dom" />
-import { log } from "../logger.ts"
-import { SW } from "./init.ts"
+import { log } from "./logger.ts"
+import { send_sw_message, SW_ENABLED } from "./sw/client.ts"
 
 function FallbackStreamDownload(size: number, filename?: string, progress?: (position: number) => void) {
     log({ scope: "*", warn: true }, "downloading to memory because serviceworker is not available")
@@ -39,19 +39,23 @@ export function StreamDownload({ size, filename, cancel, progress }: {
     cancel: () => void,
     progress: (position: number) => void
 }) {
-    if (!SW) FallbackStreamDownload(size, filename, progress)
+    if (!SW_ENABLED) FallbackStreamDownload(size, filename, progress)
     let position = 0
 
+    // the sw will handle this download
     const path = `/download/${encodeURIComponent(filename ?? "file")}`
 
     const { port1, port2 } = new MessageChannel()
-    SW!.postMessage({ path, size }, [port2])
+    send_sw_message({ download: { path, size } }, [port2])
 
     const a = document.createElement("a")
     a.href = path
     a.download = filename ?? "file"
     a.target = "_blank"
-    a.click()
+    // TODO this delay is part of a race condition btw
+    setTimeout(() => {
+        a.click()
+    }, 100)
 
     port1.onmessage = ev => {
         if (ev.data.abort) {

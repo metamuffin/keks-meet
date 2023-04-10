@@ -77,12 +77,14 @@ async fn run() {
         )
         .into_response()
     });
+    let version: _ = warp::path!("version").map(|| env!("CARGO_PKG_VERSION"));
 
     let routes: _ = assets
         .or(room)
         .or(index)
         .or(signaling)
         .or(client_config)
+        .or(version)
         .or(favicon)
         .or(sw_script)
         .or(old_format_redirect)

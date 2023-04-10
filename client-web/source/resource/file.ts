@@ -7,7 +7,7 @@
 
 import { display_filesize, ebutton, ediv, espan, sleep } from "../helper.ts";
 import { log } from "../logger.ts";
-import { StreamDownload } from "../sw/download_stream.ts";
+import { StreamDownload } from "../download_stream.ts";
 import { RemoteUser } from "../user/remote.ts";
 import { LocalResource, ResourceHandlerDecl } from "./mod.ts";
 
