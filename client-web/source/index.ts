@@ -59,7 +59,7 @@ export async function main() {
     const config: ClientConfig = await config_res.json()
     log("*", "config loaded. starting")
 
-    document.body.querySelectorAll("p").forEach(e => e.remove())
+    document.body.querySelectorAll(".loading").forEach(e => e.remove())
     const room_secret = load_params().rsecret
 
     if (!globalThis.RTCPeerConnection) return log({ scope: "webrtc", error: true }, "WebRTC not supported.")
@@ -84,8 +84,8 @@ export async function main() {
 
     setup_keybinds(r)
     r.on_ready = () => {
-        new BottomMenu(r).shown = true
-        new MenuBr().shown = true
+        new BottomMenu(r)
+        new MenuBr()
     }
     document.body.prepend(ROOM_CONTAINER, OVERLAYS)
 

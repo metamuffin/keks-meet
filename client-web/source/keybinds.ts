@@ -10,7 +10,6 @@ import { Room } from "./room.ts"
 import { update_serviceworker } from "./sw/client.ts";
 
 export function setup_keybinds(room: Room) {
-    // let command_mode = false
     document.body.addEventListener("keydown", ev => {
         // TODO is there a proper solution?
         if (ev.target instanceof HTMLInputElement && !(ev.target.type == "button")) return
@@ -27,6 +26,5 @@ export function setup_keybinds(room: Room) {
             if (ev.code == "KeyC" && ev.ctrlKey) room.local_user.resources.forEach(t => t.destroy())
             if (ev.code == "KeyU") if (window.confirm("really update?")) update_serviceworker()
         }
-        // command_mode = false
     })
 }

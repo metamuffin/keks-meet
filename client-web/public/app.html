@@ -3,20 +3,26 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="A simple secure web conferencing application using webrtc">
+        <meta
+            name="description"
+            content="A simple secure web conferencing application using webrtc"
+        />
         <script async type="module" src="/assets/bundle.js"></script>
         <link rel="stylesheet" href="/assets/style/master.css" />
         <title>keks-meet</title>
     </head>
     <body>
-        <p>
-            keks-meet needs evil javascript to be enabled. Don't be afraid
-            though, all the code is free (AGPL-3.0-only)! Look at it on
-            <a href="https://codeberg.org/metamuffin/keks-meet">codeberg</a>
-        </p>
-        <p>
-            If you have JS enabled, check the browser console to see if
-            something else failed
+        <noscript>
+            <p>
+                keks-meet needs evil javascript to be enabled. Don't be afraid
+                though, all the code is free (AGPL-3.0-only)! Look at it on
+                <a href="https://codeberg.org/metamuffin/keks-meet">codeberg</a>
+            </p>
+        </noscript>
+        <h1 class="loading">keks-meet is loading, please wait…</h1>
+        <p class="loading">
+            If this takes too long check your browser's console to see if
+            something else failed.
         </p>
     </body>
 </html>

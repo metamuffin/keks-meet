@@ -15,6 +15,10 @@ watch:
 watch-public:
 	make -C client-web watch &
 	make -C server watch-public
+kill-watch:
+	pkill esbuild || true
+	pkill cargo || true
+	pkill make || true
 install-server: client-build
 	cargo +nightly install --force --path server --features standalone
 install-native:
