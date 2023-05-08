@@ -78,21 +78,23 @@ async fn run() {
 
     match &args.action {
         Action::Send { filename } => {
-            inst.add_local_resource(box FileSender {
-                info: ProvideInfo {
-                    id: "the-file".to_string(), // we only share a single file so its fine
-                    kind: "file".to_string(),
-                    track_kind: None,
-                    label: Some(filename.clone().unwrap_or("stdin".to_string())),
-                    size: if let Some(filename) = &filename {
-                        Some(fs::metadata(filename).await.unwrap().size() as usize)
-                    } else {
-                        None
+            inst.add_local_resource(
+                Box::new(FileSender {
+                    info: ProvideInfo {
+                        id: "the-file".to_string(), // we only share a single file so its fine
+                        kind: "file".to_string(),
+                        track_kind: None,
+                        label: Some(filename.clone().unwrap_or("stdin".to_string())),
+                        size: if let Some(filename) = &filename {
+                            Some(fs::metadata(filename).await.unwrap().size() as usize)
+                        } else {
+                            None
+                        },
                     },
-                },
-                reader_factory: args.action,
-            })
-            .await;
+                    reader_factory: args.action,
+                })
+                .await,
+            );
         }
         _ => (),
     }
@@ -160,19 +162,19 @@ impl EventHandler for Handler {
                     {
                         let writer = writer.clone();
                         let s = s.clone();
-                        dc.on_open(box move || {
+                        dc.on_open(Box::new(move || {
                             let s = s.clone();
                             let writer = writer.clone();
                             Box::pin(async move {
                                 info!("channel opened");
                                 *writer.write().await = Some(s.args.action.create_writer().await)
                             })
-                        });
+                        }));
                     }
                     {
                         let writer = writer.clone();
                         let args = s.args.clone();
-                        dc.on_close(box move || {
+                        dc.on_close(Box::new(move || {
                             let writer = writer.clone();
                             let args = args.clone();
                             Box::pin(async move {
@@ -182,11 +184,11 @@ impl EventHandler for Handler {
                                     exit(0);
                                 }
                             })
-                        });
+                        }));
                     }
                     {
                         let writer = writer.clone();
-                        dc.on_message(box move |mesg| {
+                        dc.on_message(Box::new(move |mesg| {
                             let writer = writer.clone();
                             let pos = pos.clone();
                             Box::pin(async move {
@@ -214,13 +216,13 @@ impl EventHandler for Handler {
                                         .unwrap();
                                 }
                             })
-                        })
+                        }))
                     }
-                    dc.on_error(box move |err| {
+                    dc.on_error(Box::new(move |err| {
                         Box::pin(async move {
                             error!("data channel errored: {err}");
                         })
-                    });
+                    }));
                 }
             }
         })
@@ -288,30 +290,30 @@ impl LocalResource for FileSender {
             {
                 let reader = reader.clone();
                 let reader_factory = reader_factory.clone();
-                channel.on_open(box move || {
+                channel.on_open(Box::new(move || {
                     let reader = reader.clone();
                     Box::pin(async move {
                         info!("channel open");
                         *reader.write().await = Some(reader_factory.create_reader().await);
                     })
-                })
+                }))
             }
             {
                 let reader = reader.clone();
-                channel.on_close(box move || {
+                channel.on_close(Box::new(move || {
                     let reader = reader.clone();
                     Box::pin(async move {
                         info!("channel closed");
                         *reader.write().await = None;
                     })
-                })
+                }))
             }
             {
                 let reader = reader.clone();
                 let pos = pos.clone();
                 let channel2 = channel.clone();
-                channel
-                    .on_buffered_amount_low(box move || {
+                channel.on_buffered_amount_low(
+                    Box::new(move || {
                         let pos = pos.clone();
                         let reader = reader.clone();
                         let channel = channel2.clone();
@@ -343,10 +345,13 @@ impl LocalResource for FileSender {
                             }
                         })
                     })
-                    .await;
+                    .await,
+                );
                 channel.set_buffered_amount_low_threshold(1).await;
             }
-            channel.on_error(box move |err| Box::pin(async move { error!("channel error: {err}") }))
+            channel.on_error(Box::new(move |err| {
+                Box::pin(async move { error!("channel error: {err}") })
+            }))
         })
     }
 }
