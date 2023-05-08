@@ -32,7 +32,8 @@ pacman -S --needed esbuild rustup make coreutils; rustup install nightly
 git clone https://codeberg.org/metamuffin/keks-meet.git
 cd keks-meet
 cp config/client.example.toml config/client.toml # use the example config. the defaults work.
-make install # binaries will be copied to ~/.cargo/bin
+make install-server # binaries will be copied to ~/.cargo/bin
+# make install # installs the for-now-broken client applications too
 ```
 
 When changing code, use `make watch` to re-build things automatically as needed.
