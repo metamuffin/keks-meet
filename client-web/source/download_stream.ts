@@ -71,15 +71,11 @@ export function StreamDownload({ size, filename, cancel, progress }: {
         abort() {
             port1.postMessage("abort")
         },
-        write(chunk: Blob) {
-            const reader = new FileReader();
-            reader.onload = function (event) {
-                const arr = new Uint8Array(event.target!.result as ArrayBuffer);
-                port1.postMessage(arr)
-                position += arr.length
-                if (progress) progress(position)
-            };
-            reader.readAsArrayBuffer(chunk);
+        write(chunk: ArrayBuffer) {
+            const arr = new Uint8Array(chunk);
+            port1.postMessage(arr)
+            position += arr.length
+            if (progress) progress(position)
         }
     }
 }

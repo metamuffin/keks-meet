@@ -77,13 +77,21 @@ export const resource_file: ResourceHandlerDecl = {
                     reset()
                 }
                 channel.onmessage = ev => {
-                    const data: Blob | string = ev.data
+                    const data: Blob | ArrayBuffer | string = ev.data
+                    console.log(data);
                     if (typeof data == "string") {
                         if (data == "end") {
                             finished = true
+                            channel.close()
                         }
-                    } else {
-                        download.write(data as Blob)
+                    } else if (data instanceof Blob) {
+                        const reader = new FileReader();
+                        reader.onload = function (event) {
+                            download.write(event.target!.result as ArrayBuffer)
+                        };
+                        reader.readAsArrayBuffer(data);
+                    } else if (data instanceof ArrayBuffer) {
+                        download.write(data)
                     }
                 }
             }
@@ -135,7 +143,6 @@ function file_res_inner(file: File): LocalResource {
                     await sleep(10)
                 }
                 display.status = "Waiting for the channel to close…"
-                channel.close()
             }
             const feed = async () => {
                 const { value: chunk, done }: { value?: Uint8Array, done: boolean } = await reader.read()
