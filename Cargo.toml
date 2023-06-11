@@ -6,3 +6,4 @@ members = [
     "client-native-gui",
     "client-native-export-track",
 ]
+resolver = "2"

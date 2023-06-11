@@ -13,13 +13,13 @@
             <p class="description">A simple secure conferencing application using webrtc</p>
             <br>
             <p>
-                keks-meet is free software! It is licenced under the terms of
-                the third version of the GNU Affero General Public Licence only.
-            </p>
-            <p>
                 To get started, click 'Join' and share the URL with your
                 partner. You can also optionally customize the URL by entering a
                 <b>secure/unguessable(!!!)</b> identifier below.
+            </p>
+            <p>
+                keks-meet is free software! It is licenced under the terms of
+                the third version of the GNU Affero General Public Licence only.
             </p>
             <noscript>
                 keks-meet needs evil javascript to be enabled. Don't be afraid
@@ -27,23 +27,24 @@
                 <a href="https://codeberg.org/metamuffin/keks-meet">codeberg</a>
             </noscript>
             <script>
+                function random_room() {
+                    const random = window.crypto.getRandomValues(new Uint8Array(32));
+                    return Array.from(random)
+                        .map((b) => b.toString(16).padStart(2, "0"))
+                        .join("");
+                }
+
                 const room_input = document.createElement("input");
                 room_input.type = "text";
                 room_input.id = "room-id-input";
-                room_input.placeholder = "Room Secret";
+                room_input.placeholder = `Override room name: ${random_room()}`;
                 room_input.ariaLabel = "Room Secret"
 
                 const submit = document.createElement("input");
                 submit.type = "button";
                 function go() {
-                    if (room_input.value.length == 0) {
-                        const random = window.crypto.getRandomValues(
-                            new Uint8Array(32)
-                        );
-                        room_input.value = Array.from(random)
-                            .map((b) => b.toString(16).padStart(2, "0"))
-                            .join("");
-                    }
+                    if (room_input.value.length == "")
+                        room_input.value = random_room();
                     const url = `/room#${encodeURIComponent(room_input.value)}`;
                     window.location.href = url;
                 }
@@ -53,7 +54,7 @@
                 room_input.addEventListener("keydown", (ev) => {
                     if (ev.code == "Enter") go();
                 });
-                submit.value = "Join room!";
+                submit.value = "Create/Join room!";
 
                 document
                     .querySelector("div.start-box")
