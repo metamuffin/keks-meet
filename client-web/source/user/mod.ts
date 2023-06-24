@@ -6,7 +6,6 @@
 /// <reference lib="dom" />
 
 import { ediv, epre, espan } from "../helper.ts";
-import { ROOM_CONTAINER } from "../index.ts";
 import { Room } from "../room.ts";
 
 export class User {
@@ -25,6 +24,6 @@ export class User {
         this.name_el.classList.add("name")
         info_el.append(this.name_el, this.stats_el)
         this.el.append(info_el)
-        ROOM_CONTAINER.append(this.el)
+        room.element.append(this.el)
     }
 }

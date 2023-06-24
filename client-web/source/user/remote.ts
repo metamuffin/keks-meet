@@ -7,7 +7,6 @@
 
 import { RelayMessage } from "../../../common/packets.d.ts";
 import { notify } from "../helper.ts";
-import { ROOM_CONTAINER } from "../index.ts"
 import { log } from "../logger.ts"
 import { PREFS } from "../preferences/mod.ts";
 import { new_remote_resource, RemoteResource } from "../resource/mod.ts";
@@ -79,7 +78,7 @@ export class RemoteUser extends User {
         log("usermodel", `remove remote user: ${this.display_name}`)
         this.pc.close()
         this.room.remote_users.delete(this.id)
-        ROOM_CONTAINER.removeChild(this.el)
+        this.room.element.removeChild(this.el)
         if (PREFS.notify_leave) notify(`${this.display_name} left`)
     }
     on_relay(message: RelayMessage) {
