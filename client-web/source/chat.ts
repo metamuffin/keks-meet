@@ -6,17 +6,18 @@
 /// <reference lib="dom" />
 
 import { ChatMessage } from "../../common/packets.d.ts";
-import { ediv, esection, espan, image_view, notify, OverlayUi } from "./helper.ts";
+import { ediv, esection, espan, image_view, notify } from "./helper.ts";
 import { log } from "./logger.ts";
 import { PREFS } from "./preferences/mod.ts";
 import { Room } from "./room.ts";
 import { LocalUser } from "./user/local.ts";
 import { User } from "./user/mod.ts";
 
-export class Chat extends OverlayUi {
+export class Chat {
     messages: HTMLElement
     controls: HTMLElement
     send_el: HTMLInputElement
+    element: HTMLElement
 
     constructor(public room: Room) {
         const send = document.createElement("input")
@@ -28,7 +29,8 @@ export class Chat extends OverlayUi {
         const controls = ediv({ class: "controls" })
         controls.append(send)
         messages.append(document.createElement("hr"))
-        super(esection({ class: "chat", aria_label: "chat", role: "dialog" }, messages, controls))
+
+        this.element = esection({ class: "chat", aria_label: "chat", role: "dialog" }, messages, controls)
         this.messages = messages
         this.controls = controls
         this.send_el = send
@@ -37,7 +39,8 @@ export class Chat extends OverlayUi {
             if (ev.code == "Enter") {
                 if (send.value.trim().length == 0) {
                     // keybind for toggle chat is Enter, so lets close here
-                    this.shown = false
+                    // TODO! open
+                    // this.control.check = false
                     return
                 }
                 this.send({ text: send.value })
@@ -75,7 +78,8 @@ export class Chat extends OverlayUi {
         if (message.text) els.push(espan(message.text, { class: "text" }))
         if (message.image) els.push(image_view(message.image, { class: "image" }))
 
-        this.shown = true
+        // TODO! open
+        // this.shown = true
         const e = ediv({ class: "message" }, espan(sender.display_name, { class: "author" }), ": ", ...els)
         this.messages.append(e)
         e.scrollIntoView({ block: "end", behavior: "smooth", inline: "end" })

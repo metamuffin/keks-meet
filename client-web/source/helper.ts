@@ -14,32 +14,43 @@ interface Opts<El> {
     id?: string, src?: string,
     for?: string,
     onclick?: (e: El) => void,
+    onchange?: (e: El) => void,
     role?: "dialog"
     aria_label?: string
     aria_live?: "polite" | "assertive"
     aria_modal?: boolean
+    aria_popup?: "menu"
 }
 
 function apply_opts<El extends HTMLElement>(e: El, o: Opts<El> | undefined) {
     if (!o) return
     if (o.id) e.id = o.id
     if (o.onclick) e.onclick = () => o.onclick!(e)
+    if (o.onchange) e.onchange = () => o.onchange!(e)
     if (o.aria_label) e.ariaLabel = o.aria_label
     if (o.aria_live) e.ariaLive = o.aria_live
     if (o.for) (e as unknown as HTMLLabelElement).htmlFor = o.for
     if (o.aria_modal) e.ariaModal = "true"
+    if (o.aria_popup) e.ariaHasPopup = o.aria_popup
     if (typeof o?.class == "string") e.classList.add(o.class)
     if (typeof o?.class == "object") e.classList.add(...o.class)
 }
-const elem_with_content = <K extends keyof HTMLElementTagNameMap>(s: K) => (c: string, opts?: Opts<HTMLElementTagNameMap[K]>) => {
+
+const element = <K extends keyof HTMLElementTagNameMap>(s: K) => (opts?: Opts<HTMLElementTagNameMap[K]>) => {
     const e = elem(s)
     apply_opts(e, opts)
+    return e
+}
+const elem_with_content = <K extends keyof HTMLElementTagNameMap>(s: K) => (c: string, opts?: Opts<HTMLElementTagNameMap[K]>, ...cs: (HTMLElement | string)[]) => {
+    const e = element(s)(opts)
     e.textContent = c
+    for (const c of cs) {
+        e.append(c)
+    }
     return e
 }
 const elem_with_children = <K extends keyof HTMLElementTagNameMap>(s: K) => (opts?: Opts<HTMLElementTagNameMap[K]>, ...cs: (HTMLElement | string)[]) => {
-    const e = elem(s)
-    apply_opts(e, opts)
+    const e = element(s)(opts)
     for (const c of cs) {
         e.append(c)
     }
@@ -65,23 +76,12 @@ export const espan = elem_with_content("span")
 export const elabel = elem_with_content("label")
 export const ebutton = elem_with_content("button")
 export const ebr = () => document.createElement("br")
-
-export const OVERLAYS = ediv({ class: "overlays" })
-
-export class OverlayUi {
-    _shown = false
-    constructor(public el: HTMLElement, initial = false) {
-        this.shown = initial
-    }
-    get shown() { return this._shown }
-    set shown(v: boolean) {
-        if (v && !this._shown) OVERLAYS.append(this.el), this.on_show()
-        if (!v && this._shown) OVERLAYS.removeChild(this.el), this.on_hide()
-        this._shown = v
-    }
-    on_show() { }
-    on_hide() { }
+export const einput = (type: string, opts: Opts<HTMLInputElement>) => {
+    const i = element("input")(opts)
+    i.type = type
+    return i
 }
+
 
 export function image_view(url: string, opts?: Opts<HTMLElement>): HTMLElement {
     const img = document.createElement("img")

@@ -6,16 +6,15 @@
 /// <reference lib="dom" />
 
 import { init_serviceworker } from "./sw/client.ts";
-import { esection, OVERLAYS } from "./helper.ts";
+import { ediv, enav } from "./helper.ts";
 import { setup_keybinds } from "./keybinds.ts";
 import { log, LOGGER_CONTAINER } from "./logger.ts"
-import { BottomMenu, MenuBr } from "./menu.ts";
 import { load_params, PREFS } from "./preferences/mod.ts";
 import { SignalingConnection } from "./protocol/mod.ts";
 import { Room } from "./room.ts"
+import { control_bar, info_br } from "./menu.ts";
 
 export const VERSION = "0.1.12"
-export const ROOM_CONTAINER = esection({ class: "room", aria_label: "user list" })
 
 export interface ClientConfig {
     appearance?: {
@@ -84,10 +83,10 @@ export async function main() {
 
     setup_keybinds(r)
     r.on_ready = () => {
-        new BottomMenu(r)
-        new MenuBr()
+        const sud = enav({ class: "side-ui" })
+        const center = ediv({ class: "main" }, r.element, info_br())
+        document.body.append(center, sud, control_bar(r, sud))
     }
-    document.body.prepend(ROOM_CONTAINER, OVERLAYS)
 
     if (globalThis.navigator.serviceWorker) init_serviceworker()
 }

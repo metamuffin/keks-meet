@@ -15,9 +15,10 @@ export function setup_keybinds(room: Room) {
         if (ev.target instanceof HTMLInputElement && !(ev.target.type == "button")) return
         if (ev.repeat) return
         if (ev.code == "Enter" && ev.ctrlKey) {
-            room.chat.shown = !room.chat.shown
-            if (room.chat.shown) room.chat.focus()
-            ev.preventDefault() // so focused buttons dont trigger
+            // TODO! show chat
+            // room.chat.shown = !room.chat.shown
+            // if (room.chat.shown) room.chat.focus()
+            // ev.preventDefault() // so focused buttons dont trigger
         }
         if (ev.shiftKey) {
             if (ev.code == "KeyM" || ev.code == "KeyR") room.local_user.await_add_resource(create_mic_res())
