@@ -19,7 +19,8 @@
     padding: 0px
 
 body.start
-    background-image: linear-gradient(var(--ac-dark-transparent), black 150%), url("/assets/tile-backdrop.svg")
+    background-image: linear-gradient(var(--ac-dark-transparent), black 150%),
+        url("./tile-backdrop.svg");
     background-attachment: fixed
     background-size: cover, 750px
     background-color: var(--ac-dark)
@@ -33,9 +34,6 @@ body.start
 body
     font-weight: 300
     background-color: var(--bg-dark)
-    height: 100vh
-    width: 100vw
-    justify-content: left
 
 h1
     text-shadow: 0px 0px 20px rgba(0, 0, 0, 0.75)
@@ -45,19 +43,24 @@ h1
     margin-bottom: 0.1em
 
 input[type="button"],
-button
+button,
+.side-ui-control
     padding: 0.5em
     margin: 0.25em
     background-color: var(--ac)
     border: 0px solid transparent
     border-radius: 3px
+    font-size: small
+    font-weight: 400
 
 input[type="button"]:hover,
-button:hover
+button:hover,
+.side-ui-control:hover
     filter: brightness(130%)
 
 input[type="button"].active,
-button.active
+button.active,
+.side-ui-control:active
     filter: hue-rotate(20deg)
 
 input[type="text"],
@@ -67,8 +70,12 @@ input[type="number"]
     border: 1px solid var(--ac-light)
 
 input:disabled,
-button:disabled
+button:disabled,
+.side-ui-control:disabled
     filter: sepia(90%)
+
+.side-ui-control input
+    display: none
 
 .start-box
     text-align: center
@@ -116,6 +123,10 @@ button:disabled
     font-size: x-large
     font-weight: bold
     text-align: center
+
+.main
+    height: calc(100vh - 64px)
+    display: flex
 
 #room-id-input
     padding: 0.5em
