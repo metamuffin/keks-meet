@@ -1,4 +1,9 @@
-#[cfg(not(feature = "standalone"))]
+use std::fs::read_to_string;
+
+use grass::StdFs;
+use log::error;
+
+#[cfg(debug_assertions)]
 #[macro_export]
 macro_rules! s_file {
     ($path: literal, $content_type: literal) => {
@@ -6,7 +11,7 @@ macro_rules! s_file {
     };
 }
 
-#[cfg(not(feature = "standalone"))]
+#[cfg(debug_assertions)]
 #[macro_export]
 macro_rules! s_asset_dir {
     () => {
@@ -14,7 +19,7 @@ macro_rules! s_asset_dir {
     };
 }
 
-#[cfg(feature = "standalone")]
+#[cfg(not(debug_assertions))]
 #[macro_export]
 macro_rules! s_file {
     ($path: literal, $content_type: literal) => {
@@ -28,7 +33,7 @@ macro_rules! s_file {
     };
 }
 
-#[cfg(feature = "standalone")]
+#[cfg(not(debug_assertions))]
 #[macro_export]
 macro_rules! s_asset_dir {
     () => {{
@@ -48,4 +53,18 @@ macro_rules! s_asset_dir {
                 .ok_or(warp::reject::not_found())
         })
     }};
+}
+
+pub fn css_bundle() -> String {
+    grass::from_string(
+        read_to_string("../client-web/style/master.sass").unwrap(),
+        &grass::Options::default()
+            .input_syntax(grass::InputSyntax::Sass)
+            .load_path("../client-web/style")
+            .fs(&StdFs),
+    )
+    .unwrap_or_else(|err| {
+        error!("sass compile failed: {err}");
+        String::from("/* sass compile failed */")
+    })
 }

@@ -3,15 +3,20 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="A simple secure web conferencing application using webrtc">
-        <link rel="stylesheet" href="/assets/style/master.css" />
+        <meta
+            name="description"
+            content="A simple secure web conferencing application using webrtc"
+        />
+        <link rel="stylesheet" href="/style.css" />
         <title>keks-meet</title>
     </head>
     <body class="start">
         <div class="start-box">
             <h1>keks-meet</h1>
-            <p class="description">A simple secure conferencing application using webrtc</p>
-            <br>
+            <p class="description">
+                A simple secure conferencing application using webrtc
+            </p>
+            <br />
             <p class="instructions">
                 To get started, click 'Join' and share the URL with your
                 partner. You can also optionally customize the URL by entering a
@@ -28,7 +33,9 @@
             </noscript>
             <script>
                 function random_room() {
-                    const random = window.crypto.getRandomValues(new Uint8Array(32));
+                    const random = window.crypto.getRandomValues(
+                        new Uint8Array(32)
+                    );
                     return Array.from(random)
                         .map((b) => b.toString(16).padStart(2, "0"))
                         .join("");
@@ -38,7 +45,7 @@
                 room_input.type = "text";
                 room_input.id = "room-id-input";
                 room_input.placeholder = `Override room name: ${random_room()}`;
-                room_input.ariaLabel = "Room Secret"
+                room_input.ariaLabel = "Room Secret";
 
                 const submit = document.createElement("input");
                 submit.type = "button";

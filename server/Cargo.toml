@@ -15,7 +15,4 @@ serde = { version = "1.0.152", features = ["derive"] }
 serde_json = "1.0.93"
 include_dir = "0.7.3"
 toml = "0.7.2"
-
-[features]
-default = []
-standalone = []
+grass = "0.12.4"

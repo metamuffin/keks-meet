@@ -1,0 +1,54 @@
+/*
+ This file is part of keks-meet (https://codeberg.org/metamuffin/keks-meet)
+ which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
+ Copyright (C) 2023 metamuffin <metamuffin@disroot.org>
+
+.logger-container
+    position: absolute
+    top: 0px
+    right: 0px
+    transition: width 1s
+
+    background-color: rgba(0, 0, 0, 0.376)
+    border-radius: 0.2em
+    border: 0px solid transparent
+    padding: 0.2em
+
+.logger-error
+    font-size: 1.5em !important
+    color: red
+
+.logger-warn
+    font-size: 1.5em !important
+    color: yellow
+
+.logger-line
+    font-size: 1em
+    height: 1.2em
+    font-family: monospace
+    animation-name: appear
+    animation-timing-function: linear
+    animation-duration: 0.3s
+    animation-fill-mode: forwards
+
+.logger-line-disappear
+    animation-name: disappear
+    animation-timing-function: linear
+    animation-duration: 1s
+    animation-fill-mode: forwards
+
+@keyframes appear
+    from
+        margin-top: -1.2em
+        opacity: 0
+
+    to
+        opacity: 1
+
+@keyframes disappear
+    from
+        opacity: 1
+
+    to
+        margin-top: -1.2em
+        opacity: 0
