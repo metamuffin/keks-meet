@@ -1,7 +1,5 @@
-use std::fs::read_to_string;
-
-use grass::StdFs;
 use log::error;
+use std::sync::LazyLock;
 
 #[cfg(debug_assertions)]
 #[macro_export]
@@ -55,13 +53,68 @@ macro_rules! s_asset_dir {
     }};
 }
 
-pub fn css_bundle() -> String {
-    grass::from_string(
-        read_to_string("../client-web/style/master.sass").unwrap(),
+#[derive(Debug)]
+struct GrassFs;
+#[cfg(debug_assertions)]
+impl GrassFs {
+    pub fn map(p: &std::path::Path) -> std::path::PathBuf {
+        std::path::PathBuf::try_from("../client-web/style")
+            .unwrap()
+            .join(p.file_name().unwrap())
+    }
+}
+#[cfg(debug_assertions)]
+impl grass::Fs for GrassFs {
+    fn is_dir(&self, path: &std::path::Path) -> bool {
+        Self::map(path).is_dir()
+    }
+    fn is_file(&self, path: &std::path::Path) -> bool {
+        Self::map(path).is_file()
+    }
+    fn read(&self, path: &std::path::Path) -> std::io::Result<Vec<u8>> {
+        std::fs::read(Self::map(path))
+    }
+}
+
+#[cfg(not(debug_assertions))]
+const STYLE_DIR: include_dir::Dir =
+    include_dir::include_dir!("$CARGO_MANIFEST_DIR/../client-web/style");
+#[cfg(not(debug_assertions))]
+impl grass::Fs for GrassFs {
+    fn is_dir(&self, _path: &std::path::Path) -> bool {
+        false
+    }
+    fn is_file(&self, path: &std::path::Path) -> bool {
+        STYLE_DIR.get_file(path.file_name().unwrap()).is_some()
+    }
+    fn read(&self, path: &std::path::Path) -> std::io::Result<Vec<u8>> {
+        Ok(STYLE_DIR
+            .get_file(path.file_name().unwrap())
+            .ok_or(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                "not found",
+            ))?
+            .contents()
+            .to_vec())
+    }
+}
+
+static CSS_BUNDLE: LazyLock<String> = LazyLock::new(css_bundle);
+
+pub fn css() -> String {
+    if cfg!(debug_assertions) {
+        css_bundle()
+    } else {
+        CSS_BUNDLE.clone()
+    }
+}
+fn css_bundle() -> String {
+    grass::from_path(
+        "/master.sass",
         &grass::Options::default()
             .input_syntax(grass::InputSyntax::Sass)
-            .load_path("../client-web/style")
-            .fs(&StdFs),
+            .load_path("/")
+            .fs(&GrassFs),
     )
     .unwrap_or_else(|err| {
         error!("sass compile failed: {err}");

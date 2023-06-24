@@ -3,12 +3,13 @@
     which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
     Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
 */
+#![feature(lazy_cell)]
 pub mod assets;
 pub mod config;
 pub mod protocol;
 pub mod room;
 
-use assets::css_bundle;
+use assets::css;
 use config::{ClientAppearanceConfig, ClientConfig};
 use hyper::{header, StatusCode};
 use listenfd::ListenFd;
@@ -70,7 +71,7 @@ async fn run() {
         warp::reply::with_header(client_config_css.clone(), "content-type", "text/css")
     });
     let css: _ = warp::path!("style.css")
-        .map(move || warp::reply::with_header(css_bundle(), "content-type", "text/css"));
+        .map(move || warp::reply::with_header(css(), "content-type", "text/css"));
     let favicon: _ = warp::path!("favicon.ico").map(|| "");
     let old_format_redirect: _ = warp::path!("room" / String).map(|rsecret| {
         reply::with_header(

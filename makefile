@@ -20,7 +20,7 @@ kill-watch:
 	pkill cargo || true
 	pkill make || true
 install-server: client-build
-	cargo +nightly install --force --path server --features standalone
+	cargo +nightly install --force --path server
 install-native:
 	cargo +nightly install --force --path client-native-gui
 	cargo +nightly install --force --path client-native-rift 

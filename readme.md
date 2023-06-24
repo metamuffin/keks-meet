@@ -37,15 +37,15 @@ make install-server # binaries will be copied to ~/.cargo/bin
 ```
 
 When changing code, use `make watch` to re-build things automatically as needed.
-(might require `cargo install systemfd cargo-watch`)
+(requires `cargo install systemfd cargo-watch`)
 
 The client configuration file (`config/client.toml`) configures the client and
 requires server recompilation on change for now.
 
 The server's bind address can be controlled using the `BIND` environment
-variable. In production you can also activate the `standalone` feature (enabled
-when using `make install`) to embed all assets into the binary; This speeds it
-up and allows the server to run from just the binary.
+variable. When compilin without debug assertions (release) all assets are
+embedded into the binary; This is a speedup and allows the server to run from
+just the binary.
 
 If you use this project or have any suggestions, please
 [contact me](https://metamuffin.org/contact)
