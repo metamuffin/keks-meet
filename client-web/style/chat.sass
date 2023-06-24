@@ -4,18 +4,8 @@
  Copyright (C) 2023 metamuffin <metamuffin@disroot.org>
 
 .chat
-    position: fixed
-    z-index: 70
-
-    right: 1em
-    bottom: 5em
-
-    width: min(30em, 50vw)
-    height: min(50em, 70vh)
-
-    background-color: var(--bg)
-    border-radius: 1em
-    padding: 2em
+    display: flex
+    flex-direction: column
 
     .message
         margin: 0.2em
@@ -28,11 +18,14 @@
         max-height: 50em // TODO squishes the image if too high
 
     .messages
-        height: calc(100% - 3em)
+        flex: 1
         width: 100%
         overflow: scroll
+
     .controls
+        flex: 0
         padding: 1em
+    
     input
         font-size: x-large
         width: 100%

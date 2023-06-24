@@ -1,25 +1,32 @@
 
-.side-ui 
+.side-ui
     flex: 0
-    >div
-        width: 50em
+    >*
+        height: 100%
+        padding: 2em
+        background-color: var(--bg)
         float: right
 
-    >div.animate-in
+    >.animate-in
         animation-name: side-slide-in
-        animation-duration: 0.5s
-    >div.animate-out
+        animation-duration: 0.3s
+    >.animate-out
         animation-name: side-slide-out
-        animation-duration: 0.5s
+        animation-duration: 0.3s
+        transform: translateX(100%)
 
 @keyframes side-slide-in
     from
         transform: translateX(100%)
     to
         transform: translateX(0%)
-
 @keyframes side-slide-out
     from
         transform: translateX(0%)
     to
         transform: translateX(100%)
+
+.preferences
+    width: 50em
+.chat
+    width: 30em

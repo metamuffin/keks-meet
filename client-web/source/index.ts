@@ -6,7 +6,7 @@
 /// <reference lib="dom" />
 
 import { init_serviceworker } from "./sw/client.ts";
-import { ediv, enav } from "./helper.ts";
+import { ediv } from "./helper.ts";
 import { setup_keybinds } from "./keybinds.ts";
 import { log, LOGGER_CONTAINER } from "./logger.ts"
 import { load_params, PREFS } from "./preferences/mod.ts";
@@ -83,7 +83,7 @@ export async function main() {
 
     setup_keybinds(r)
     r.on_ready = () => {
-        const sud = enav({ class: "side-ui" })
+        const sud = ediv({ class: "side-ui" })
         const center = ediv({ class: "main" }, r.element, info_br(), sud)
         document.body.append(center, control_bar(r, sud))
     }
