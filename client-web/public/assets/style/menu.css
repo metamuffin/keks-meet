@@ -9,11 +9,12 @@
     background-color: var(--bg);
     padding: 0.5em;
     position: fixed;
-    bottom: 0.5em;
+    bottom: 0;
     border: 0px solid transparent;
-    border-radius: 5px;
-    left: 50%;
-    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
     z-index: 100;
 }
 
