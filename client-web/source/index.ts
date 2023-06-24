@@ -84,8 +84,8 @@ export async function main() {
     setup_keybinds(r)
     r.on_ready = () => {
         const sud = enav({ class: "side-ui" })
-        const center = ediv({ class: "main" }, r.element, info_br())
-        document.body.append(center, sud, control_bar(r, sud))
+        const center = ediv({ class: "main" }, r.element, info_br(), sud)
+        document.body.append(center, control_bar(r, sud))
     }
 
     if (globalThis.navigator.serviceWorker) init_serviceworker()

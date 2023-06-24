@@ -94,5 +94,5 @@ export function ui_preferences(): HTMLElement {
     const table = document.createElement("table")
     table.append(...rows)
 
-    return ediv({ class: "prefs-overlay" }, eh2("Settings"), notification_perm, ebr(), table, ebr(), reset)
+    return ediv({ class: "preferences" }, eh2("Settings"), notification_perm, ebr(), table, ebr(), reset)
 }

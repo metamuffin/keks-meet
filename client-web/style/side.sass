@@ -1,0 +1,25 @@
+
+.side-ui 
+    flex: 0
+    >div
+        width: 50em
+        float: right
+
+    >div.animate-in
+        animation-name: side-slide-in
+        animation-duration: 0.5s
+    >div.animate-out
+        animation-name: side-slide-out
+        animation-duration: 0.5s
+
+@keyframes side-slide-in
+    from
+        transform: translateX(100%)
+    to
+        transform: translateX(0%)
+
+@keyframes side-slide-out
+    from
+        transform: translateX(0%)
+    to
+        transform: translateX(100%)

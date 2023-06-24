@@ -52,13 +52,13 @@ export function side_ui(container: HTMLElement, content: HTMLElement, label: str
     const checkbox = einput("checkbox", {
         onchange: () => {
             if (checkbox.checked) {
-                container.classList.add("animate-in")
+                content.classList.add("animate-in")
                 container.appendChild(content)
             } else {
-                container.classList.remove("animate-in")
-                container.classList.add("animate-out")
+                content.classList.remove("animate-in")
+                content.classList.add("animate-out")
                 setTimeout(() => { // TODO breaks if ui is being enabled while timeout is active 
-                    container.classList.remove("animate-out")
+                    content.classList.remove("animate-out")
                     container.removeChild(content)
                 }, 400)
             }
