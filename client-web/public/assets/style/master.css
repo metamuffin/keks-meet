@@ -49,21 +49,26 @@ h1 {
 }
 
 input[type="button"],
-button {
+button,
+.side-ui-control {
     padding: 0.5em;
     margin: 0.25em;
     background-color: var(--ac);
     border: 0px solid transparent;
     border-radius: 3px;
+    font-size: small;
+    font-weight: 400;
 }
 
 input[type="button"]:hover,
-button:hover {
+button:hover,
+.side-ui-control:hover {
     filter: brightness(130%);
 }
 
 input[type="button"].active,
-button.active {
+button.active,
+.side-ui-control:active {
     filter: hue-rotate(20deg);
 }
 
@@ -75,8 +80,13 @@ input[type="number"] {
 }
 
 input:disabled,
-button:disabled {
+button:disabled,
+.side-ui-control:disabled {
     filter: sepia(90%);
+}
+
+.side-ui-control input {
+    display: none;
 }
 
 .start-box {
@@ -130,6 +140,15 @@ button:disabled {
     font-size: x-large;
     font-weight: bold;
     text-align: center;
+}
+
+.main {
+    height: calc(100vh - 64px);
+    display: flex;
+}
+
+.room {
+    width: 100%;
 }
 
 #room-id-input {
