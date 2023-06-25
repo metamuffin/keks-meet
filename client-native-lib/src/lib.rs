@@ -4,7 +4,6 @@
     Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
 */
 #![feature(async_closure)]
-#![feature(box_syntax)]
 // #![feature(async_fn_in_trait)]
 
 use futures_util::Future;

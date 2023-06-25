@@ -6,10 +6,10 @@ edition = "2021"
 [dependencies]
 client-native-lib = { path = "../client-native-lib" }
 
-clap = { version = "4.1.6", features = ["derive"] }
+clap = { version = "4.3.8", features = ["derive"] }
 env_logger = "0.10.0"
 log = "0.4"
 
-tokio = { version = "1.25", features = ["full"] }
+tokio = { version = "1.28", features = ["full"] }
 bytes = "1.4.0"
-anyhow = "1.0.69"
+anyhow = "1.0.71"

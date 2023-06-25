@@ -3,7 +3,6 @@
     which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
     Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
 */
-#![feature(box_syntax)]
 
 pub mod chat;
 
@@ -361,7 +360,7 @@ impl EventHandler for Handler {
 }
 
 pub fn play(peer: Arc<Peer>, track: Arc<TrackRemote>) {
-    let rid = block_on(track.stream_id());
+    let rid = track.stream_id();
     let (exit_tx, exit_rx) = crossbeam_channel::unbounded();
     let has_exited = Arc::new(AtomicBool::new(false));
     let buffer = Arc::new(RwLock::new(VecDeque::new()));
@@ -460,11 +459,11 @@ pub fn play(peer: Arc<Peer>, track: Arc<TrackRemote>) {
         .unwrap();
     mpv.command("show-text", &[&uri, "2000"]).unwrap();
 
-    block_on(track.onmute(move || {
+    track.onmute(move || {
         debug!("track muted");
         let _ = exit_tx.send(());
         Box::pin(async move {})
-    }));
+    });
     exit_rx.recv().unwrap();
     has_exited.store(true, Ordering::Relaxed);
     block_on(peer.request_stop_resource(rid))

@@ -3,7 +3,6 @@
     which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
     Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
 */
-#![feature(box_syntax)]
 
 use bytes::Bytes;
 use clap::{Parser, Subcommand};
@@ -78,23 +77,21 @@ async fn run() {
 
     match &args.action {
         Action::Send { filename } => {
-            inst.add_local_resource(
-                Box::new(FileSender {
-                    info: ProvideInfo {
-                        id: "the-file".to_string(), // we only share a single file so its fine
-                        kind: "file".to_string(),
-                        track_kind: None,
-                        label: Some(filename.clone().unwrap_or("stdin".to_string())),
-                        size: if let Some(filename) = &filename {
-                            Some(fs::metadata(filename).await.unwrap().size() as usize)
-                        } else {
-                            None
-                        },
+            inst.add_local_resource(Box::new(FileSender {
+                info: ProvideInfo {
+                    id: "the-file".to_string(), // we only share a single file so its fine
+                    kind: "file".to_string(),
+                    track_kind: None,
+                    label: Some(filename.clone().unwrap_or("stdin".to_string())),
+                    size: if let Some(filename) = &filename {
+                        Some(fs::metadata(filename).await.unwrap().size() as usize)
+                    } else {
+                        None
                     },
-                    reader_factory: args.action,
-                })
-                .await,
-            );
+                },
+                reader_factory: args.action,
+            }))
+            .await;
         }
         _ => (),
     }
@@ -312,8 +309,8 @@ impl LocalResource for FileSender {
                 let reader = reader.clone();
                 let pos = pos.clone();
                 let channel2 = channel.clone();
-                channel.on_buffered_amount_low(
-                    Box::new(move || {
+                channel
+                    .on_buffered_amount_low(Box::new(move || {
                         let pos = pos.clone();
                         let reader = reader.clone();
                         let channel = channel2.clone();
@@ -344,9 +341,8 @@ impl LocalResource for FileSender {
                                     .unwrap();
                             }
                         })
-                    })
-                    .await,
-                );
+                    }))
+                    .await;
                 channel.set_buffered_amount_low_threshold(1).await;
             }
             channel.on_error(Box::new(move |err| {

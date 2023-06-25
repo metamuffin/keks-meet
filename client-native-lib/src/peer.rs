@@ -87,21 +87,20 @@ impl Peer {
 
         {
             let weak = Arc::<Peer>::downgrade(&peer);
-            peer.peer_connection.on_negotiation_needed(Box::new(move || {
-                let peer = weak.upgrade().unwrap();
-                Box::pin(async { peer.on_negotiation_needed().await })
-            }))
+            peer.peer_connection
+                .on_negotiation_needed(Box::new(move || {
+                    let peer = weak.upgrade().unwrap();
+                    Box::pin(async { peer.on_negotiation_needed().await })
+                }))
         }
 
         {
             let weak = Arc::<Peer>::downgrade(&peer);
             peer.peer_connection
-                .on_track(Box::new(move |track_remote, receiver| {
-                    let receiver = receiver.unwrap();
-                    let track_remote = track_remote.unwrap();
+                .on_track(Box::new(move |track_remote, receiver, _transceiver| {
                     let peer = weak.upgrade().unwrap();
                     Box::pin(async move {
-                        let id = &track_remote.stream_id().await;
+                        let id = &track_remote.stream_id();
                         if let Some(res) = peer.remote_provided.read().await.get(id) {
                             info!("track for ({:?}) '{:?}'", res.id, res.label);
                             peer.inst

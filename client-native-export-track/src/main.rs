@@ -3,7 +3,6 @@
     which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
     Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
 */
-#![feature(box_syntax)]
 
 use clap::Parser;
 use client_native_lib::{
@@ -156,7 +155,7 @@ impl EventHandler for Handler {
                         error!("export failed: {e}")
                     }
                     info!("stopping, telling the remote to stop too.");
-                    peer.request_stop_resource(track.stream_id().await).await;
+                    peer.request_stop_resource(track.stream_id()).await;
                 }
                 TransportChannel::DataChannel(_) => warn!("wrong type"),
             }
