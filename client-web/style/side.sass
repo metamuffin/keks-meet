@@ -1,11 +1,11 @@
 
 .side-ui
     flex: 0
-    >*
+    .side-tray
         height: 100%
+        overflow-y: auto
         padding: 2em
         background-color: var(--bg)
-        float: right
 
     >.animate-in
         animation-name: side-slide-in
@@ -26,7 +26,16 @@
     to
         transform: translateX(100%)
 
+.main
+    flex: 1
+    display: flex
+    flex-flow: row
+    @media (max-width: 900px)
+        flex-flow: column
+
+.control-bar
+    flex: 0
 .preferences
-    width: 50em
+    width: min(50em, 100vw)
 .chat
-    width: 30em
+    width: min(30em, 100vw)

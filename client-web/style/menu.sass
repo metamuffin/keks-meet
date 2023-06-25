@@ -6,15 +6,17 @@
 .control-bar
     background-color: var(--bg)
     padding: 0.75em
-    width: calc(100% - 1.5em)
+    width: auto
     border: 0px solid transparent
     display: flex
     align-items: center
     justify-content: center
     z-index: 100
 
+.main
+    position: relative
 .info-br
-    position: fixed
+    position: absolute
     bottom: 0px
     right: 0px
     display: block
@@ -25,9 +27,3 @@
     font-weight: bold
     color: var(--ac-light)
     padding: 0.5em
-
-.info-br
-    position: absolute
-    right: 0.5em
-    bottom: calc(64px + 0.5em)
-    text-align: right

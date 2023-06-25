@@ -49,17 +49,18 @@ export function control_bar(room: Room, side_ui_container: HTMLElement): HTMLEle
 export interface SideUI { el: HTMLElement, set_state: (s: boolean) => void }
 export function side_ui(container: HTMLElement, content: HTMLElement, label: string): SideUI {
     // TODO: close other side uis
+    const tray = ediv({ class: "side-tray" }, content)
     const checkbox = einput("checkbox", {
         onchange: () => {
             if (checkbox.checked) {
-                content.classList.add("animate-in")
-                container.appendChild(content)
+                tray.classList.add("animate-in")
+                container.appendChild(tray)
             } else {
-                content.classList.remove("animate-in")
-                content.classList.add("animate-out")
+                tray.classList.remove("animate-in")
+                tray.classList.add("animate-out")
                 setTimeout(() => { // TODO breaks if ui is being enabled while timeout is active 
-                    content.classList.remove("animate-out")
-                    container.removeChild(content)
+                    tray.classList.remove("animate-out")
+                    container.removeChild(tray)
                 }, 400)
             }
         }
