@@ -35,15 +35,16 @@ export function info_br() {
 
 
 export function control_bar(room: Room, side_ui_container: HTMLElement): HTMLElement {
+    const leave = ebutton("Leave", { class: "leave", onclick() { window.location.href = "/" } })
     const chat = side_ui(side_ui_container, room.chat.element, "Chat")
     const prefs = side_ui(side_ui_container, ui_preferences(), "Settings")
-    const local_controls = ediv({ class: "local-controls", aria_label: "local resources" },
+    const local_controls = [ //ediv({ class: "local-controls", aria_label: "local resources" },
         ebutton("Microphone", { onclick: () => room.local_user.await_add_resource(create_mic_res()) }),
         ebutton("Camera", { onclick: () => room.local_user.await_add_resource(create_camera_res()) }),
         ebutton("Screen", { onclick: () => room.local_user.await_add_resource(create_screencast_res()) }),
         ebutton("File", { onclick: () => room.local_user.await_add_resource(create_file_res()) }),
-    )
-    return enav({ class: "control-bar" }, chat.el, prefs.el, local_controls)
+    ]
+    return enav({ class: "control-bar" }, leave, chat.el, prefs.el, ...local_controls)
 }
 
 export interface SideUI { el: HTMLElement, set_state: (s: boolean) => void }
