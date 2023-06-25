@@ -1,9 +1,10 @@
 /*
-    This file is part of keks-meet (https://codeberg.org/metamuffin/keks-meet)
-    which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
-    Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
+This file is part of keks-meet (https://codeberg.org/metamuffin/keks-meet)
+which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
+Copyright (C) 2022 metamuffin <metamuffin@disroot.org>
 */
 /// <reference lib="dom" />
+// deno-lint-ignore-file no-unused-vars prefer-const
 
 import { log } from "../logger.ts"
 import { SWMessage } from "./protocol.ts"
@@ -11,21 +12,22 @@ import { SWMessage } from "./protocol.ts"
 export let SW_ENABLED = false
 
 export async function init_serviceworker() {
-    let reg = await globalThis.navigator.serviceWorker.getRegistration()
-    if (reg) {
-        log("sw", "service worker already installed")
-        SW_ENABLED = true
-    } else {
-        log("sw", "registering service worker")
-        await globalThis.navigator.serviceWorker.register("/sw.js", { scope: "/", type: "module" })
-        log("sw", "worker installed")
-        reg = await globalThis.navigator.serviceWorker.getRegistration();
-        if (!reg) throw new Error("we just registered the sw!?");
-        SW_ENABLED = !!reg
-    }
-    start_handler()
-    log("sw", "checking for updates")
-    send_sw_message({ check_version: true })
+    // TODO this breaks shift-reload for some reason
+    // let reg = await globalThis.navigator.serviceWorker.getRegistration()
+    // if (reg) {
+    //     log("sw", "service worker already installed")
+    //     SW_ENABLED = true
+    // } else {
+    //     log("sw", "registering service worker")
+    //     await globalThis.navigator.serviceWorker.register("/sw.js", { scope: "/", type: "module" })
+    //     log("sw", "worker installed")
+    //     reg = await globalThis.navigator.serviceWorker.getRegistration();
+    //     if (!reg) throw new Error("we just registered the sw!?");
+    //     SW_ENABLED = !!reg
+    // }
+    // start_handler()
+    // log("sw", "checking for updates")
+    // send_sw_message({ check_version: true })
 }
 
 export async function send_sw_message(message: SWMessage, transfer?: Transferable[]) {
