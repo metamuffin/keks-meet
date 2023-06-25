@@ -74,21 +74,21 @@ async fn main() {
 
 enum App {
     Prejoin(String, String),
-    Joining(Option<JoinHandle<Ingame>>),
-    Ingame(Ingame),
+    Joining(Option<JoinHandle<Inroom>>),
+    Inroom(Inroom),
 }
 
 #[derive(Clone)]
 // TODO
 #[allow(dead_code)]
-struct Ingame {
+struct Inroom {
     pub instance: Arc<Instance>,
     pub handler: Arc<Handler>,
     pub chat: Arc<RwLock<Chat>>,
 }
 
 pub struct Handler {
-    k: RwLock<Option<Ingame>>,
+    k: RwLock<Option<Inroom>>,
     peers: RwLock<HashMap<usize, Arc<RwLock<GuiPeer>>>>,
 }
 
@@ -130,7 +130,7 @@ impl eframe::App for App {
                     let secret = secret.clone();
                     let username = username.clone();
                     *self = Self::Joining(Some(tokio::spawn(async move {
-                        Ingame::new(Config {
+                        Inroom::new(Config {
                             secret,
                             username,
                             signaling_uri: "wss://meet.metamuffin.org".to_string(),
@@ -142,15 +142,15 @@ impl eframe::App for App {
             App::Joining(fut) => {
                 ui.spinner();
                 if fut.as_ref().map(|f| f.is_finished()).unwrap_or(false) {
-                    *self = Self::Ingame(block_on(fut.take().unwrap()).unwrap());
+                    *self = Self::Inroom(block_on(fut.take().unwrap()).unwrap());
                 }
             }
-            App::Ingame(x) => x.ui(ui),
+            App::Inroom(x) => x.ui(ui),
         });
     }
 }
 
-impl Ingame {
+impl Inroom {
     pub async fn new(config: Config) -> Self {
         let handler = Arc::new(Handler::new());
         let instance = Instance::new(config, handler.clone()).await;
