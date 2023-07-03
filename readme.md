@@ -4,17 +4,19 @@ a simple secure web conferencing application
 
 ## Features
 
-- Able to share different kinds of media:
+- Ability to share different kinds of media:
   - Camera
   - Microphone
   - Screen capture
   - Files
-- End-to-end-encryption
+- End-to-end-encryption (including p2p negotiation, chat and p2p traffic)
 - Peer-to-peer data transmission
 - Multiple streams of any type
 - Noise suppression (using RNNoise)
 - Rooms (created on demand, do not persist)
 - Chat (supports text and images)
+- Minimal user-interface
+- Should work with screen readers 
 
 ## Licence
 
