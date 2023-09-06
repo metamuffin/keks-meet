@@ -1,13 +1,20 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ClientConfig {
-    pub webrtc: ClientWebrtcConfig,
-    pub appearance: ClientAppearanceConfig,
+pub struct Config {
+    pub features: FeaturesConfig,
+    pub webrtc: WebrtcConfig,
+    pub appearance: AppearanceConfig,
+}
+
+#[rustfmt::skip]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FeaturesConfig {
+    #[serde(default)] pub watch_rooms: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ClientWebrtcConfig {
+pub struct WebrtcConfig {
     pub stun: String,
     pub turn: Option<String>,
     pub turn_user: Option<String>,
@@ -15,7 +22,7 @@ pub struct ClientWebrtcConfig {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ClientAppearanceConfig {
+pub struct AppearanceConfig {
     pub accent: String,
     pub accent_light: String,
     pub accent_dark: String,

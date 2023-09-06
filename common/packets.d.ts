@@ -18,11 +18,13 @@ export interface ClientboundPacket {
     client_join?: { id: number }  // join: more like "appear" - also sent when you join for others that were there before you.
     client_leave?: { id: number }
     message?: { sender: number, message: string /* encrypted RelayMessageWrapper */ }
+    room_info?: { hash: string, user_count: number }
 }
 
 export interface ServerboundPacket {
     ping?: null
     relay?: { recipient?: number, message: string /* encrypted RelayMessageWrapper */ }
+    watch_rooms?: string[]
 }
 
 export interface RelayMessageWrapper {

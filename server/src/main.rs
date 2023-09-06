@@ -10,7 +10,7 @@ pub mod protocol;
 pub mod room;
 
 use assets::css;
-use config::{ClientAppearanceConfig, ClientConfig};
+use config::{AppearanceConfig, Config};
 use hyper::{header, StatusCode};
 use listenfd::ListenFd;
 use log::{debug, error};
@@ -38,10 +38,10 @@ fn main() {
 async fn run() {
     env_logger::init_from_env("LOG");
 
-    let client_config: ClientConfig = toml::from_str(include_str!("../../config/client.toml"))
+    let config: Config = toml::from_str(include_str!("../../config/config.toml"))
         .expect("client configuration invalid");
-    let client_config_json = serde_json::to_string(&client_config).unwrap();
-    let client_config_css = css_overrides(&client_config.appearance);
+    let client_config_json = serde_json::to_string(&config).unwrap();
+    let client_config_css = css_overrides(&config.appearance);
 
     let rooms: _ = Rooms::default();
     let rooms: _ = warp::any().map(move || rooms.clone());
@@ -154,22 +154,22 @@ fn signaling_connect(rsecret: String, rooms: Rooms, ws: warp::ws::Ws) -> impl Re
 }
 
 fn css_overrides(
-    ClientAppearanceConfig {
+    AppearanceConfig {
         accent,
         accent_light,
         accent_dark,
         background,
         background_dark,
-    }: &ClientAppearanceConfig,
+    }: &AppearanceConfig,
 ) -> String {
     format!(
         r#":root {{
-    --bg: {background};
-    --bg-dark: {background_dark};
-    --ac: {accent};
-    --ac-dark: {accent_dark};
-    --ac-dark-transparent: {accent_dark}c9;
-    --ac-light: {accent_light};
+--bg: {background};
+--bg-dark: {background_dark};
+--ac: {accent};
+--ac-dark: {accent_dark};
+--ac-dark-transparent: {accent_dark}c9;
+--ac-light: {accent_light};
 }}
 "#
     )

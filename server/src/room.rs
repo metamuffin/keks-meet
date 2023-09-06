@@ -117,6 +117,7 @@ impl Room {
                     self.broadcast(Some(sender), packet).await
                 }
             }
+            ServerboundPacket::WatchRooms(list) => {}
         }
     }
 

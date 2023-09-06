@@ -12,6 +12,7 @@ pub enum ClientboundPacket {
     ClientJoin { id: usize },
     ClientLeave { id: usize },
     Message { sender: usize, message: String },
+    RoomInfo { hash: String, user_count: usize },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -22,4 +23,5 @@ pub enum ServerboundPacket {
         recipient: Option<usize>,
         message: String,
     },
+    WatchRooms(Vec<String>),
 }

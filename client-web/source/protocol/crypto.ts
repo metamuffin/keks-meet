@@ -31,7 +31,7 @@ export async function crypto_seeded_key(seed: string): Promise<CryptoKey> {
     return key
 }
 
-export async function crypt_hash(input: string): Promise<string> {
+export async function crypto_hash(input: string): Promise<string> {
     const buf = new TextEncoder().encode("also-a-very-good-salt" + input)
     const h = await window.crypto.subtle.digest({ name: "SHA-512" }, buf)
     const hex = buf_to_hex(new Uint8Array(h))

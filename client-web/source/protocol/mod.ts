@@ -5,7 +5,7 @@
 */
 import { ClientboundPacket, RelayMessage, RelayMessageWrapper, ServerboundPacket } from "../../../common/packets.d.ts"
 import { log } from "../logger.ts"
-import { crypto_encrypt, crypto_seeded_key, crypt_decrypt, crypt_hash } from "./crypto.ts"
+import { crypto_encrypt, crypto_seeded_key, crypt_decrypt, crypto_hash } from "./crypto.ts"
 
 export class SignalingConnection {
     room!: string
@@ -20,7 +20,7 @@ export class SignalingConnection {
     constructor() { }
     async connect(room: string): Promise<SignalingConnection> {
         this.key = await crypto_seeded_key(room)
-        this.signaling_id = await crypt_hash(room)
+        this.signaling_id = await crypto_hash(room)
         log("ws", "connecting…")
         const ws_url = new URL(`${window.location.protocol.endsWith("s:") ? "wss" : "ws"}://${window.location.host}/signaling/${encodeURIComponent(this.signaling_id)}`)
         this.websocket = new WebSocket(ws_url)
