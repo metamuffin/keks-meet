@@ -18,17 +18,10 @@ export async function crypto_seeded_key(seed: string): Promise<CryptoKey> {
         false,
         ["deriveKey"]
     )
-    //? TODO is it possible to use a unique seed per session here?
-    // const salt = window.crypto.getRandomValues(new Uint8Array(16));
     const salt = base64_to_buf("thisisagoodsaltAAAAAAA==") // valid "unique" 16-byte base-64 string
     log("crypto", "deriving key…")
     const key = await window.crypto.subtle.deriveKey(
-        {
-            name: "PBKDF2",
-            salt,
-            iterations: 250000,
-            hash: "SHA-256",
-        },
+        { name: "PBKDF2", salt, iterations: 250000, hash: "SHA-256" },
         seed_key,
         { name: "AES-GCM", length: 256 },
         false,
@@ -40,7 +33,7 @@ export async function crypto_seeded_key(seed: string): Promise<CryptoKey> {
 
 export async function crypt_hash(input: string): Promise<string> {
     const buf = new TextEncoder().encode("also-a-very-good-salt" + input)
-    const h = await window.crypto.subtle.digest({ name: "SHA-256" }, buf)
+    const h = await window.crypto.subtle.digest({ name: "SHA-512" }, buf)
     const hex = buf_to_hex(new Uint8Array(h))
     return hex
 }
