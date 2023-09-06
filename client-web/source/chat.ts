@@ -8,6 +8,7 @@
 import { ChatMessage } from "../../common/packets.d.ts";
 import { ediv, esection, espan, image_view, notify } from "./helper.ts";
 import { log } from "./logger.ts";
+import { chat_control } from "./menu.ts";
 import { PREFS } from "./preferences/mod.ts";
 import { Room } from "./room.ts";
 import { LocalUser } from "./user/local.ts";
@@ -78,8 +79,7 @@ export class Chat {
         if (message.text) els.push(espan(message.text, { class: "text" }))
         if (message.image) els.push(image_view(message.image, { class: "image" }))
 
-        // TODO! open
-        // this.shown = true
+        chat_control(true)
         const e = ediv({ class: "message" }, espan(sender.display_name, { class: "author" }), ": ", ...els)
         this.messages.append(e)
         e.scrollIntoView({ block: "end", behavior: "smooth", inline: "end" })

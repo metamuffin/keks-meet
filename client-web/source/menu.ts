@@ -33,6 +33,7 @@ export function info_br() {
     )
 }
 
+export let chat_control: (s?: boolean) => void;
 
 export function control_bar(room: Room, side_ui_container: HTMLElement): HTMLElement {
     const leave = ebutton("Leave", { class: "leave", onclick() { window.location.href = "/" } })
@@ -44,10 +45,11 @@ export function control_bar(room: Room, side_ui_container: HTMLElement): HTMLEle
         ebutton("Screen", { onclick: () => room.local_user.await_add_resource(create_screencast_res()) }),
         ebutton("File", { onclick: () => room.local_user.await_add_resource(create_file_res()) }),
     ]
+    chat_control = chat.set_state;
     return enav({ class: "control-bar" }, leave, chat.el, prefs.el, ...local_controls)
 }
 
-export interface SideUI { el: HTMLElement, set_state: (s: boolean) => void }
+export interface SideUI { el: HTMLElement, set_state: (s?: boolean) => void }
 export function side_ui(container: HTMLElement, content: HTMLElement, label: string): SideUI {
     // TODO: close other side uis
     const tray = ediv({ class: "side-tray" }, content)
@@ -68,6 +70,6 @@ export function side_ui(container: HTMLElement, content: HTMLElement, label: str
     })
     return {
         el: elabel(label, { class: "side-ui-control" }, checkbox),
-        set_state(s) { checkbox.checked = s }
+        set_state(s) { checkbox.checked = s ?? !checkbox.checked; if (checkbox.onchange) checkbox.onchange(undefined as unknown as Event) }
     }
 }

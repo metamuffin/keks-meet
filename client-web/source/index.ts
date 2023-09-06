@@ -14,7 +14,7 @@ import { SignalingConnection } from "./protocol/mod.ts";
 import { Room } from "./room.ts"
 import { control_bar, info_br } from "./menu.ts";
 
-export const VERSION = "0.1.12"
+export const VERSION = "0.1.13"
 
 export interface ClientConfig {
     appearance?: {
