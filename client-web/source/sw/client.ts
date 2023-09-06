@@ -48,11 +48,9 @@ export async function update_serviceworker() {
 function start_handler() {
     globalThis.navigator.serviceWorker.addEventListener("message", event => {
         const message: SWMessage = event.data;
-        if (message.version_info) {
-            log("sw", JSON.stringify(message.version_info))
-        }
-        if (message.updated) {
+        if (message.version_info)
+            log("sw", `installed: ${message.version_info.installed_version}`)
+        if (message.updated)
             log("*", "updated")
-        }
     })
 }
