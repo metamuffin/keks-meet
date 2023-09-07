@@ -1,7 +1,61 @@
 import { e } from "./helper.ts";
+import { PREFS } from "./preferences/mod.ts";
+import { crypto_hash } from "./protocol/crypto.ts";
+import { SignalingConnection } from "./protocol/mod.ts";
 
-export function ui_room_watches(): HTMLElement {
-    const listing = e("div", {})
+interface Watch {
+    secret: string,
+    hash: string,
+    name: string,
+    user_count: number,
+}
+
+export function ui_room_watches(conn: SignalingConnection): HTMLElement {
+    const listing = e("div", { class: "room-watches-listing" })
+
+    const watches: Watch[] = []
+    const update_watches = () => (conn.send_control({ watch_rooms: watches.map(w => w.hash) }), update_listing());
+
+    (async () => {
+        for (const e of PREFS.room_watches.split(";")) {
+            const [name, secret] = e.split("=");
+            watches.push({
+                name,
+                secret,
+                hash: await crypto_hash(secret),
+                user_count: 0
+            })
+        }
+        update_watches()
+    })()
+
+    conn.control_handler.add_listener(packet => {
+        if (packet.room_info) {
+            const w = watches.find(w => w.hash == packet.room_info!.hash)
+            w!.user_count = packet.room_info.user_count
+            update_listing()
+        }
+    })
+
+    const update_listing = () => {
+        listing.innerHTML = ""
+        for (const w of watches) {
+            const ucont = []
+            if (w.user_count > 0) ucont.push(e("div", {}))
+            if (w.user_count > 1) ucont.push(e("div", {}))
+            if (w.user_count > 2) ucont.push(e("div", {}))
+            if (w.user_count > 3) ucont.push(e("span", {}, `+${w.user_count - 3}`))
+            listing.append(e("li", {},
+                e("a", {
+                    href: "#" + encodeURIComponent(w.secret),
+                    class: w.secret == conn.room ? "current-room" : []
+                },
+                    w.name,
+                    e("div", { class: "users" }, ...ucont)
+                )
+            ))
+        }
+    }
 
     return e("div", { class: "room-watches" },
         e("h2", {}, "Known Rooms"),

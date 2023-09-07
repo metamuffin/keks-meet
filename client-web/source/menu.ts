@@ -40,7 +40,7 @@ export function control_bar(room: Room, side_ui_container: HTMLElement): HTMLEle
     const leave = e("button", { class: "leave", onclick() { window.location.href = "/" } }, "Leave")
     const chat = side_ui(side_ui_container, room.chat.element, "Chat")
     const prefs = side_ui(side_ui_container, ui_preferences(), "Settings")
-    const rwatches = side_ui(side_ui_container, ui_room_watches(), "Known Rooms")
+    const rwatches = side_ui(side_ui_container, ui_room_watches(room.signaling), "Known Rooms")
     const local_controls = [ //ediv({ class: "local-controls", aria_label: "local resources" },
         e("button", { onclick: () => room.local_user.await_add_resource(create_mic_res()) }, "Microphone"),
         e("button", { onclick: () => room.local_user.await_add_resource(create_camera_res()) }, "Camera"),

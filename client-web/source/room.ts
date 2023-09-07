@@ -24,6 +24,8 @@ export class Room {
 
     constructor(public signaling: SignalingConnection, public rtc_config: RTCConfiguration) {
         this.element = e("div", { class: "room", aria_label: "user list" })
+        signaling.control_handler.add_listener(p => this.control_handler(p))
+        signaling.relay_handler.add_listener(([a, b]) => this.relay_handler(a, b))
     }
 
     control_handler(packet: ClientboundPacket) {

@@ -6,10 +6,11 @@
 #![feature(lazy_cell)]
 pub mod assets;
 pub mod config;
+pub mod idgen;
 pub mod logic;
 pub mod protocol;
-pub mod idgen;
 
+use crate::protocol::ClientboundPacket;
 use assets::css;
 use config::{AppearanceConfig, Config};
 use futures_util::{SinkExt, StreamExt, TryFutureExt};
@@ -22,11 +23,12 @@ use std::net::SocketAddr;
 use std::str::FromStr;
 use std::sync::Arc;
 use tokio::sync::mpsc;
-use warp::hyper::Server;
-use warp::ws::WebSocket;
-use warp::{reply, ws::Message, Filter, Rejection, Reply};
-
-use crate::protocol::ClientboundPacket;
+use warp::{
+    hyper::Server,
+    reply,
+    ws::{Message, WebSocket},
+    Filter, Rejection, Reply,
+};
 
 fn main() {
     tokio::runtime::Builder::new_multi_thread()
@@ -164,12 +166,14 @@ fn css_overrides(
         accent_dark,
         background,
         background_dark,
+        background_light,
     }: &AppearanceConfig,
 ) -> String {
     format!(
         r#":root {{
 --bg: {background};
 --bg-dark: {background_dark};
+--bg-light: {background_light};
 --ac: {accent};
 --ac-dark: {accent_dark};
 --ac-dark-transparent: {accent_dark}c9;

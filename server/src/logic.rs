@@ -28,16 +28,19 @@ pub struct Client(u64);
 pub struct State {
     idgen: IdGenerator,
     rooms: RwLock<HashMap<String, Arc<Room>>>,
+    watches: RwLock<HashMap<String, HashSet<Client>>>,
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Room {
+    pub hash: String,
     pub users: RwLock<HashSet<Client>>,
 }
 
 #[derive(Debug, Default)]
 pub struct ClientState {
     current_room: Option<Arc<Room>>,
+    watches: Vec<String>,
 }
 
 impl State {
@@ -79,8 +82,21 @@ impl State {
         }
 
         if let Some(room) = cstate.current_room {
-            room.leave(client).await;
+            room.leave(self, client).await;
             // TODO dont leak room
+        }
+        {
+            let mut w = self.watches.write().await;
+            for e in cstate.watches {
+                let mut remove = false;
+                if let Some(e) = w.get_mut(&e) {
+                    e.remove(&client);
+                    remove = e.is_empty()
+                }
+                if remove {
+                    w.remove(&e);
+                }
+            }
         }
     }
 
@@ -89,15 +105,21 @@ impl State {
             ServerboundPacket::Ping => (),
             ServerboundPacket::Join { hash } => {
                 if let Some(room) = &cstate.current_room {
-                    room.leave(client).await;
+                    room.leave(self, client).await;
                     // TODO dont leak room
                     // if room.should_remove().await {
                     //     self.rooms.write().await.remove(üw);
                     // }
                 }
                 if let Some(hash) = hash {
-                    let room = self.rooms.write().await.entry(hash).or_default().clone();
-                    room.join(client).await;
+                    let room = self
+                        .rooms
+                        .write()
+                        .await
+                        .entry(hash.clone())
+                        .or_insert_with(|| Room::new(&hash).into())
+                        .clone();
+                    room.join(self, client).await;
                     cstate.current_room = Some(room.clone())
                 } else {
                     cstate.current_room = None
@@ -116,7 +138,33 @@ impl State {
                     }
                 }
             }
-            ServerboundPacket::WatchRooms(_) => todo!(),
+            ServerboundPacket::WatchRooms(mut list) => {
+                let mut w = self.watches.write().await;
+                let r = self.rooms.read().await;
+
+                for e in list.to_owned() {
+                    w.entry(e.to_string()).or_default().insert(client);
+                    if let Some(r) = r.get(&e) {
+                        client
+                            .send(ClientboundPacket::RoomInfo {
+                                hash: e,
+                                user_count: r.users.read().await.len(),
+                            })
+                            .await;
+                    }
+                }
+                std::mem::swap(&mut cstate.watches, &mut list);
+                for e in list {
+                    let mut remove = false;
+                    if let Some(e) = w.get_mut(&e) {
+                        e.remove(&client);
+                        remove = e.is_empty()
+                    }
+                    if remove {
+                        w.remove(&e);
+                    }
+                }
+            }
         }
     }
 }
@@ -132,21 +180,47 @@ impl Client {
 }
 
 impl Room {
-    pub async fn join(&self, client: Client) {
+    pub fn new(hash: &String) -> Self {
+        Self {
+            hash: hash.to_owned(),
+            users: Default::default(),
+        }
+    }
+    pub async fn join(&self, state: &State, client: Client) {
         debug!("client join {client:?}");
-        self.users.write().await.insert(client);
 
+        let user_count = {
+            let mut g = self.users.write().await;
+            g.insert(client);
+            g.len()
+        };
+        for w in state
+            .watches
+            .read()
+            .await
+            .get(&self.hash)
+            .into_iter()
+            .flatten()
+        {
+            w.send(ClientboundPacket::RoomInfo {
+                hash: self.hash.to_owned(),
+                user_count,
+            })
+            .await;
+        }
         // send join of this client to all clients
-        self.broadcast(Some(client), ClientboundPacket::ClientJoin { id: client })
+        self.broadcast(None, ClientboundPacket::ClientJoin { id: client })
             .await;
         // send join of all other clients to this one
         for rc in self.users.read().await.iter() {
-            self.send_to_client(client, ClientboundPacket::ClientJoin { id: *rc })
-                .await;
+            if *rc != client {
+                self.send_to_client(client, ClientboundPacket::ClientJoin { id: *rc })
+                    .await;
+            }
         }
     }
 
-    pub async fn leave(&self, client: Client) {
+    pub async fn leave(&self, state: &State, client: Client) {
         debug!("client leave {client:?}");
         for c in self.users.read().await.iter() {
             if *c != client {
@@ -154,7 +228,25 @@ impl Room {
                     .await;
             }
         }
-        self.users.write().await.remove(&client);
+        let user_count = {
+            let mut g = self.users.write().await;
+            g.remove(&client);
+            g.len()
+        };
+        for w in state
+            .watches
+            .read()
+            .await
+            .get(&self.hash)
+            .into_iter()
+            .flatten()
+        {
+            w.send(ClientboundPacket::RoomInfo {
+                hash: self.hash.to_owned(),
+                user_count,
+            })
+            .await;
+        }
         self.broadcast(Some(client), ClientboundPacket::ClientLeave { id: client })
             .await;
     }

@@ -28,4 +28,5 @@ pub struct AppearanceConfig {
     pub accent_dark: String,
     pub background: String,
     pub background_dark: String,
+    pub background_light: String,
 }

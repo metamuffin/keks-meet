@@ -69,7 +69,7 @@ export async function main() {
     if (room_secret.length == 0) return window.location.href = "/" // send them back to the start page
     if (PREFS.warn_redirect) log({ scope: "crypto", warn: true }, "You were redirected from the old URL format. The server knows the room secret now - e2ee is insecure!")
 
-    const conn = await (new SignalingConnection().connect(room_secret))
+    const conn = await (new SignalingConnection().connect())
     const rtc_config: RTCConfiguration = {
         iceCandidatePoolSize: 10,
         iceServers: [{
@@ -81,9 +81,6 @@ export async function main() {
 
     r = new Room(conn, rtc_config)
 
-    conn.control_handler = (a) => r.control_handler(a)
-    conn.relay_handler = (a, b) => r.relay_handler(a, b)
-
     setup_keybinds(r)
     r.on_ready = () => {
         const sud = e("div", { class: "side-ui" })
@@ -92,4 +89,5 @@ export async function main() {
     }
 
     if (globalThis.navigator.serviceWorker) init_serviceworker()
+    await conn.join(room_secret)
 }

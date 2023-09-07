@@ -42,5 +42,6 @@ export const PREF_DECLS = {
     notify_join: { type: bool, default: true, description: "Send notifications when users join" },
     notify_leave: { type: bool, default: true, description: "Send notifications when users leave" },
 
-    enable_onbeforeunload: { type: bool, default: true, description: "Prompt for confirmation when leaving the site while local resources are active" }
+    enable_onbeforeunload: { type: bool, default: true, description: "Prompt for confirmation when leaving the site while local resources are active" },
+    room_watches: { type: string, default: "Public=public", description: "Known rooms (as semicolon seperated list of name=secret pairs)" }
 }

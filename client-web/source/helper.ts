@@ -77,3 +77,10 @@ export function display_filesize(n: number): string {
     if (n > 1000) return (n / 1000).toFixed(1) + "kB"
     return n.toString() + "B"
 }
+
+export class EventEmitter<E> {
+    private handlers: Set<(e: E) => unknown> = new Set()
+    public dispatch(e: E) { this.handlers.forEach(h => h(e)) }
+    public add_listener(listener: (e: E) => unknown) { this.handlers.add(listener) }
+    public remove_listener(listener: (e: E) => unknown) { this.handlers.delete(listener) }
+}
