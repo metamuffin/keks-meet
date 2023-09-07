@@ -22,6 +22,7 @@ export interface ClientboundPacket {
 }
 
 export interface ServerboundPacket {
+    join?: { hash?: string }
     ping?: null
     relay?: { recipient?: number, message: string /* encrypted RelayMessageWrapper */ }
     watch_rooms?: string[]

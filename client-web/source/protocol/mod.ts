@@ -10,7 +10,7 @@ import { crypto_encrypt, crypto_seeded_key, crypt_decrypt, crypto_hash } from ".
 export class SignalingConnection {
     room!: string
     websocket!: WebSocket
-    signaling_id!: string
+    room_hash!: string
     key!: CryptoKey
     my_id?: number // needed for outgoing relay messages
 
@@ -20,9 +20,9 @@ export class SignalingConnection {
     constructor() { }
     async connect(room: string): Promise<SignalingConnection> {
         this.key = await crypto_seeded_key(room)
-        this.signaling_id = await crypto_hash(room)
+        this.room_hash = await crypto_hash(room)
         log("ws", "connecting…")
-        const ws_url = new URL(`${window.location.protocol.endsWith("s:") ? "wss" : "ws"}://${window.location.host}/signaling/${encodeURIComponent(this.signaling_id)}`)
+        const ws_url = new URL(`${window.location.protocol.endsWith("s:") ? "wss" : "ws"}://${window.location.host}/signaling`)
         this.websocket = new WebSocket(ws_url)
         this.websocket.onerror = () => this.on_error()
         this.websocket.onclose = () => this.on_close()
@@ -44,6 +44,7 @@ export class SignalingConnection {
     }
     on_open() {
         log("ws", "websocket opened");
+        this.send_control({ join: { hash: this.room_hash } })
         setInterval(() => this.send_control({ ping: null }), 30000) // stupid workaround for nginx disconnecting inactive connections
     }
     on_error() {

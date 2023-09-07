@@ -5,22 +5,27 @@
 */
 use serde::{Deserialize, Serialize};
 
+use crate::logic::Client;
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ClientboundPacket {
-    Init { your_id: usize, version: String },
-    ClientJoin { id: usize },
-    ClientLeave { id: usize },
-    Message { sender: usize, message: String },
+    Init { your_id: Client, version: String },
+    ClientJoin { id: Client },
+    ClientLeave { id: Client },
+    Message { sender: Client, message: String },
     RoomInfo { hash: String, user_count: usize },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ServerboundPacket {
+    Join {
+        hash: Option<String>,
+    },
     Ping,
     Relay {
-        recipient: Option<usize>,
+        recipient: Option<Client>,
         message: String,
     },
     WatchRooms(Vec<String>),

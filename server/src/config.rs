@@ -10,7 +10,7 @@ pub struct Config {
 #[rustfmt::skip]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FeaturesConfig {
-    #[serde(default)] pub watch_rooms: bool,
+    #[serde(default)] pub room_watches: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
