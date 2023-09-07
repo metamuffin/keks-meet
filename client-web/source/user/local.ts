@@ -13,7 +13,7 @@ import { User } from "./mod.ts";
 import { create_camera_res, create_mic_res, create_screencast_res } from "../resource/track.ts";
 import { LocalResource } from "../resource/mod.ts";
 import { PREFS } from "../preferences/mod.ts";
-import { ebutton } from "../helper.ts";
+import { e } from "../helper.ts";
 
 export class LocalUser extends User {
     resources: Map<string, LocalResource> = new Map()
@@ -66,14 +66,14 @@ export class LocalUser extends User {
         r.el.classList.add("resource")
         r.el.classList.add(`resource-${r.info.kind}`)
         r.el.append(
-            ebutton("Stop", {
+            e("button", {
                 onclick: () => {
                     r.destroy()
                     this.el.removeChild(r.el);
                     this.resources.delete(provide.id)
                     this.room.signaling.send_relay({ provide_stop: { id: provide.id } })
                 }
-            }),
+            }, "Stop"),
         )
     }
 }

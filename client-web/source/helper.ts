@@ -7,14 +7,15 @@
 
 import { PREFS } from "./preferences/mod.ts";
 
-const elem = <K extends keyof HTMLElementTagNameMap>(s: K): HTMLElementTagNameMap[K] => document.createElement(s)
-
-interface Opts<El> {
+interface Opts<E> {
     class?: string[] | string,
-    id?: string, src?: string,
+    id?: string,
+    src?: string,
     for?: string,
-    onclick?: (e: El) => void,
-    onchange?: (e: El) => void,
+    type?: string,
+    href?: string,
+    onclick?: (e: E) => void,
+    onchange?: (e: E) => void,
     role?: "dialog"
     aria_label?: string
     aria_live?: "polite" | "assertive"
@@ -22,70 +23,34 @@ interface Opts<El> {
     aria_popup?: "menu"
 }
 
-function apply_opts<El extends HTMLElement>(e: El, o: Opts<El> | undefined) {
-    if (!o) return
+function apply_opts<E extends HTMLElement>(e: E, o: Opts<E>) {
     if (o.id) e.id = o.id
     if (o.onclick) e.onclick = () => o.onclick!(e)
     if (o.onchange) e.onchange = () => o.onchange!(e)
-    if (o.aria_label) e.ariaLabel = o.aria_label
-    if (o.aria_live) e.ariaLive = o.aria_live
     if (o.for) (e as unknown as HTMLLabelElement).htmlFor = o.for
-    if (o.aria_modal) e.ariaModal = "true"
-    if (o.aria_popup) e.ariaHasPopup = o.aria_popup
+    if (o.type && e instanceof HTMLInputElement) e.type = o.type
+    if (o.href && e instanceof HTMLAnchorElement) e.href = o.href;
     if (typeof o?.class == "string") e.classList.add(o.class)
     if (typeof o?.class == "object") e.classList.add(...o.class)
+    if (o.aria_modal) e.ariaModal = "true"
+    if (o.aria_popup) e.ariaHasPopup = o.aria_popup
+    if (o.aria_label) e.ariaLabel = o.aria_label
+    if (o.aria_live) e.ariaLive = o.aria_live
 }
 
-const element = <K extends keyof HTMLElementTagNameMap>(s: K) => (opts?: Opts<HTMLElementTagNameMap[K]>) => {
-    const e = elem(s)
-    apply_opts(e, opts)
-    return e
-}
-const elem_with_content = <K extends keyof HTMLElementTagNameMap>(s: K) => (c: string, opts?: Opts<HTMLElementTagNameMap[K]>, ...cs: (HTMLElement | string)[]) => {
-    const e = element(s)(opts)
-    e.textContent = c
-    for (const c of cs) {
-        e.append(c)
+export function e<K extends keyof HTMLElementTagNameMap>(name: K, opts: Opts<HTMLElementTagNameMap[K]>, ...children: (HTMLElement | string)[]): HTMLElementTagNameMap[K] {
+    const el = document.createElement(name)
+    apply_opts(el, opts)
+    for (const c of children) {
+        if (typeof c == "string") el.textContent += c;
+        else el.append(c)
     }
-    return e
+    return el
 }
-const elem_with_children = <K extends keyof HTMLElementTagNameMap>(s: K) => (opts?: Opts<HTMLElementTagNameMap[K]>, ...cs: (HTMLElement | string)[]) => {
-    const e = element(s)(opts)
-    for (const c of cs) {
-        e.append(c)
-    }
-    return e
-}
-
-export const ep = elem_with_content("p")
-export const eh1 = elem_with_content("h1")
-export const eh2 = elem_with_content("h2")
-export const eh3 = elem_with_content("h3")
-export const eh4 = elem_with_content("h4")
-export const eh5 = elem_with_content("h5")
-export const eh6 = elem_with_content("h6")
-export const epre = elem_with_content("pre")
-export const ediv = elem_with_children("div")
-export const efooter = elem_with_children("footer")
-export const esection = elem_with_children("section")
-export const enav = elem_with_children("nav")
-export const etr = elem_with_children("tr")
-export const etd = elem_with_children("td")
-export const eth = elem_with_children("th")
-export const espan = elem_with_content("span")
-export const elabel = elem_with_content("label")
-export const ebutton = elem_with_content("button")
-export const ebr = () => document.createElement("br")
-export const einput = (type: string, opts: Opts<HTMLInputElement>) => {
-    const i = element("input")(opts)
-    i.type = type
-    return i
-}
-
 
 export function image_view(url: string, opts?: Opts<HTMLElement>): HTMLElement {
     const img = document.createElement("img")
-    apply_opts(img, opts)
+    apply_opts(img, opts ?? {})
     img.src = url
     img.alt = `Image (click to open)`
     img.addEventListener("click", () => {

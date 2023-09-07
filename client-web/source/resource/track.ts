@@ -5,7 +5,7 @@
 */
 /// <reference lib="dom" />
 import { ProvideInfo } from "../../../common/packets.d.ts";
-import { ebutton, ediv, elabel } from "../helper.ts";
+import { e } from "../helper.ts";
 import { log } from "../logger.ts";
 import { on_pref_changed, PREFS } from "../preferences/mod.ts";
 import { get_rnnoise_node } from "../rnnoise.ts";
@@ -18,20 +18,20 @@ export const resource_track: ResourceHandlerDecl = {
         let enable_label = `Enable ${info.track_kind}`
         if (info.label) enable_label += ` "${info.label}"`
 
-        const enable_button = ebutton(enable_label, {
+        const enable_button = e("button", {
             onclick: self => {
                 self.disabled = true;
                 self.textContent = "Awaiting track…";
                 enable()
             }
-        })
+        }, enable_label)
         return {
             info,
-            el: ediv({}, enable_button),
+            el: e("div", {}, enable_button),
             on_statechange() { },
             on_enable(track, disable) {
                 this.el.removeChild(enable_button)
-                this.el.append(ebutton("Disable", {
+                this.el.append(e("button", {
                     onclick: (self) => {
                         disable()
                         this.el.appendChild(enable_button)
@@ -40,7 +40,7 @@ export const resource_track: ResourceHandlerDecl = {
                         enable_button.textContent = enable_label;
                         self.remove()
                     }
-                }))
+                }), "Disable")
                 if (!(track instanceof TrackHandle)) return console.warn("aservuoivasretuoip");
                 this.el.append(create_track_display(track))
             }
@@ -51,7 +51,7 @@ export const resource_track: ResourceHandlerDecl = {
 export function new_local_track(info: ProvideInfo, track: TrackHandle, ...extra_controls: HTMLElement[]): LocalResource {
     return {
         info,
-        el: ediv({},
+        el: e("div", {},
             create_track_display(track),
             ...extra_controls
         ),
@@ -181,7 +181,7 @@ export async function create_mic_res() {
         if (mute.checked) gain.gain.value = Number.MIN_VALUE
         else gain.gain.value = PREFS.microphone_gain
     }
-    const mute_label = elabel("Mute", { class: "check-button" })
+    const mute_label = e("label", { class: "check-button" }, "Mute")
     mute_label.prepend(mute)
 
     return new_local_track({ id: t.id, kind: "track", track_kind: "audio", label: "Microphone" }, t, mute_label)

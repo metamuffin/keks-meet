@@ -5,7 +5,7 @@
 */
 /// <reference lib="dom" />
 
-import { ediv, epre, espan } from "../helper.ts";
+import { e } from "../helper.ts";
 import { Room } from "../room.ts";
 
 export class User {
@@ -14,12 +14,12 @@ export class User {
     get name() { return this._name }
     get display_name() { return this.name ?? "Unknown" }
 
-    name_el = espan(this.display_name)
-    stats_el = epre("")
-    el = ediv({ class: "user" })
+    name_el = e("span", {}, this.display_name)
+    stats_el = e("pre", {})
+    el = e("div", { class: "user" })
 
     constructor(public room: Room, public id: number) {
-        const info_el = ediv({ class: "info" })
+        const info_el = e("div", { class: "info" })
         this.name_el.textContent = this.display_name
         this.name_el.classList.add("name")
         info_el.append(this.name_el, this.stats_el)

@@ -6,7 +6,7 @@
 /// <reference lib="dom" />
 
 import { ChatMessage } from "../../common/packets.d.ts";
-import { ediv, esection, espan, image_view, notify } from "./helper.ts";
+import { e, image_view, notify } from "./helper.ts";
 import { log } from "./logger.ts";
 import { chat_control } from "./menu.ts";
 import { PREFS } from "./preferences/mod.ts";
@@ -26,12 +26,12 @@ export class Chat {
         send.type = "text"
         send.placeholder = "send a message..."
 
-        const messages = ediv({ class: "messages", aria_live: "polite" })
-        const controls = ediv({ class: "controls" })
+        const messages = e("div", { class: "messages", aria_live: "polite" })
+        const controls = e("div", { class: "controls" })
         controls.append(send)
         messages.append(document.createElement("hr"))
 
-        this.element = esection({ class: "chat", aria_label: "chat", role: "dialog" }, messages, controls)
+        this.element = e("section", { class: "chat", aria_label: "chat", role: "dialog" }, messages, controls)
         this.messages = messages
         this.controls = controls
         this.send_el = send
@@ -76,13 +76,13 @@ export class Chat {
 
     add_message(sender: User, message: ChatMessage) {
         const els = []
-        if (message.text) els.push(espan(message.text, { class: "text" }))
+        if (message.text) els.push(e("span", { class: "text" }, message.text))
         if (message.image) els.push(image_view(message.image, { class: "image" }))
 
         chat_control(true)
-        const e = ediv({ class: "message" }, espan(sender.display_name, { class: "author" }), ": ", ...els)
-        this.messages.append(e)
-        e.scrollIntoView({ block: "end", behavior: "smooth", inline: "end" })
+        const el = e("div", { class: "message" }, e("span", { class: "author" }, sender.display_name), ": ", ...els)
+        this.messages.append(el)
+        el.scrollIntoView({ block: "end", behavior: "smooth", inline: "end" })
 
         let body_str = "(empty message)"
         if (message.text) body_str = message.text

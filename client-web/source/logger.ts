@@ -5,9 +5,9 @@
 */
 /// <reference lib="dom" />
 
-import { ediv } from "./helper.ts";
+import { e } from "./helper.ts";
 
-export const LOGGER_CONTAINER = ediv({ class: "logger-container" })
+export const LOGGER_CONTAINER = e("div", { class: "logger-container" })
 
 const log_scope_color = {
     "*": "#ff4a7c",

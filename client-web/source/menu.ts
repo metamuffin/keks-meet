@@ -5,12 +5,13 @@
 */
 /// <reference lib="dom" />
 
-import { ebutton, ediv, efooter, einput, elabel, enav, ep } from "./helper.ts"
+import { e } from "./helper.ts"
 import { VERSION } from "./index.ts"
 import { ui_preferences } from "./preferences/ui.ts"
 import { create_file_res } from "./resource/file.ts";
 import { create_camera_res, create_mic_res, create_screencast_res } from "./resource/track.ts";
 import { Room } from "./room.ts"
+import { ui_room_watches } from "./room_watches.ts";
 
 export function info_br() {
     const item = (name: string, cb: (() => void) | string) => {
@@ -25,8 +26,8 @@ export function info_br() {
         return p
     }
 
-    return efooter({ class: "info-br" },
-        ep(`keks-meet ${VERSION}`, { class: "version" }),
+    return e("footer", { class: "info-br" },
+        e("p", { class: "version" }, `keks-meet ${VERSION}`),
         item("License", "https://codeberg.org/metamuffin/keks-meet/raw/branch/master/COPYING"),
         item("Source code", "https://codeberg.org/metamuffin/keks-meet"),
         item("Documentation", "https://codeberg.org/metamuffin/keks-meet/src/branch/master/readme.md"),
@@ -36,24 +37,26 @@ export function info_br() {
 export let chat_control: (s?: boolean) => void;
 
 export function control_bar(room: Room, side_ui_container: HTMLElement): HTMLElement {
-    const leave = ebutton("Leave", { class: "leave", onclick() { window.location.href = "/" } })
+    const leave = e("button", { class: "leave", onclick() { window.location.href = "/" } }, "Leave")
     const chat = side_ui(side_ui_container, room.chat.element, "Chat")
     const prefs = side_ui(side_ui_container, ui_preferences(), "Settings")
+    const rwatches = side_ui(side_ui_container, ui_room_watches(), "Known Rooms")
     const local_controls = [ //ediv({ class: "local-controls", aria_label: "local resources" },
-        ebutton("Microphone", { onclick: () => room.local_user.await_add_resource(create_mic_res()) }),
-        ebutton("Camera", { onclick: () => room.local_user.await_add_resource(create_camera_res()) }),
-        ebutton("Screen", { onclick: () => room.local_user.await_add_resource(create_screencast_res()) }),
-        ebutton("File", { onclick: () => room.local_user.await_add_resource(create_file_res()) }),
+        e("button", { onclick: () => room.local_user.await_add_resource(create_mic_res()) }, "Microphone"),
+        e("button", { onclick: () => room.local_user.await_add_resource(create_camera_res()) }, "Camera"),
+        e("button", { onclick: () => room.local_user.await_add_resource(create_screencast_res()) }, "Screen"),
+        e("button", { onclick: () => room.local_user.await_add_resource(create_file_res()) }, "File"),
     ]
     chat_control = chat.set_state;
-    return enav({ class: "control-bar" }, leave, chat.el, prefs.el, ...local_controls)
+    return e("nav", { class: "control-bar" }, leave, chat.el, prefs.el, rwatches.el, ...local_controls)
 }
 
 export interface SideUI { el: HTMLElement, set_state: (s?: boolean) => void }
 export function side_ui(container: HTMLElement, content: HTMLElement, label: string): SideUI {
     // TODO: close other side uis
-    const tray = ediv({ class: "side-tray" }, content)
-    const checkbox = einput("checkbox", {
+    const tray = e("div", { class: "side-tray" }, content)
+    const checkbox = e("input", {
+        type: "checkbox",
         onchange: () => {
             if (checkbox.checked) {
                 tray.classList.add("animate-in")
@@ -69,7 +72,7 @@ export function side_ui(container: HTMLElement, content: HTMLElement, label: str
         }
     })
     return {
-        el: elabel(label, { class: "side-ui-control" }, checkbox),
+        el: e("label", { class: "side-ui-control" }, label, checkbox),
         set_state(s) { checkbox.checked = s ?? !checkbox.checked; if (checkbox.onchange) checkbox.onchange(undefined as unknown as Event) }
     }
 }

@@ -5,7 +5,7 @@
 */
 /// <reference lib="dom" />
 
-import { ebr, ebutton, ediv, eh2, elabel, espan, etd, etr } from "../helper.ts";
+import { e } from "../helper.ts";
 import { PREF_DECLS } from "./decl.ts";
 import { change_pref, on_pref_changed, PrefDecl, PREFS } from "./mod.ts";
 
@@ -78,21 +78,26 @@ export function ui_preferences(): HTMLElement {
             use_opt_ = use_opt;
         }
 
-        const label = elabel(decl.description ?? `[${key}]`, { for: id })
-        return etr({ class: "pref" }, etd({}, label), etd({}, use_opt_ ?? ""), etd({}, prim_control ?? ""))
+        const label = e("label", { for: id }, decl.description ?? `[${key}]`)
+        return e("tr", { class: "pref" }, e("td", {}, label), e("td", {}, use_opt_ ?? ""), e("td", {}, prim_control ?? ""))
     })
 
-    const notification_perm = Notification.permission == "granted" ? ediv() : ediv({},
-        espan("For keks-meet to send notifications, it needs you to grant permission: "),
-        ebutton("Grant", { onclick: () => Notification.requestPermission() }),
+    const notification_perm = Notification.permission == "granted" ? e("div", {}) : e("div", {},
+        e("span", {}, "For keks-meet to send notifications, it needs you to grant permission: "),
+        e("button", { onclick: () => Notification.requestPermission() }, "Grant"),
     )
-    const reset = ediv({},
-        espan("Want to clear all settings? Use this:"),
-        ebutton("RESET", { onclick: () => { if (confirm("really clear all preferences?")) { localStorage.clear(); window.location.reload() } } }),
+    const reset = e("div", {},
+        e("span", {}, "Want to clear all settings? Use this:"),
+        e("button", { onclick: () => { if (confirm("really clear all preferences?")) { localStorage.clear(); window.location.reload() } } }, "RESET"),
     )
 
     const table = document.createElement("table")
     table.append(...rows)
 
-    return ediv({ class: "preferences" }, eh2("Settings"), notification_perm, ebr(), table, ebr(), reset)
+    return e("div", { class: "preferences" },
+        e("h2", {}, "Settings"),
+        notification_perm, e("br", {}),
+        table, e("br", {}),
+        reset
+    )
 }

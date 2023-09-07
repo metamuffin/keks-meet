@@ -5,7 +5,7 @@
 */
 /// <reference lib="dom" />
 
-import { display_filesize, ebutton, ediv, espan, sleep } from "../helper.ts";
+import { display_filesize, e, sleep } from "../helper.ts";
 import { log } from "../logger.ts";
 import { StreamDownload } from "../download_stream.ts";
 import { RemoteUser } from "../user/remote.ts";
@@ -16,17 +16,17 @@ const MAX_CHUNK_SIZE = 1 << 15;
 export const resource_file: ResourceHandlerDecl = {
     kind: "file",
     new_remote(info, user, enable) {
-        const download_button = ebutton("Download", {
+        const download_button = e("button", {
             onclick: self => {
                 enable()
                 self.textContent = "Downloading…"
                 self.disabled = true
             }
-        })
+        }, "Download")
         return {
             info,
-            el: ediv({},
-                espan(`File: ${JSON.stringify(info.label)} (${display_filesize(info.size!)})`),
+            el: e("div", {},
+                e("span", {}, `File: ${JSON.stringify(info.label)} (${display_filesize(info.size!)})`),
                 download_button,
             ),
             on_statechange(_s) { },
@@ -114,15 +114,15 @@ export function create_file_res(): Promise<LocalResource> {
 }
 
 function file_res_inner(file: File): LocalResource {
-    const transfers_el = ediv({})
+    const transfers_el = e("div", {})
     const transfers_abort = new Set<() => void>()
     return {
         info: { kind: "file", id: Math.random().toString(), label: file.name, size: file.size },
         destroy() {
             transfers_abort.forEach(abort => abort())
         },
-        el: ediv({ class: "file" },
-            espan(`Sharing file: ${JSON.stringify(file.name)}`),
+        el: e("div", { class: "file" },
+            e("span", {}, `Sharing file: ${JSON.stringify(file.name)}`),
             transfers_el
         ),
         on_request(user, create_channel) {
@@ -189,10 +189,10 @@ function file_res_inner(file: File): LocalResource {
 }
 
 function transfer_status_el(remote: RemoteUser) {
-    const status = espan("…")
-    const bar = ediv({ class: "progress-bar" });
+    const status = e("span", {}, "…")
+    const bar = e("div", { class: "progress-bar" });
     return {
-        el: ediv({ class: "transfer-status" }, status, bar),
+        el: e("div", { class: "transfer-status" }, status, bar),
         set status(s: string) {
             status.textContent = `${remote.display_name}: ${s}`
         },

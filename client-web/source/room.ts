@@ -11,7 +11,7 @@ import { LocalUser } from "./user/local.ts";
 import { ClientboundPacket, RelayMessage } from "../../common/packets.d.ts";
 import { SignalingConnection } from "./protocol/mod.ts";
 import { Chat } from "./chat.ts";
-import { ediv } from "./helper.ts";
+import { e } from "./helper.ts";
 
 export class Room {
     public remote_users: Map<number, RemoteUser> = new Map()
@@ -23,9 +23,7 @@ export class Room {
     public on_ready = () => { };
 
     constructor(public signaling: SignalingConnection, public rtc_config: RTCConfiguration) {
-        this.element = ediv({ class: "room", aria_label: "user list" })
-        this.signaling.control_handler = (a) => this.control_handler(a)
-        this.signaling.relay_handler = (a, b) => this.relay_handler(a, b)
+        this.element = e("div", { class: "room", aria_label: "user list" })
     }
 
     control_handler(packet: ClientboundPacket) {

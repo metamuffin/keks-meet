@@ -6,7 +6,7 @@
 /// <reference lib="dom" />
 
 import { init_serviceworker } from "./sw/client.ts";
-import { ediv } from "./helper.ts";
+import { e } from "./helper.ts";
 import { setup_keybinds } from "./keybinds.ts";
 import { log, LOGGER_CONTAINER } from "./logger.ts"
 import { load_params, PREFS } from "./preferences/mod.ts";
@@ -61,8 +61,8 @@ export async function main() {
     document.body.querySelectorAll(".loading").forEach(e => e.remove())
     const room_secret = load_params().rsecret
 
-    if (!globalThis.RTCPeerConnection) return log({ scope: "webrtc", error: true }, "WebRTC not supported.")
     if (!globalThis.isSecureContext) log({ scope: "*", warn: true }, "This page is not in a 'Secure Context'")
+    if (!globalThis.RTCPeerConnection) return log({ scope: "webrtc", error: true }, "WebRTC not supported.")
     if (!globalThis.crypto.subtle) return log({ scope: "crypto", error: true }, "SubtleCrypto not availible")
     if (!globalThis.navigator.serviceWorker) log({ scope: "*", warn: true }, "Your browser does not support the Service Worker API, forced automatic updates are unavoidable.")
     if (room_secret.length < 8) log({ scope: "crypto", warn: true }, "Room name is very short. e2ee is insecure!")
@@ -81,10 +81,13 @@ export async function main() {
 
     r = new Room(conn, rtc_config)
 
+    conn.control_handler = (a) => r.control_handler(a)
+    conn.relay_handler = (a, b) => r.relay_handler(a, b)
+
     setup_keybinds(r)
     r.on_ready = () => {
-        const sud = ediv({ class: "side-ui" })
-        const center = ediv({ class: "main" }, r.element, info_br(), sud)
+        const sud = e("div", { class: "side-ui" })
+        const center = e("div", { class: "main" }, r.element, info_br(), sud)
         document.body.append(center, control_bar(r, sud))
     }
 
