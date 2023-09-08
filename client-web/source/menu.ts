@@ -56,9 +56,11 @@ let close_active: (() => void) | undefined;
 let cancel_slide: number | undefined
 export function side_ui(container: HTMLElement, content: HTMLElement, label: string): SideUI {
     const tray = e("div", { class: "side-tray" }, content)
+    let last_state = false;
     const checkbox = e("input", {
         type: "checkbox",
         onchange: async () => {
+            if (last_state == checkbox.checked) return
             if (checkbox.checked) {
                 if (close_active) {
                     close_active()
@@ -81,6 +83,7 @@ export function side_ui(container: HTMLElement, content: HTMLElement, label: str
                     container.removeChild(tray)
                 }, 200)
             }
+            last_state = checkbox.checked;
         }
     })
     const set_state = (s: boolean | undefined) => {
