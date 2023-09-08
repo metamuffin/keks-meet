@@ -40,7 +40,7 @@ export const resource_track: ResourceHandlerDecl = {
                         enable_button.textContent = enable_label;
                         self.remove()
                     }
-                }), "Disable")
+                }, "Disable"))
                 if (!(track instanceof TrackHandle)) return console.warn("aservuoivasretuoip");
                 this.el.append(create_track_display(track))
             }
