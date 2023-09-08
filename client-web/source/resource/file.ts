@@ -116,15 +116,18 @@ export function create_file_res(): Promise<LocalResource> {
 function file_res_inner(file: File): LocalResource {
     const transfers_el = e("div", {})
     const transfers_abort = new Set<() => void>()
+    let destroy: () => void;
     return {
         info: { kind: "file", id: Math.random().toString(), label: file.name, size: file.size },
         destroy() {
             transfers_abort.forEach(abort => abort())
         },
         el: e("div", { class: "file" },
+            e("button", { class: "abort", onclick(_) { destroy() } }, "Stop sharing"),
             e("span", {}, `Sharing file: ${JSON.stringify(file.name)}`),
             transfers_el
         ),
+        set_destroy(cb) { destroy = cb },
         on_request(user, create_channel) {
             const channel = create_channel()
             channel.bufferedAmountLowThreshold = 1 << 16 // this appears to be the buffer size in firefox for reading files

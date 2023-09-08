@@ -19,6 +19,7 @@ export const resource_track: ResourceHandlerDecl = {
         if (info.label) enable_label += ` "${info.label}"`
 
         const enable_button = e("button", {
+            class: "center",
             onclick: self => {
                 self.disabled = true;
                 self.textContent = "Awaiting track…";
@@ -27,11 +28,13 @@ export const resource_track: ResourceHandlerDecl = {
         }, enable_label)
         return {
             info,
-            el: e("div", {}, enable_button),
+            el: e("div", { class: [`media-${info.track_kind}`] }, enable_button),
             on_statechange() { },
             on_enable(track, disable) {
                 this.el.removeChild(enable_button)
+                if (!(track instanceof TrackHandle)) return console.warn("aservuoivasretuoip");
                 this.el.append(e("button", {
+                    class: ["topright", "abort"],
                     onclick: (self) => {
                         disable()
                         this.el.appendChild(enable_button)
@@ -41,19 +44,25 @@ export const resource_track: ResourceHandlerDecl = {
                         self.remove()
                     }
                 }, "Disable"))
-                if (!(track instanceof TrackHandle)) return console.warn("aservuoivasretuoip");
-                this.el.append(create_track_display(track))
+                create_track_display(this.el, track)
             }
         }
     }
 }
 
 export function new_local_track(info: ProvideInfo, track: TrackHandle, ...extra_controls: HTMLElement[]): LocalResource {
+    let destroy: () => void;
     return {
+        set_destroy(cb) { destroy = cb },
         info,
         el: e("div", {},
-            create_track_display(track),
-            ...extra_controls
+            create_track_display(
+                e("div", { class: `media-${track.kind}` },
+                    e("button", { class: ["abort", "topright"], onclick: () => destroy() }, "Stop sharing"),
+                    ...extra_controls
+                ),
+                track
+            ),
         ),
         destroy() { track.end() },
         on_request(_user, _create_channel) {
@@ -62,40 +71,38 @@ export function new_local_track(info: ProvideInfo, track: TrackHandle, ...extra_
     }
 }
 
-function create_track_display(track: TrackHandle): HTMLElement {
+function create_track_display(target: HTMLElement, track: TrackHandle): HTMLElement {
     const is_video = track.kind == "video"
     const is_audio = track.kind == "audio"
 
     const stream = new MediaStream([track.track])
 
-    const el = document.createElement("div")
 
     const media_el = is_video
         ? document.createElement("video")
         : document.createElement("audio")
 
     media_el.srcObject = stream
-    media_el.classList.add("media")
     media_el.autoplay = true
     media_el.controls = true
     media_el.addEventListener("pause", () => media_el.play())
 
     if (track.local) media_el.muted = true
-    el.append(media_el)
+    target.append(media_el)
     track.addEventListener("ended", () => {
         media_el.srcObject = null // TODO // TODO figure out why i wrote todo here
-        el.remove()
+        media_el.remove()
     })
 
     if (is_audio && PREFS.audio_activity_threshold !== undefined) check_volume(stream, vol => {
         const active = vol > PREFS.audio_activity_threshold
-        if (active != el.classList.contains("audio-active")) {
-            if (active) el.classList.add("audio-active")
-            else el.classList.remove("audio-active")
+        if (active != target.classList.contains("audio-active")) {
+            if (active) target.classList.add("audio-active")
+            else target.classList.remove("audio-active")
         }
     })
 
-    return el
+    return target
 }
 
 function check_volume(track: MediaStream, cb: (vol: number) => void) {

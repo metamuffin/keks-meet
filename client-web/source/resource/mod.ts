@@ -27,7 +27,8 @@ export interface LocalResource {
     el: HTMLElement
     info: ProvideInfo,
     destroy(): void
-    on_request(user: RemoteUser, create_channel: () => RTCDataChannel): TrackHandle | RTCDataChannel
+    on_request(user: RemoteUser, create_channel: () => RTCDataChannel): TrackHandle | RTCDataChannel,
+    set_destroy(cb: () => void): void
 }
 
 const RESOURCE_HANDLERS: ResourceHandlerDecl[] = [resource_file, resource_track]

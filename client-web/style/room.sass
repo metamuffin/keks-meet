@@ -18,7 +18,7 @@
     margin: 0.5em
     vertical-align: top
     min-width: fit-content
-    height: 13em
+    height: 16em
     display: inline-block
     position: relative
 
@@ -35,10 +35,10 @@
     display: inline-block
     vertical-align: top
 
-.media
-    max-height: 9em
-    border: 0px solid transparent
-    border-radius: 5px
+.resource
+    position: relative
+    margin: 0.5em
+    max-height: 12em
 
 .local-controls
     display: inline
@@ -72,3 +72,26 @@
     color: var(--green)
 .status-fail
     color: var(--red)
+
+.media-video
+    border-radius: 5px
+    background-color: black
+    height: 12em
+    width: calc(12em * 16 / 9)
+    button.center
+        position: absolute
+        top: 50%
+        left: 50%
+        transform: translate(-50%,-50%)
+    button.topright
+        position: absolute
+        top: 0px
+        right: 0px
+
+.media-audio
+    border-radius: 5px
+    height: 5em
+    width: 20em
+
+video
+    height: 12em

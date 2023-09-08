@@ -37,7 +37,7 @@ export function info_br() {
 export let chat_control: (s?: boolean) => void;
 
 export function control_bar(room: Room, side_ui_container: HTMLElement): HTMLElement {
-    const leave = e("button", { class: "leave", onclick() { window.location.href = "/" } }, "Leave")
+    const leave = e("button", { class: "abort", onclick() { window.location.href = "/" } }, "Leave")
     const chat = side_ui(side_ui_container, room.chat.element, "Chat", room.chat)
     const prefs = side_ui(side_ui_container, ui_preferences(), "Settings")
     const rwatches = side_ui(side_ui_container, ui_room_watches(room.signaling), "Known Rooms")
