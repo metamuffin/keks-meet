@@ -21,6 +21,7 @@ export class LocalUser extends User {
     constructor(room: Room, id: number) {
         super(room, id)
         this.el.classList.add("local")
+        this.status_el.textContent = "Local"
         this.name = PREFS.username
         log("usermodel", `added local user: ${this.display_name}`)
         this.add_initial_tracks()

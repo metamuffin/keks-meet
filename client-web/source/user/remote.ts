@@ -32,7 +32,7 @@ export class RemoteUser extends User {
             if (!ev.candidate) return
             room.signaling.send_relay({ ice_candidate: ev.candidate.toJSON() }, this.id)
             log("webrtc", `ICE candidate set`, ev.candidate)
-            this.update_stats()
+            this.update_status()
         }
         this.pc.ontrack = ev => {
             const t = ev.track
@@ -45,7 +45,7 @@ export class RemoteUser extends User {
                 ev.transceiver.stop()
             })
             log("media", `remote track: ${this.display_name}`, t)
-            this.update_stats()
+            this.update_status()
         }
         this.pc.ondatachannel = ({ channel }) => {
             const id = channel.label
@@ -56,23 +56,23 @@ export class RemoteUser extends User {
                 channel.close()
             })
             log("media", `remote channel: ${this.display_name}`, channel)
-            this.update_stats()
+            this.update_status()
         }
         this.pc.onnegotiationneeded = () => {
             log("webrtc", `negotiation needed: ${this.display_name}`)
             // if (this.pc.signalingState != "stable") return
             this.offer()
-            this.update_stats()
+            this.update_status()
         }
         this.pc.onicecandidateerror = () => {
             log({ scope: "webrtc", warn: true }, "ICE error")
-            this.update_stats()
+            this.update_status()
         }
-        this.pc.oniceconnectionstatechange = () => { this.update_stats() }
-        this.pc.onicegatheringstatechange = () => { this.update_stats() }
-        this.pc.onsignalingstatechange = () => { this.update_stats() }
-        this.pc.onconnectionstatechange = () => { this.update_stats() }
-        this.update_stats()
+        this.pc.oniceconnectionstatechange = () => { this.update_status() }
+        this.pc.onicegatheringstatechange = () => { this.update_status() }
+        this.pc.onsignalingstatechange = () => { this.update_status() }
+        this.pc.onconnectionstatechange = () => { this.update_status() }
+        this.update_status()
     }
     leave() {
         log("usermodel", `remove remote user: ${this.display_name}`)
@@ -132,7 +132,7 @@ export class RemoteUser extends User {
 
     add_ice_candidate(candidate: RTCIceCandidateInit) {
         this.pc.addIceCandidate(new RTCIceCandidate(candidate))
-        this.update_stats()
+        this.update_status()
     }
     async offer() {
         this.negotiation_busy = true
@@ -162,7 +162,21 @@ export class RemoteUser extends User {
         this.negotiation_busy = false
     }
 
-    async update_stats() {
+    async update_status() {
+
+        const states: { [key in RTCIceConnectionState]: [string, string] } = {
+            new: ["Not connected", "neutral"],
+            checking: ["Checking...", "neutral"],
+            failed: ["Connection failed", "fail"],
+            closed: ["Disconnected", "neutral"],
+            completed: ["Connected", "good"],
+            connected: ["Connected", "good"],
+            disconnected: ["Disconnected", "neutral"]
+        }
+        this.status_el.classList.value = ""
+        this.status_el.classList.add("connection-status", "status-" + states[this.pc.iceConnectionState][1])
+        this.status_el.textContent = states[this.pc.iceConnectionState][0]
+
         if (!PREFS.webrtc_debug) return
         try {
             const stats = await this.pc.getStats()

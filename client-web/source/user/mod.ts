@@ -15,6 +15,7 @@ export class User {
     get display_name() { return this.name ?? "Unknown" }
 
     name_el = e("span", {}, this.display_name)
+    status_el = e("span", { class: ["connection-status", "status-neutral"] }, "")
     stats_el = e("pre", {})
     el = e("div", { class: "user" })
 
@@ -22,7 +23,7 @@ export class User {
         const info_el = e("div", { class: "info" })
         this.name_el.textContent = this.display_name
         this.name_el.classList.add("name")
-        info_el.append(this.name_el, this.stats_el)
+        info_el.append(this.name_el, this.stats_el, this.status_el)
         this.el.append(info_el)
         room.element.append(this.el)
     }
