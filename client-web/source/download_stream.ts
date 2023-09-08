@@ -19,16 +19,12 @@ function FallbackStreamDownload(size: number, filename?: string, progress?: (pos
             a.click()
         },
         abort() { buffer = new Uint8Array(); /* have fun gc */ },
-        write(chunk: Blob) {
-            const reader = new FileReader();
-            reader.onload = function (event) {
-                const arr = new Uint8Array(event.target!.result as ArrayBuffer);
-                for (let i = 0; i < arr.length; i++, position++) {
-                    buffer[position] = arr[i]
-                }
-                if (progress) progress(position)
-            };
-            reader.readAsArrayBuffer(chunk);
+        write(chunk: ArrayBuffer) {
+            const arr = new Uint8Array(chunk as ArrayBuffer);
+            for (let i = 0; i < arr.length; i++, position++) {
+                buffer[position] = arr[i]
+            }
+            if (progress) progress(position)
         }
     }
 }
