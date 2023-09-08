@@ -5,7 +5,7 @@
 */
 /// <reference lib="dom" />
 
-import { e } from "./helper.ts"
+import { e, sleep } from "./helper.ts"
 import { VERSION } from "./index.ts"
 import { ui_preferences } from "./preferences/ui.ts"
 import { create_file_res } from "./resource/file.ts";
@@ -52,27 +52,43 @@ export function control_bar(room: Room, side_ui_container: HTMLElement): HTMLEle
 }
 
 export interface SideUI { el: HTMLElement, set_state: (s?: boolean) => void }
+let close_active: (() => void) | undefined;
+let cancel_slide: number | undefined
 export function side_ui(container: HTMLElement, content: HTMLElement, label: string): SideUI {
-    // TODO: close other side uis
     const tray = e("div", { class: "side-tray" }, content)
     const checkbox = e("input", {
         type: "checkbox",
-        onchange: () => {
+        onchange: async () => {
             if (checkbox.checked) {
+                if (close_active) {
+                    close_active()
+                    await sleep(200)
+                }
+                close_active = () => set_state(false)
+                if (cancel_slide) {
+                    clearTimeout(cancel_slide)
+                    cancel_slide = undefined
+                    tray.classList.remove("animate-out")
+                }
                 tray.classList.add("animate-in")
                 container.appendChild(tray)
             } else {
+                close_active = undefined
                 tray.classList.remove("animate-in")
                 tray.classList.add("animate-out")
-                setTimeout(() => { // TODO breaks if ui is being enabled while timeout is active 
+                cancel_slide = setTimeout(() => {
                     tray.classList.remove("animate-out")
                     container.removeChild(tray)
-                }, 400)
+                }, 200)
             }
         }
     })
+    const set_state = (s: boolean | undefined) => {
+        checkbox.checked = s ?? !checkbox.checked;
+        if (checkbox.onchange) checkbox.onchange(undefined as unknown as Event)
+    }
     return {
         el: e("label", { class: "side-ui-control" }, label, checkbox),
-        set_state(s) { checkbox.checked = s ?? !checkbox.checked; if (checkbox.onchange) checkbox.onchange(undefined as unknown as Event) }
+        set_state,
     }
 }
