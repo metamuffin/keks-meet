@@ -158,7 +158,8 @@ export class RemoteUser extends User {
     async on_answer(answer: string) {
         log("webrtc", `got answer: ${this.display_name}`, { answer })
         const answer_description = new RTCSessionDescription({ sdp: answer, type: "answer" })
-        await this.pc.setRemoteDescription(answer_description)
+        if (this.pc.signalingState == "have-local-offer") // TODO why is this even necessary?
+            await this.pc.setRemoteDescription(answer_description)
         this.negotiation_busy = false
     }
 

@@ -74,10 +74,8 @@ export function new_local_track(info: ProvideInfo, track: TrackHandle, ...extra_
 function create_track_display(target: HTMLElement, track: TrackHandle): HTMLElement {
     const is_video = track.kind == "video"
     const is_audio = track.kind == "audio"
-
+    
     const stream = new MediaStream([track.track])
-
-
     const media_el = is_video
         ? document.createElement("video")
         : document.createElement("audio")
