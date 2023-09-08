@@ -48,7 +48,7 @@ export function control_bar(room: Room, side_ui_container: HTMLElement): HTMLEle
         e("button", { onclick: () => room.local_user.await_add_resource(create_file_res()) }, "File"),
     ]
     chat_control = chat.set_state;
-    return e("nav", { class: "control-bar" }, leave, chat.el, prefs.el, rwatches.el, ...local_controls)
+    return e("nav", { class: "control-bar" }, leave, "|", chat.el, prefs.el, rwatches.el, "|", ...local_controls)
 }
 
 export interface SideUI { el: HTMLElement, set_state: (s?: boolean) => void }

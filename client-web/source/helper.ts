@@ -41,10 +41,7 @@ function apply_opts<E extends HTMLElement>(e: E, o: Opts<E>) {
 export function e<K extends keyof HTMLElementTagNameMap>(name: K, opts: Opts<HTMLElementTagNameMap[K]>, ...children: (HTMLElement | string)[]): HTMLElementTagNameMap[K] {
     const el = document.createElement(name)
     apply_opts(el, opts)
-    for (const c of children) {
-        if (typeof c == "string") el.textContent += c;
-        else el.append(c)
-    }
+    for (const c of children) el.append(c);
     return el
 }
 
