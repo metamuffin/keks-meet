@@ -38,7 +38,7 @@ export let chat_control: (s?: boolean) => void;
 
 export function control_bar(room: Room, side_ui_container: HTMLElement): HTMLElement {
     const leave = e("button", { class: "leave", onclick() { window.location.href = "/" } }, "Leave")
-    const chat = side_ui(side_ui_container, room.chat.element, "Chat")
+    const chat = side_ui(side_ui_container, room.chat.element, "Chat", room.chat)
     const prefs = side_ui(side_ui_container, ui_preferences(), "Settings")
     const rwatches = side_ui(side_ui_container, ui_room_watches(room.signaling), "Known Rooms")
     const local_controls = [ //ediv({ class: "local-controls", aria_label: "local resources" },
@@ -54,7 +54,7 @@ export function control_bar(room: Room, side_ui_container: HTMLElement): HTMLEle
 export interface SideUI { el: HTMLElement, set_state: (s?: boolean) => void }
 let close_active: (() => void) | undefined;
 let cancel_slide: number | undefined
-export function side_ui(container: HTMLElement, content: HTMLElement, label: string): SideUI {
+export function side_ui(container: HTMLElement, content: HTMLElement, label: string, handlers = { focus() { } }): SideUI {
     const tray = e("div", { class: "side-tray" }, content)
     let last_state = false;
     const checkbox = e("input", {
@@ -74,8 +74,15 @@ export function side_ui(container: HTMLElement, content: HTMLElement, label: str
                 }
                 tray.classList.add("animate-in")
                 container.appendChild(tray)
+                cancel_slide = setTimeout(() => {
+                    handlers.focus()
+                }, 200)
             } else {
                 close_active = undefined
+                if (cancel_slide) {
+                    clearTimeout(cancel_slide)
+                    cancel_slide = undefined
+                }
                 tray.classList.remove("animate-in")
                 tray.classList.add("animate-out")
                 cancel_slide = setTimeout(() => {

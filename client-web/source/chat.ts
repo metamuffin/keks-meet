@@ -40,9 +40,7 @@ export class Chat {
             if (ev.code == "Enter") {
                 if (send.value.trim().length == 0) {
                     // keybind for toggle chat is Enter, so lets close here
-                    // TODO! open
-                    // this.control.check = false
-                    return
+                    return chat_control(false)
                 }
                 this.send({ text: send.value })
                 send.value = ""
@@ -67,7 +65,6 @@ export class Chat {
         }
     }
 
-    on_show(): void { this.focus() }
     focus() { this.send_el.focus() }
     send(msg: ChatMessage) {
         this.room.local_user.chat(msg)
