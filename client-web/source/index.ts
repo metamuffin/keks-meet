@@ -69,6 +69,8 @@ export async function main() {
     if (room_secret.length == 0) return window.location.href = "/" // send them back to the start page
     if (PREFS.warn_redirect) log({ scope: "crypto", warn: true }, "You were redirected from the old URL format. The server knows the room secret now - e2ee is insecure!")
 
+    if (room_secret.split("#").length > 1) document.title = `${room_secret.split("#")[0]} | keks-meet`
+
     const conn = await (new SignalingConnection().connect())
     const rtc_config: RTCConfiguration = {
         iceCandidatePoolSize: 10,
