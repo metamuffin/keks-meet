@@ -1,3 +1,9 @@
+/*
+    This file is part of keks-meet (https://codeberg.org/metamuffin/keks-meet)
+    which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
+    Copyright (C) 2023 metamuffin <metamuffin.org>
+*/
+/// <reference lib="dom" />
 import { array_swap, e } from "./helper.ts";
 import { PREFS, change_pref } from "./preferences/mod.ts";
 import { crypto_hash } from "./protocol/crypto.ts";
