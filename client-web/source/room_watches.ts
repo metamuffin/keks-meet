@@ -58,7 +58,8 @@ export function ui_room_watches(conn: SignalingConnection): HTMLElement {
             e("label", {}, "Add room:", input = e("input", { type: "text" })),
             e("button", {
                 async onclick(_e) {
-                    await add_watch(input.value)
+                    for (const w in input.value.split(";"))
+                        await add_watch(w)
                     update_watches()
                     save_watches()
                     input.value = ""
