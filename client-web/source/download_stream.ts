@@ -39,7 +39,7 @@ export function StreamDownload({ size, filename, cancel, progress }: {
     cancel: () => void,
     progress: (position: number) => void
 }) {
-    if (!SW_ENABLED) FallbackStreamDownload(size, filename, progress)
+    if (!SW_ENABLED) return FallbackStreamDownload(size, filename, progress)
     let position = 0
 
     // the sw will handle this download
