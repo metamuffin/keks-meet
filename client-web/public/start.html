@@ -18,9 +18,8 @@
             </p>
             <br />
             <p class="instructions">
-                To get started, click 'Join' and share the URL with your
-                partner. You can also optionally customize the URL by entering a
-                <b>secure/unguessable(!!!)</b> identifier below.
+                To start a meeting, click 'Join' and share the URL with all
+                participants. You can also optionally set the room name below.
             </p>
             <p class="instructions">
                 keks-meet is free software! It is licenced under the terms of
@@ -32,7 +31,36 @@
                 <a href="https://codeberg.org/metamuffin/keks-meet">codeberg</a>
             </noscript>
             <script>
-                function random_room() {
+                <!-- TODO any better idea for random room names?  -->
+                function random_name() {
+                    const frags = [
+                        [
+                            "Sweet",
+                            "Delicious",
+                            "Fluffy",
+                            "Small",
+                            "Glowing",
+                            "Flavourful",
+                        ],
+                        [
+                            "Strawberry",
+                            "Raspberry",
+                            "Blueberry",
+                            "Choclate",
+                            "Vanilla",
+                            "Potato",
+                            "Tomato",
+                            "Lemon",
+                        ],
+                        ["Muffin", "Pie", "Cupcake", "Sandwish", "Cake"],
+                    ];
+                    return frags
+                        .map((f) => f[Math.floor(Math.random() * f.length)])
+                        .join("")
+                        .trim();
+                }
+
+                function random_secret() {
                     const random = window.crypto.getRandomValues(
                         new Uint8Array(32)
                     );
@@ -41,23 +69,21 @@
                         .join("");
                 }
 
+                const rname = random_name();
                 const room_input = document.createElement("input");
                 room_input.type = "text";
                 room_input.id = "room-id-input";
-                room_input.placeholder = `Override room name: ${random_room()}`;
+                room_input.placeholder = `Edit room name: ${rname}`;
                 room_input.ariaLabel = "Room Secret";
 
                 const submit = document.createElement("input");
                 submit.type = "button";
                 function go() {
-                    if (room_input.value.length == "")
-                        room_input.value = random_room();
-                    const url = `/room#${encodeURIComponent(room_input.value)}`;
+                    if (room_input.value.length == "") room_input.value = rname;
+                    const url = `/room#${room_input.value}#${random_secret()}`;
                     window.location.href = url;
                 }
-                submit.addEventListener("click", () => {
-                    go();
-                });
+                submit.addEventListener("click", () => go());
                 room_input.addEventListener("keydown", (ev) => {
                     if (ev.code == "Enter") go();
                 });
