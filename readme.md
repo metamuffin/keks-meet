@@ -16,7 +16,7 @@ a simple secure web conferencing application
 - Rooms (created on demand, do not persist)
 - Chat (supports text and images)
 - Minimal user-interface
-- Should work with screen readers 
+- Should work with screen readers
 
 ## Licence
 
@@ -112,28 +112,31 @@ reload if the section changes. Booleans can be either `1`, `true`, `yes` or
 their opposites. A convenience function for changing params is also exported:
 `window.change_pref(key, value)`
 
-| Option name                     | Type    | Default     | Description                                                          |
-| ------------------------------- | ------- | ----------- | -------------------------------------------------------------------- |
-| `username`                      | string  | `"guest-…"` | Username                                                             |
-| `warn_redirect`                 | boolean | `false`     | Internal option that is set by a server redirect.                    |
-| `image_view_popup`              | boolean | `true`      | Open image in popup instead of new tab                               |
-| `webrtc_debug`                  | boolean | `false`     | Show additional information for WebRTC related stuff                 |
-| `microphone_enabled`            | boolean | `false`     | Add one microphone track on startup                                  |
-| `screencast_enabled`            | boolean | `false`     | Add one screencast track on startup                                  |
-| `camera_enabled`                | boolean | `false`     | Add one camera track on startup                                      |
-| `rnnoise`                       | boolean | `true`      | Use RNNoise for noise suppression                                    |
-| `native_noise_suppression`      | boolean | `false`     | Suggest the browser to do noise suppression                          |
-| `microphone_gain`               | number  | `1`         | Amplify microphone volume                                            |
-| `video_fps`                     | number  | -           | Preferred framerate (in 1/s) for screencast and camera               |
-| `video_resolution`              | number  | -           | Preferred width for screencast and camera                            |
-| `camera_facing_mode`            | string  | -           | Prefer user-facing or env-facing camera (`"environment"` / `"user"`) |
-| `auto_gain_control`             | boolean | -           | Automatically adjust mic gain                                        |
-| `echo_cancellation`             | boolean | -           | Cancel echo                                                          |
-| `optional_audio_default_enable` | boolean | `true`      | Enable audio tracks by default                                       |
-| `optional_video_default_enable` | boolean | `false`     | Enable video tracks by default                                       |
-| `notify_chat`                   | boolean | `true`      | Send notifications for incoming chat messages                        |
-| `notify_join`                   | boolean | `true`      | Send notifications when users join                                   |
-| `notify_leave`                  | boolean | `true`      | Send notifications when users leave                                  |
+| Option name                     | Type    | Default     | Description                                                                    |
+| ------------------------------- | ------- | ----------- | ------------------------------------------------------------------------------ |
+| `username`                      | string  | `"guest-…"` | Username                                                                       |
+| `warn_redirect`                 | boolean | `false`     | Internal option that is set by a server redirect.                              |
+| `image_view_popup`              | boolean | `true`      | Open image in popup instead of new tab                                         |
+| `webrtc_debug`                  | boolean | `false`     | Show additional information for WebRTC related stuff                           |
+| `microphone_enabled`            | boolean | `false`     | Add one microphone track on startup                                            |
+| `screencast_enabled`            | boolean | `false`     | Add one screencast track on startup                                            |
+| `camera_enabled`                | boolean | `false`     | Add one camera track on startup                                                |
+| `rnnoise`                       | boolean | `true`      | Use RNNoise for noise suppression                                              |
+| `native_noise_suppression`      | boolean | `false`     | Suggest the browser to do noise suppression                                    |
+| `microphone_gain`               | number  | `1`         | Amplify microphone volume                                                      |
+| `video_fps`                     | number  | -           | Preferred framerate (in 1/s) for screencast and camera                         |
+| `video_resolution`              | number  | -           | Preferred width for screencast and camera                                      |
+| `camera_facing_mode`            | string  | -           | Prefer user-facing or env-facing camera (`"environment"` / `"user"`)           |
+| `auto_gain_control`             | boolean | -           | Automatically adjust mic gain                                                  |
+| `echo_cancellation`             | boolean | -           | Cancel echo                                                                    |
+| `audio_activity_threshold`      | number  | `0.003`     | Audio activity threshold                                                       |
+| `optional_audio_default_enable` | boolean | `true`      | Enable audio tracks by default                                                 |
+| `optional_video_default_enable` | boolean | `false`     | Enable video tracks by default                                                 |
+| `notify_chat`                   | boolean | `true`      | Send notifications for incoming chat messages                                  |
+| `notify_join`                   | boolean | `true`      | Send notifications when users join                                             |
+| `notify_leave`                  | boolean | `true`      | Send notifications when users leave                                            |
+| `enable_onbeforeunload`         | boolean | `true`      | Prompt for confirmation when leaving the site while local resources are active |
+| `room_watches`                  | string  | `"public"`  | Known rooms (as semicolon seperated list of name=secret pairs)                 |
 
 ## Protocol
 

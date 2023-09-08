@@ -24,14 +24,14 @@ export const PREF_DECLS = {
     microphone_enabled: { type: bool, default: false, description: "Add one microphone track on startup" },
     screencast_enabled: { type: bool, default: false, description: "Add one screencast track on startup" },
     camera_enabled: { type: bool, default: false, description: "Add one camera track on startup" },
-    rnnoise: { type: bool, default: true, description: "Use RNNoise for noise suppression" },
+    rnnoise: { type: bool, default: true, description: "Use RNNoise for noise suppression", allow_url: true },
     native_noise_suppression: { type: bool, default: false, description: "Suggest the browser to do noise suppression" },
     microphone_gain: { type: number, default: 1, description: "Amplify microphone volume" },
     video_fps: { type: number, description: "Preferred framerate (in 1/s) for screencast and camera" },
     video_resolution: { type: number, description: "Preferred width for screencast and camera" },
     camera_facing_mode: { type: optional(string), possible_values: ["environment", "user"], description: "Prefer user-facing or env-facing camera" },
     auto_gain_control: { type: bool, description: "Automatically adjust mic gain" },
-    echo_cancellation: { type: bool, description: "Cancel echo" },
+    echo_cancellation: { type: bool, description: "Cancel echo", allow_url: true },
     audio_activity_threshold: { type: number, optional: true, default: 0.003, description: "Audio activity threshold" },
 
     // TODO differenciate between mic, cam and screen
@@ -43,5 +43,5 @@ export const PREF_DECLS = {
     notify_leave: { type: bool, default: true, description: "Send notifications when users leave" },
 
     enable_onbeforeunload: { type: bool, default: true, description: "Prompt for confirmation when leaving the site while local resources are active" },
-    room_watches: { type: string, default: "Public=public", description: "Known rooms (as semicolon seperated list of name=secret pairs)" }
+    room_watches: { type: string, default: "[]", hidden: true, description: "Known rooms (as semicolon seperated list of name=secret pairs)" }
 }

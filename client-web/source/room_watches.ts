@@ -1,5 +1,5 @@
 import { e } from "./helper.ts";
-import { PREFS } from "./preferences/mod.ts";
+import { PREFS, change_pref } from "./preferences/mod.ts";
 import { crypto_hash } from "./protocol/crypto.ts";
 import { SignalingConnection } from "./protocol/mod.ts";
 
@@ -16,18 +16,9 @@ export function ui_room_watches(conn: SignalingConnection): HTMLElement {
     const watches: Watch[] = []
     const update_watches = () => (conn.send_control({ watch_rooms: watches.map(w => w.hash) }), update_listing());
 
-    (async () => {
-        for (const e of PREFS.room_watches.split(";")) {
-            const [name, secret] = e.split("=");
-            watches.push({
-                name,
-                secret,
-                hash: await crypto_hash(secret),
-                user_count: 0
-            })
-        }
-        update_watches()
-    })()
+    const add_watch = async (secret: string) => watches.push({ name: secret.split("#")[0], secret, hash: await crypto_hash(secret), user_count: 0 })
+    const save_watches = () => change_pref("room_watches", JSON.stringify(watches.map(w => w.secret)))
+    const load_watches = async () => { for (const secret of JSON.parse(PREFS.room_watches)) { await add_watch(secret) } update_watches() }
 
     conn.control_handler.add_listener(packet => {
         if (packet.room_info) {
@@ -57,8 +48,22 @@ export function ui_room_watches(conn: SignalingConnection): HTMLElement {
         }
     }
 
+    load_watches()
+
+    let input: HTMLInputElement;
     return e("div", { class: "room-watches" },
         e("h2", {}, "Known Rooms"),
-        listing
+        listing,
+        e("div", { class: "room-watches-edit" },
+            e("label", {}, "Add room:", input = e("input", { type: "text" })),
+            e("button", {
+                async onclick(_e) {
+                    await add_watch(input.value)
+                    update_watches()
+                    save_watches()
+                    input.value = ""
+                }
+            }, "Add")
+        )
     )
 }
