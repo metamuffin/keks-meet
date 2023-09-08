@@ -91,12 +91,12 @@ export function generate_section(): string {
 
 export function load_params(): { raw_params: { [key: string]: string }, rsecret: string } {
     const raw_params: Record<string, string> = {}
-    const [rsecret, param_str] = window.location.hash.substring(1).split("?")
+    const [rsecret, param_str] = decodeURIComponent(window.location.hash.substring(1)).split("?")
     if (!param_str) return { rsecret, raw_params: {} }
     for (const kv of param_str.split("&")) {
         const [key, value] = kv.split("=")
         if (key == "prototype") continue
-        raw_params[decodeURIComponent(key)] = decodeURIComponent(value)
+        raw_params[key] = value
     }
     return { raw_params, rsecret }
 }

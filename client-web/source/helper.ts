@@ -84,3 +84,9 @@ export class EventEmitter<E> {
     public add_listener(listener: (e: E) => unknown) { this.handlers.add(listener) }
     public remove_listener(listener: (e: E) => unknown) { this.handlers.delete(listener) }
 }
+
+export function array_swap<T>(arr: T[], a: number, b: number) {
+    const temp = arr[a]
+    arr[a] = arr[b]
+    arr[b] = temp
+}
