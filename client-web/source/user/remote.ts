@@ -26,7 +26,7 @@ export class RemoteUser extends User {
         super(room, id)
         room.remote_users.set(id, this)
 
-        log("usermodel", `added remote user: ${this.display_name}`)
+        log("users", `added remote user: ${this.display_name}`)
         this.pc = new RTCPeerConnection(room.rtc_config)
         this.pc.onicecandidate = ev => {
             if (!ev.candidate) return
@@ -75,7 +75,7 @@ export class RemoteUser extends User {
         this.update_status()
     }
     leave() {
-        log("usermodel", `remove remote user: ${this.display_name}`)
+        log("users", `remove remote user: ${this.display_name}`)
         this.pc.close()
         this.room.remote_users.delete(this.id)
         this.room.element.removeChild(this.el)

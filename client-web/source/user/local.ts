@@ -23,7 +23,7 @@ export class LocalUser extends User {
         this.el.classList.add("local")
         this.status_el.textContent = "Local"
         this.name = PREFS.username
-        log("usermodel", `added local user: ${this.display_name}`)
+        log("users", `added local user: ${this.display_name}`)
         this.add_initial_tracks()
     }
     leave() { throw new Error("local users cant leave"); }
