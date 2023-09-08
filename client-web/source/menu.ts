@@ -62,6 +62,7 @@ export function side_ui(container: HTMLElement, content: HTMLElement, label: str
         onchange: async () => {
             if (last_state == checkbox.checked) return
             if (checkbox.checked) {
+                el.classList.add("checked")
                 if (close_active) {
                     close_active()
                     await sleep(200)
@@ -78,6 +79,7 @@ export function side_ui(container: HTMLElement, content: HTMLElement, label: str
                     handlers.focus()
                 }, 200)
             } else {
+                el.classList.remove("checked")
                 close_active = undefined
                 if (cancel_slide) {
                     clearTimeout(cancel_slide)
@@ -97,8 +99,6 @@ export function side_ui(container: HTMLElement, content: HTMLElement, label: str
         checkbox.checked = s ?? !checkbox.checked;
         if (checkbox.onchange) checkbox.onchange(undefined as unknown as Event)
     }
-    return {
-        el: e("label", { class: "side-ui-control" }, label, checkbox),
-        set_state,
-    }
+    const el = e("label", { class: "side-ui-control" }, label, checkbox)
+    return { el, set_state }
 }

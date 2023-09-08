@@ -164,7 +164,6 @@ export class RemoteUser extends User {
     }
 
     async update_status() {
-
         const states: { [key in RTCIceConnectionState]: [string, string] } = {
             new: ["Not connected", "neutral"],
             checking: ["Checking...", "neutral"],

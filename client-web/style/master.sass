@@ -60,20 +60,27 @@ button,
     margin: 0.25em
     background-color: var(--ac)
     border: 0px solid transparent
+    user-select: none
     border-radius: 3px
     font-size: small
     font-weight: 400
     cursor: pointer
+    transition: filter 0.1s
 
 input[type="button"]:hover,
 button:hover,
 .side-ui-control:hover
     filter: brightness(130%)
 
+input:disabled,
+button:disabled,
+.side-ui-control:disabled
+    filter: sepia(90%)
+
 input[type="button"].active,
 button.active,
-.side-ui-control:active
-    filter: hue-rotate(20deg)
+.side-ui-control.checked
+    filter: hue-rotate(30deg)
 
 input[type="text"],
 select,
@@ -84,11 +91,6 @@ input[type="number"]
 button.abort
     left: 0px
     background-color: #9a2020
-
-input:disabled,
-button:disabled,
-.side-ui-control:disabled
-    filter: sepia(90%)
 
 .side-ui-control input
     display: none
