@@ -14,6 +14,8 @@ import { Room } from "./room.ts";
 import { LocalUser } from "./user/local.ts";
 import { User } from "./user/mod.ts";
 
+export let GLOBAL_CHAT: Chat;
+
 export class Chat {
     messages: HTMLElement
     controls: HTMLElement
@@ -21,6 +23,7 @@ export class Chat {
     element: HTMLElement
 
     constructor(public room: Room) {
+        GLOBAL_CHAT = this;
         const send = document.createElement("input")
         send.ariaLabel = "send message"
         send.type = "text"
@@ -69,6 +72,10 @@ export class Chat {
     send(msg: ChatMessage) {
         this.room.local_user.chat(msg)
         this.add_message(this.room.local_user, msg)
+    }
+
+    remove_oldest_message() {
+        this.messages.firstChild?.remove()
     }
 
     add_message(sender: User, message: ChatMessage) {

@@ -5,6 +5,7 @@
 */
 /// <reference lib="dom" />
 
+import { GLOBAL_CHAT } from "./chat.ts";
 import { chat_control } from "./menu.ts";
 import { create_camera_res, create_mic_res, create_screencast_res } from "./resource/track.ts";
 import { Room } from "./room.ts"
@@ -25,6 +26,7 @@ export function setup_keybinds(room: Room) {
             if (ev.code == "KeyC" && !ev.ctrlKey) room.local_user.await_add_resource(create_camera_res())
             if (ev.code == "KeyC" && ev.ctrlKey) room.local_user.resources.forEach(t => t.destroy())
             if (ev.code == "KeyU") if (window.confirm("really update?")) update_serviceworker()
+            if (ev.code == "KeyV") GLOBAL_CHAT.remove_oldest_message()
         }
     })
 }
