@@ -18,11 +18,11 @@
     --green: rgb(146, 243, 73)
     --red: #cf3f3f
     --textgrey: #bbbbbb
+    font-weight: 300
+    color: white
 
 *
     font-family: "Ubuntu", sans-serif
-    font-weight: 300
-    color: white
     margin: 0px
     padding: 0px
 
@@ -56,6 +56,7 @@ h1
 input[type="button"],
 button,
 .side-ui-control
+    color: white
     padding: 0.5em
     margin: 0.25em
     background-color: var(--ac)
@@ -80,11 +81,12 @@ button:disabled,
 input[type="button"].active,
 button.active,
 .side-ui-control.checked
-    filter: hue-rotate(30deg)
+    filter: brightness(80%)
 
 input[type="text"],
 select,
 input[type="number"]
+    color: white
     background-color: var(--bg-dark)
     border: 1.5px solid grey
 

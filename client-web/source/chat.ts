@@ -16,6 +16,11 @@ import { User } from "./user/mod.ts";
 
 export let GLOBAL_CHAT: Chat;
 
+interface ControlMessage {
+    join?: User,
+    leave?: User,
+}
+
 export class Chat {
     messages: HTMLElement
     controls: HTMLElement
@@ -75,6 +80,12 @@ export class Chat {
 
     remove_oldest_message() {
         this.messages.firstChild?.remove()
+    }
+
+    add_control_message(m: ControlMessage) {
+        const el = e("div", { class: ["message", "control-message"] }, e("span", { class: "author" }, m.join?.display_name ?? m.leave?.display_name ?? ""), ` ${m.join ? "joined" : "left"} the room.`)
+        this.messages.append(el)
+        el.scrollIntoView({ block: "end", behavior: "smooth", inline: "end" })
     }
 
     add_message(sender: User, message: ChatMessage) {

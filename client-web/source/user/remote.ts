@@ -6,6 +6,7 @@
 /// <reference lib="dom" />
 
 import { RelayMessage } from "../../../common/packets.d.ts";
+import { GLOBAL_CHAT } from "../chat.ts";
 import { notify } from "../helper.ts";
 import { log } from "../logger.ts"
 import { PREFS } from "../preferences/mod.ts";
@@ -80,6 +81,7 @@ export class RemoteUser extends User {
         this.room.remote_users.delete(this.id)
         this.room.element.removeChild(this.el)
         if (PREFS.notify_leave) notify(`${this.display_name} left`)
+        GLOBAL_CHAT.add_control_message({ leave: this })
     }
     on_relay(message: RelayMessage) {
         if (message.chat) this.room.chat.add_message(this, message.chat)
@@ -89,6 +91,7 @@ export class RemoteUser extends User {
         if (message.identify) {
             this.name = message.identify.username
             if (PREFS.notify_join) notify(`${this.display_name} joined`)
+            GLOBAL_CHAT.add_control_message({ join: this })
         }
         if (message.provide) {
             const d = new_remote_resource(this, message.provide)

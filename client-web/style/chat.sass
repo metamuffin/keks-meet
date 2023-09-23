@@ -10,6 +10,10 @@
 
     .message
         margin: 0.2em
+    .control-message
+        font-style: italic
+        color: var(--ac-light)
+        filter: brightness(160%) // TODO filter is a bad approach here.
     .author
         font-weight: bold
     .text
@@ -25,11 +29,10 @@
 
     .controls
         flex: 0
-    
+
     input
         font-size: medium
         width: 100%
         border-radius: 5px
         padding: 0.5em
         box-sizing: border-box
-        
