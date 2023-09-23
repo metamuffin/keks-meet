@@ -37,15 +37,15 @@ export function info_br() {
 export let chat_control: (s?: boolean) => void;
 
 export function control_bar(room: Room, side_ui_container: HTMLElement): HTMLElement {
-    const leave = e("button", { class: "abort", onclick() { window.location.href = "/" } }, "Leave")
-    const chat = side_ui(side_ui_container, room.chat.element, "Chat", room.chat)
-    const prefs = side_ui(side_ui_container, ui_preferences(), "Settings")
-    const rwatches = side_ui(side_ui_container, ui_room_watches(room.signaling), "Known Rooms")
+    const leave = e("button", { icon: "leave", class: "abort", onclick() { window.location.href = "/" } }, "Leave")
+    const chat = side_ui(side_ui_container, room.chat.element, "chat", "Chat", room.chat)
+    const prefs = side_ui(side_ui_container, ui_preferences(), "settings", "Settings")
+    const rwatches = side_ui(side_ui_container, ui_room_watches(room.signaling), "room", "Known Rooms")
     const local_controls = [ //ediv({ class: "local-controls", aria_label: "local resources" },
-        e("button", { onclick: () => room.local_user.await_add_resource(create_mic_res()) }, "Microphone"),
-        e("button", { onclick: () => room.local_user.await_add_resource(create_camera_res()) }, "Camera"),
-        e("button", { onclick: () => room.local_user.await_add_resource(create_screencast_res()) }, "Screen"),
-        e("button", { onclick: () => room.local_user.await_add_resource(create_file_res()) }, "File"),
+        e("button", { icon: "microphon", onclick: () => room.local_user.await_add_resource(create_mic_res()) }, "Microphone"),
+        e("button", { icon: "camera", onclick: () => room.local_user.await_add_resource(create_camera_res()) }, "Camera"),
+        e("button", { icon: "screen", onclick: () => room.local_user.await_add_resource(create_screencast_res()) }, "Screen"),
+        e("button", { icon: "file", onclick: () => room.local_user.await_add_resource(create_file_res()) }, "File"),
     ]
     chat_control = chat.set_state;
     return e("nav", { class: "control-bar" }, leave, "|", chat.el, prefs.el, rwatches.el, "|", ...local_controls)
@@ -54,7 +54,7 @@ export function control_bar(room: Room, side_ui_container: HTMLElement): HTMLEle
 export interface SideUI { el: HTMLElement, set_state: (s?: boolean) => void }
 let close_active: (() => void) | undefined;
 let cancel_slide: number | undefined
-export function side_ui(container: HTMLElement, content: HTMLElement, label: string, handlers = { focus() { } }): SideUI {
+export function side_ui(container: HTMLElement, content: HTMLElement, icon: string, label: string, handlers = { focus() { } }): SideUI {
     const tray = e("div", { class: "side-tray" }, content)
     let last_state = false;
     const checkbox = e("input", {
@@ -99,6 +99,6 @@ export function side_ui(container: HTMLElement, content: HTMLElement, label: str
         checkbox.checked = s ?? !checkbox.checked;
         if (checkbox.onchange) checkbox.onchange(undefined as unknown as Event)
     }
-    const el = e("label", { class: "side-ui-control" }, label, checkbox)
+    const el = e("label", { class: "side-ui-control", icon }, label, checkbox)
     return { el, set_state }
 }

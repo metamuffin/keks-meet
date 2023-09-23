@@ -21,21 +21,28 @@ interface Opts<E> {
     aria_live?: "polite" | "assertive"
     aria_modal?: boolean
     aria_popup?: "menu"
+    icon?: string,
+    hidden?: boolean,
 }
 
-function apply_opts<E extends HTMLElement>(e: E, o: Opts<E>) {
-    if (o.id) e.id = o.id
-    if (o.onclick) e.onclick = () => o.onclick!(e)
-    if (o.onchange) e.onchange = () => o.onchange!(e)
-    if (o.for) (e as unknown as HTMLLabelElement).htmlFor = o.for
-    if (o.type && e instanceof HTMLInputElement) e.type = o.type
-    if (o.href && e instanceof HTMLAnchorElement) e.href = o.href;
-    if (typeof o?.class == "string") e.classList.add(o.class)
-    if (typeof o?.class == "object") e.classList.add(...o.class)
-    if (o.aria_modal) e.ariaModal = "true"
-    if (o.aria_popup) e.ariaHasPopup = o.aria_popup
-    if (o.aria_label) e.ariaLabel = o.aria_label
-    if (o.aria_live) e.ariaLive = o.aria_live
+function apply_opts<E extends HTMLElement>(el: E, o: Opts<E>) {
+    if (o.id) el.id = o.id
+    if (o.onclick) el.onclick = () => o.onclick!(el)
+    if (o.onchange) el.onchange = () => o.onchange!(el)
+    if (o.for) (el as unknown as HTMLLabelElement).htmlFor = o.for
+    if (o.type && el instanceof HTMLInputElement) el.type = o.type
+    if (o.href && el instanceof HTMLAnchorElement) el.href = o.href;
+    if (typeof o?.class == "string") el.classList.add(o.class)
+    if (typeof o?.class == "object") el.classList.add(...o.class)
+    if (o.aria_modal) el.ariaModal = "true"
+    if (o.aria_popup) el.ariaHasPopup = o.aria_popup
+    if (o.aria_label) el.ariaLabel = o.aria_label
+    if (o.aria_live) el.ariaLive = o.aria_live
+    if (o.src && el instanceof HTMLImageElement) el.src = o.src;
+    if (o.hidden) el.hidden = o.hidden;
+    if (o.icon) {
+        el.prepend(e("img", { src: `/assets/icons/${o.icon}.svg`, class: "icon" }))
+    }
 }
 
 export function e<K extends keyof HTMLElementTagNameMap>(name: K, opts: Opts<HTMLElementTagNameMap[K]>, ...children: (HTMLElement | string)[]): HTMLElementTagNameMap[K] {

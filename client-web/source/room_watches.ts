@@ -77,16 +77,31 @@ export function ui_room_watches(conn: SignalingConnection): HTMLElement {
 
     load_watches()
 
+    let button_edit: HTMLElement, button_finish: HTMLElement;
+    const set_edit = (e: boolean) => {
+        button_edit.hidden = e;
+        button_finish.hidden = !e;
+        edit = e;
+    }
     return e("div", { class: "room-watches" },
         e("h2", {}, "Known Rooms"),
         listing,
-        e("button", {
-            onclick(e) {
-                edit = !edit;
-                e.textContent = edit ? "Finish edit" : "Edit";
-                if (!edit) save_watches(), update_watches()
+        button_edit = e("button", {
+            icon: "edit",
+            onclick() {
+                set_edit(true)
                 update_listing()
             }
         }, "Edit"),
+        button_finish = e("button", {
+            icon: "check",
+            hidden: true,
+            onclick() {
+                set_edit(false)
+                save_watches()
+                update_watches()
+                update_listing()
+            }
+        }, "Finish edit"),
     )
 }
