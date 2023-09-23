@@ -5,10 +5,10 @@
 
 .side-ui
     flex: 0
+    z-index: 99
     .side-tray
         height: 100%
         overflow-y: auto
-        padding: 2em
         background-color: var(--bg)
 
     >.animate-in
@@ -34,6 +34,7 @@
     flex: 1
     display: flex
     flex-flow: row
+    overflow: hidden
     @media (max-width: 900px)
         flex-flow: column
 
@@ -41,6 +42,9 @@
     flex: 0
 .preferences
     width: min(50em, 100vw)
+    height: 100%
+    padding: 1em
+    box-sizing: border-box
 .chat
     width: min(30em, 100vw)
 .room-watches

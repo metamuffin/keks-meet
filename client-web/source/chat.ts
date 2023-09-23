@@ -27,12 +27,11 @@ export class Chat {
         const send = document.createElement("input")
         send.ariaLabel = "send message"
         send.type = "text"
-        send.placeholder = "send a message..."
+        send.placeholder = "Type a message"
 
         const messages = e("div", { class: "messages", aria_live: "polite" })
         const controls = e("div", { class: "controls" })
         controls.append(send)
-        messages.append(document.createElement("hr"))
 
         this.element = e("section", { class: "chat", aria_label: "chat", role: "dialog" }, messages, controls)
         this.messages = messages
