@@ -1,3 +1,5 @@
+[features]
+room_watches = true
 
 [appearance]
 accent = "#5e3f84"
@@ -5,12 +7,13 @@ accent_dark = "#2d0d52"
 accent_light = "#7c43bd"
 background = "#151315"
 background_dark = "#070707"
+background_light = "#211c21"
 
 # If you decide to host your own TURN server, adjust this.
 [webrtc]
 stun = "stun:meet.metamuffin.org:16900"
 # turn = "turn:meet.metamuffin.org:16900"
 ## Set the default turn credentials.
-## If not provided, TURN is disabled by default and requires manual activation via password (TODO). 
+## If not provided, TURN is disabled by default and requires manual activation via password. 
 # turn_user = "keksmeet"
 # turn_cred = "thatsmypassword"
