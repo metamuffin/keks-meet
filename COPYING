@@ -1,6 +1,9 @@
 keks-meet - a simple secure web conferencing application
 Copyright (C) 2023 metamuffin
 
+All content within the `client-web/assets/icons` directory is licensed
+under a seperate Apache-2.0 license. 
+
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
 published by the Free Software Foundation, version 3 of the

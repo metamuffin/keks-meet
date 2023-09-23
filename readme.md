@@ -20,8 +20,9 @@ a simple secure web conferencing application
 
 ## Licence
 
-Licensed under the terms of the GNU Affero General Public License version 3
-only. See [COPYING](./COPYING).
+Licensed under the terms of the GNU Affero General Public License version 3 only
+with exception of the icons found withing `client-web/assets/icons`, which are
+Apache-2.0 licensed. See [COPYING](./COPYING).
 
 ## Usage
 
