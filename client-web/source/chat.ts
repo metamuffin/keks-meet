@@ -40,7 +40,7 @@ export class Chat {
         this.send_el = send
 
         send.onkeydown = (ev) => {
-            if (ev.code == "Enter") {
+            if (ev.key == "Enter") {
                 if (send.value.trim().length == 0) {
                     // keybind for toggle chat is Enter, so lets close here
                     return chat_control(false)
