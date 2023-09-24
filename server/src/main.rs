@@ -97,7 +97,17 @@ async fn run() {
             .or(sw_script)
             .or(old_format_redirect)
             .or(client_config_css)
-            .map(|r| warp::reply::with_header(r, "cache-control", "max-age=86400")))
+            .map(|r| {
+                warp::reply::with_header(
+                    r,
+                    "cache-control",
+                    if cfg!(debug_assertions) {
+                        "no-cache"
+                    } else {
+                        "max-age=86400"
+                    },
+                )
+            }))
         .recover(handle_rejection)
         .with(warp::log("keks-meet"))
         .map(|r| warp::reply::with_header(r, "server", "keks-meet"));
