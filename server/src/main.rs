@@ -86,19 +86,21 @@ async fn run() {
     });
     let version: _ = warp::path!("version").map(|| env!("CARGO_PKG_VERSION"));
 
-    let routes: _ = assets
-        .or(room)
-        .or(index)
-        .or(signaling)
-        .or(client_config)
-        .or(version)
-        .or(css)
-        .or(favicon)
-        .or(sw_script)
-        .or(old_format_redirect)
-        .or(client_config_css)
+    let routes: _ = signaling
+        .or(assets
+            .or(room)
+            .or(index)
+            .or(client_config)
+            .or(version)
+            .or(css)
+            .or(favicon)
+            .or(sw_script)
+            .or(old_format_redirect)
+            .or(client_config_css)
+            .map(|r| warp::reply::with_header(r, "cache-control", "max-age=86400")))
         .recover(handle_rejection)
-        .with(warp::log("stuff"));
+        .with(warp::log("keks-meet"))
+        .map(|r| warp::reply::with_header(r, "server", "keks-meet"));
 
     // if listender fd is passed from the outside world, use it.
     let mut listenfd = ListenFd::from_env();
