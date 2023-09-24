@@ -55,14 +55,12 @@ export function new_local_track(info: ProvideInfo, track: TrackHandle, ...extra_
     return {
         set_destroy(cb) { destroy = cb },
         info,
-        el: e("div", {},
-            create_track_display(
-                e("div", { class: `media-${track.kind}` },
-                    e("button", { class: ["abort", "topright"], onclick: () => destroy() }, "Stop sharing"),
-                    ...extra_controls
-                ),
-                track
+        el: create_track_display(
+            e("div", { class: `media-${track.kind}` },
+                e("button", { class: ["abort", "topright"], onclick: () => destroy() }, "Stop sharing"),
+                ...extra_controls
             ),
+            track
         ),
         destroy() { track.end() },
         on_request(_user, _create_channel) {
@@ -74,7 +72,7 @@ export function new_local_track(info: ProvideInfo, track: TrackHandle, ...extra_
 function create_track_display(target: HTMLElement, track: TrackHandle): HTMLElement {
     const is_video = track.kind == "video"
     const is_audio = track.kind == "audio"
-    
+
     const stream = new MediaStream([track.track])
     const media_el = is_video
         ? document.createElement("video")
