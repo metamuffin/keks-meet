@@ -3,8 +3,7 @@
     which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
     Copyright (C) 2023 metamuffin <metamuffin.org>
 */
-use crate::protocol::ClientboundPacket;
-use crate::{crypto::hash, protocol::ServerboundPacket};
+use crate::protocol::{ClientboundPacket, ServerboundPacket};
 use futures_util::{Sink, SinkExt, Stream, StreamExt};
 use log::{debug, error, info, trace};
 use std::pin::Pin;
@@ -26,8 +25,8 @@ pub struct SignalingConnection {
 }
 
 impl SignalingConnection {
-    pub async fn new(signaling_server: &str, secret: &str) -> Self {
-        let uri = format!("{signaling_server}/signaling/{}", hash(secret));
+    pub async fn new(signaling_server: &str) -> Self {
+        let uri = format!("{signaling_server}/signaling");
         info!("connecting to signaling server at {uri:?}");
         let (conn, _) = tokio_tungstenite::connect_async(url::Url::parse(&uri).unwrap())
             .await

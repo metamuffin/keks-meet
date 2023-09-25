@@ -30,7 +30,7 @@ pub struct Instance {
 
 impl Instance {
     pub async fn new(config: Config, event_handler: Arc<dyn EventHandler>) -> Arc<Self> {
-        let conn = signaling::SignalingConnection::new(&config.signaling_uri, &config.secret).await;
+        let conn = signaling::SignalingConnection::new(&config.signaling_uri).await;
         let key = crypto::Key::derive(&config.secret);
 
         Arc::new(Self {
@@ -107,6 +107,7 @@ impl Instance {
                     warn!("dropping packet with inconsistent sender")
                 }
             }
+            protocol::ClientboundPacket::RoomInfo { .. } => {}
         }
     }
 

@@ -15,16 +15,21 @@ pub enum ClientboundPacket {
     ClientJoin { id: usize },
     ClientLeave { id: usize },
     Message { sender: usize, message: String },
+    RoomInfo { hash: String, user_count: usize },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ServerboundPacket {
+    Join {
+        hash: Option<String>,
+    },
     Ping,
     Relay {
         recipient: Option<usize>,
         message: String,
     },
+    WatchRooms(Vec<String>),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
