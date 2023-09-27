@@ -42,6 +42,8 @@
                             "Glowing",
                             "Flavourful",
                             "Tasty",
+                            "Yummy",
+                            "Soft",
                         ],
                         [
                             "Strawberry",
@@ -53,6 +55,8 @@
                             "Tomato",
                             "Lemon",
                             "Apple",
+                            "Pineapple",
+                            "Pumpkin",
                         ],
                         [
                             "Muffin",
@@ -60,12 +64,17 @@
                             "Cupcake",
                             "Sandwish",
                             "Cake",
-                            "Crépe",
+                            "Cookie",
+                            "Crêpe",
                             "Pancake",
+                            "Biscuit",
+                            "IceCream",
+                            "Yogurt",
+                            "Milkshake",
                         ],
                     ];
                     return frags
-                        .map((f) => f[Math.floor(Math.random() * f.length)])
+                        .map(f => f[Math.floor(Math.random() * f.length)])
                         .join("")
                         .trim();
                 }
