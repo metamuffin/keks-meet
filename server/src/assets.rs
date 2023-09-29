@@ -28,7 +28,7 @@ macro_rules! s_file {
     ($path: literal, $content_type: literal) => {
         warp::any().map(|| {
             warp::reply::with_header(
-                include_str!(concat!("../../", $path)),
+                include_bytes!(concat!("../../", $path)).to_vec(),
                 "content-type",
                 $content_type,
             )
