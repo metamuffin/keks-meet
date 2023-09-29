@@ -14,6 +14,7 @@ interface Opts<E> {
     for?: string,
     type?: string,
     href?: string,
+    alt?: string,
     onclick?: (e: E) => void,
     onchange?: (e: E) => void,
     role?: "dialog"
@@ -32,6 +33,7 @@ function apply_opts<E extends HTMLElement>(el: E, o: Opts<E>) {
     if (o.for) (el as unknown as HTMLLabelElement).htmlFor = o.for
     if (o.type && el instanceof HTMLInputElement) el.type = o.type
     if (o.href && el instanceof HTMLAnchorElement) el.href = o.href;
+    if (o.alt !== undefined && el instanceof HTMLImageElement) el.alt = o.alt;
     if (typeof o?.class == "string") el.classList.add(o.class)
     if (typeof o?.class == "object") el.classList.add(...o.class)
     if (o.aria_modal) el.ariaModal = "true"
@@ -41,7 +43,7 @@ function apply_opts<E extends HTMLElement>(el: E, o: Opts<E>) {
     if (o.src && el instanceof HTMLImageElement) el.src = o.src;
     if (o.hidden) el.hidden = o.hidden;
     if (o.icon) {
-        el.prepend(e("img", { src: `/assets/icons/${o.icon}.svg`, class: "icon" }))
+        el.prepend(e("img", { src: `/assets/icons/${o.icon}.svg`, alt: "", class: "icon" }))
     }
 }
 
