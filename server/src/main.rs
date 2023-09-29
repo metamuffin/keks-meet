@@ -54,9 +54,8 @@ async fn run() {
         .and(warp::ws())
         .map(signaling_connect);
 
-    // TODO add cache policy headers
-
     let index: _ = warp::path!().and(s_file!("client-web/public/start.html", "text/html"));
+    let favicon: _ = warp::path!("favicon.ico").and(s_file!("client-web/public/favicon.ico", "image/avif"));
     let room: _ = warp::path!("room").and(s_file!("client-web/public/app.html", "text/html"));
     let assets: _ = warp::path("assets").and(s_asset_dir!());
     let sw_script: _ = warp::path("sw.js").and(s_file!(
@@ -75,7 +74,6 @@ async fn run() {
     });
     let css: _ = warp::path!("style.css")
         .map(move || warp::reply::with_header(css(), "content-type", "text/css"));
-    let favicon: _ = warp::path!("favicon.ico").map(|| "");
     let old_format_redirect: _ = warp::path!("room" / String).map(|rsecret| {
         reply::with_header(
             StatusCode::MOVED_PERMANENTLY,
