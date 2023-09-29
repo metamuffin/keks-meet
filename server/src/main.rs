@@ -104,7 +104,7 @@ async fn run() {
                     if cfg!(debug_assertions) {
                         "no-cache"
                     } else {
-                        "max-age=86400"
+                        "max-age=1000000"
                     },
                 )
             }))
