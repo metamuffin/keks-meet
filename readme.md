@@ -34,16 +34,16 @@ should help:
 pacman -S --needed esbuild rustup make coreutils; rustup install nightly
 git clone https://codeberg.org/metamuffin/keks-meet.git
 cd keks-meet
-cp config/client.example.toml config/client.toml # use the example config. the defaults work.
-make install-server # binaries will be copied to ~/.cargo/bin
-# make install # installs the for-now-broken client applications too
+make install-server # binaries will be installed to ~/.cargo/bin
+keks-meet-server config/client.example.toml
 ```
 
 When changing code, use `make watch` to re-build things automatically as needed.
 (requires `cargo install systemfd cargo-watch`)
 
-The client configuration file (`config/client.toml`) configures the client and
-requires server recompilation on change for now.
+The server takes a path to the configuration file as its first argument unless
+the `embed_config` feature is used. In that case, the configuration is read from
+`config/config.toml` and embedded into the server binary.
 
 The server's bind address can be controlled using the `BIND` environment
 variable. When compilin without debug assertions (release) all assets are

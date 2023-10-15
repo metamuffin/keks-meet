@@ -41,8 +41,16 @@ fn main() {
 async fn run() {
     env_logger::init_from_env("LOG");
 
-    let config: Config = toml::from_str(include_str!("../../config/config.toml"))
-        .expect("client configuration invalid");
+    #[cfg(feature = "embed_config")]
+    let config = include_str!("../../config/config.toml").to_string();
+    #[cfg(not(feature = "embed_config"))]
+    let config = std::fs::read_to_string(
+        std::env::args()
+            .nth(1)
+            .expect("first argument should be the configuration"),
+    )
+    .expect("cannot read configuration");
+    let config: Config = toml::from_str(&config).expect("configuration invalid");
     let client_config_json = serde_json::to_string(&config).unwrap();
     let client_config_css = css_overrides(&config.appearance);
 
@@ -55,7 +63,8 @@ async fn run() {
         .map(signaling_connect);
 
     let index: _ = warp::path!().and(s_file!("client-web/public/start.html", "text/html"));
-    let favicon: _ = warp::path!("favicon.ico").and(s_file!("client-web/public/favicon.ico", "image/avif"));
+    let favicon: _ =
+        warp::path!("favicon.ico").and(s_file!("client-web/public/favicon.ico", "image/avif"));
     let room: _ = warp::path!("room").and(s_file!("client-web/public/app.html", "text/html"));
     let assets: _ = warp::path("assets").and(s_asset_dir!());
     let sw_script: _ = warp::path("sw.js").and(s_file!(

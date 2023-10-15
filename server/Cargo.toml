@@ -16,3 +16,7 @@ serde_json = "1.0.99"
 include_dir = "0.7.3"
 toml = "0.7.5"
 grass = "0.12.4"
+
+[features]
+default = []
+embed_config = []
