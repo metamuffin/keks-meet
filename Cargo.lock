@@ -776,7 +776,7 @@ checksum = "702fc72eb24e5a1e48ce58027a675bc24edd52096d5397d4aea7c6dd9eca0bd1"
 
 [[package]]
 name = "client-native-lib"
-version = "0.1.0"
+version = "0.2.3"
 dependencies = [
  "aes-gcm",
  "base64 0.21.5",
@@ -2158,7 +2158,7 @@ dependencies = [
 
 [[package]]
 name = "keks-meet"
-version = "0.1.0"
+version = "0.2.3"
 dependencies = [
  "anyhow",
  "async-std",
@@ -2175,7 +2175,7 @@ dependencies = [
 
 [[package]]
 name = "keks-meet-export-track"
-version = "0.1.0"
+version = "0.2.3"
 dependencies = [
  "anyhow",
  "bytes",
@@ -2188,7 +2188,7 @@ dependencies = [
 
 [[package]]
 name = "keks-meet-server"
-version = "0.1.2"
+version = "0.2.3"
 dependencies = [
  "env_logger",
  "futures-util",
@@ -3112,7 +3112,7 @@ dependencies = [
 
 [[package]]
 name = "rift"
-version = "0.1.0"
+version = "0.2.3"
 dependencies = [
  "bytes",
  "clap",
