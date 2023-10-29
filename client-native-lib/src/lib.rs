@@ -27,7 +27,6 @@ pub use webrtc;
 
 pub struct Config {
     pub signaling_uri: String,
-    pub secret: String,
     pub username: String,
 }
 
@@ -47,18 +46,31 @@ pub trait LocalResource: Send + Sync + 'static {
     fn info(&self) -> ProvideInfo;
     fn on_request(&self, peer: Arc<Peer>) -> DynFut<()>;
 }
+
+#[allow(unused_variables)]
 pub trait EventHandler: Send + Sync + 'static {
-    fn peer_join(&self, peer: Arc<Peer>) -> DynFut<()>;
-    fn peer_leave(&self, peer: Arc<Peer>) -> DynFut<()>;
-    fn resource_added(&self, peer: Arc<Peer>, info: ProvideInfo) -> DynFut<()>;
-    fn resource_removed(&self, peer: Arc<Peer>, id: String) -> DynFut<()>;
+    fn peer_join(&self, peer: Arc<Peer>) -> DynFut<()> {
+        Box::pin(async move {})
+    }
+    fn peer_leave(&self, peer: Arc<Peer>) -> DynFut<()> {
+        Box::pin(async move {})
+    }
+    fn resource_added(&self, peer: Arc<Peer>, info: ProvideInfo) -> DynFut<()> {
+        Box::pin(async move {})
+    }
+    fn resource_removed(&self, peer: Arc<Peer>, id: String) -> DynFut<()> {
+        Box::pin(async move {})
+    }
     fn resource_connected(
         &self,
         peer: Arc<Peer>,
         resource: &ProvideInfo,
         channel: TransportChannel,
     ) -> DynFut<()>;
-    fn on_relay(&self, _peer: Arc<Peer>, _message: &RelayMessage) -> DynFut<()> {
+    fn on_relay(&self, peer: Arc<Peer>, message: &RelayMessage) -> DynFut<()> {
+        Box::pin(async move {})
+    }
+    fn room_info(&self, hash: String, user_count: usize) -> DynFut<()> {
         Box::pin(async move {})
     }
 }

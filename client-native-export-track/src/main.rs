@@ -62,7 +62,6 @@ async fn run() {
 
     let inst = Instance::new(
         Config {
-            secret: args.secret.clone(),
             signaling_uri: args.signaling_uri.clone(),
             username: args.username.clone(),
         },
@@ -73,6 +72,7 @@ async fn run() {
     )
     .await;
 
+    inst.join(Some(&args.secret)).await;
     inst.spawn_ping().await;
     inst.receive_loop().await;
 

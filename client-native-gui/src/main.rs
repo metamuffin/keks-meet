@@ -130,11 +130,13 @@ impl eframe::App for App {
                     let secret = secret.clone();
                     let username = username.clone();
                     *self = Self::Joining(Some(tokio::spawn(async move {
-                        Inroom::new(Config {
-                            secret,
-                            username,
-                            signaling_uri: "wss://meet.metamuffin.org".to_string(),
-                        })
+                        Inroom::new(
+                            Config {
+                                username,
+                                signaling_uri: "wss://meet.metamuffin.org".to_string(),
+                            },
+                            &secret,
+                        )
                         .await
                     })))
                 }
@@ -151,7 +153,7 @@ impl eframe::App for App {
 }
 
 impl Inroom {
-    pub async fn new(config: Config) -> Self {
+    pub async fn new(config: Config, secret: &str) -> Self {
         let handler = Arc::new(Handler::new());
         let instance = Instance::new(config, handler.clone()).await;
         instance.spawn_ping().await;
@@ -159,6 +161,7 @@ impl Inroom {
             let instance = instance.clone();
             tokio::spawn(instance.receive_loop());
         }
+        instance.join(Some(secret)).await;
         let k = Self {
             chat: Arc::new(RwLock::new(Chat::new(instance.clone()))),
             instance,

@@ -5,7 +5,7 @@
 */
 use crate::{
     build_api,
-    crypto::{self, Key},
+    crypto::{self, hash, Key},
     peer::Peer,
     protocol::{self, ClientboundPacket, RelayMessage, RelayMessageWrapper, ServerboundPacket},
     signaling::{self, SignalingConnection},
@@ -22,7 +22,7 @@ pub struct Instance {
     pub conn: SignalingConnection,
     pub config: Config,
     pub api: API,
-    key: Key,
+    key: RwLock<Option<Key>>,
     pub local_resources: RwLock<HashMap<String, Box<dyn LocalResource>>>,
     my_id: RwLock<Option<usize>>,
     pub peers: RwLock<HashMap<usize, Arc<Peer>>>,
@@ -31,7 +31,6 @@ pub struct Instance {
 impl Instance {
     pub async fn new(config: Config, event_handler: Arc<dyn EventHandler>) -> Arc<Self> {
         let conn = signaling::SignalingConnection::new(&config.signaling_uri).await;
-        let key = crypto::Key::derive(&config.secret);
 
         Arc::new(Self {
             event_handler,
@@ -41,8 +40,17 @@ impl Instance {
             local_resources: Default::default(),
             config,
             conn,
-            key,
+            key: None.into(),
         })
+    }
+
+    pub async fn join(&self, secret: Option<&str>) {
+        info!("join room {secret:?}");
+        *self.key.write().await = secret.map(|secret| crypto::Key::derive(&secret));
+        self.send_packet(ServerboundPacket::Join {
+            hash: secret.map(|secret| hash(secret)),
+        })
+        .await;
     }
 
     pub async fn spawn_ping(self: &Arc<Self>) {
@@ -94,12 +102,22 @@ impl Instance {
                 }
             }
             protocol::ClientboundPacket::ClientLeave { id } => {
-                let peer = self.peers.write().await.remove(&id).unwrap();
-                peer.on_leave().await;
-                self.event_handler.peer_leave(peer).await;
+                if id == self.my_id().await {
+                    // we left
+                } else {
+                    let peer = self.peers.write().await.remove(&id).unwrap();
+                    peer.on_leave().await;
+                    self.event_handler.peer_leave(peer).await;
+                }
             }
             protocol::ClientboundPacket::Message { sender, message } => {
-                let message = self.key.decrypt(&message);
+                let message = self
+                    .key
+                    .read()
+                    .await
+                    .as_ref()
+                    .expect("not in a room")
+                    .decrypt(&message);
                 let p = serde_json::from_str::<RelayMessageWrapper>(&message).unwrap();
                 if p.sender == sender {
                     self.on_relay(sender, p.inner).await;
@@ -107,7 +125,9 @@ impl Instance {
                     warn!("dropping packet with inconsistent sender")
                 }
             }
-            protocol::ClientboundPacket::RoomInfo { .. } => {}
+            protocol::ClientboundPacket::RoomInfo { hash, user_count } => {
+                self.event_handler.room_info(hash, user_count).await;
+            }
         }
     }
 
@@ -121,24 +141,36 @@ impl Instance {
         }
     }
 
-    pub async fn send_relay(&self, recipient: Option<usize>, inner: RelayMessage) {
-        debug!("(relay) -> ({recipient:?}) {inner:?}");
+    pub async fn send_packet(&self, packet: ServerboundPacket) {
         self.conn
             .send
             .write()
             .await
-            .send(ServerboundPacket::Relay {
-                recipient,
-                message: self.key.encrypt(
+            .send(packet)
+            .await
+            .expect("why?");
+    }
+
+    pub async fn send_relay(&self, recipient: Option<usize>, inner: RelayMessage) {
+        debug!("(relay) -> ({recipient:?}) {inner:?}");
+        self.send_packet(ServerboundPacket::Relay {
+            recipient,
+            // TODO handle this error
+            message: self
+                .key
+                .read()
+                .await
+                .as_ref()
+                .expect("not in a room")
+                .encrypt(
                     &serde_json::to_string(&RelayMessageWrapper {
                         sender: self.my_id.read().await.expect("not ready to relay yet.."),
                         inner,
                     })
                     .unwrap(),
                 ),
-            })
-            .await
-            .unwrap()
+        })
+        .await
     }
 
     pub async fn add_local_resource(&self, res: Box<dyn LocalResource>) {
