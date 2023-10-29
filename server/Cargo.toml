@@ -4,18 +4,18 @@ version = "0.1.1"
 edition = "2021"
 
 [dependencies]
-warp = "0.3.5"
-tokio = { version = "1.28", features = ["full"] }
+warp = "0.3.6"
+tokio = { version = "1.33", features = ["full"] }
 log = "0.4"
 env_logger = "0.10"
-futures-util = "0.3.28"
+futures-util = "0.3.29"
 listenfd = "1.0.1"
-hyper = "0.14.26"
-serde = { version = "1.0.164", features = ["derive"] }
-serde_json = "1.0.99"
+hyper = "0.14.27"
+serde = { version = "1.0.190", features = ["derive"] }
+serde_json = "1.0.107"
 include_dir = "0.7.3"
-toml = "0.7.5"
-grass = "0.12.4"
+toml = "0.8.6"
+grass = "0.13.1"
 
 [features]
 default = []

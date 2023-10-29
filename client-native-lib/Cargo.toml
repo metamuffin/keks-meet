@@ -4,22 +4,22 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-tokio = { version = "1.28", features = ["full"] }
-futures-util = "0.3.28"
+tokio = { version = "1.33", features = ["full"] }
+futures-util = "0.3.29"
 
-webrtc = "0.8.0"
+webrtc = "0.9.0"
 tokio-tungstenite = { version = "*", features = ["rustls-tls"] }
-url = "2.4.0"
+url = "2.4.1"
 
-serde = { version = "1.0.164", features = ["derive"] }
+serde = { version = "1.0.190", features = ["derive"] }
 serde_json = "*"
 
 log = "0.4"
 
 fastpbkdf2 = "0.1.0"
-aes-gcm = "0.10.2"
-sha256 = "1.1.4"
+aes-gcm = "0.10.3"
+sha256 = "1.4.0"
 rand = "0.8.5"
 rand_chacha = "0.3.1"
-base64 = "0.21.2"
-bytes = "1.4.0"
+base64 = "0.21.5"
+bytes = "1.5.0"
