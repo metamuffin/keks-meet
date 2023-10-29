@@ -31,11 +31,11 @@ For trying it out, a hosted version is available on
 should help:
 
 ```sh
-pacman -S --needed esbuild rustup make coreutils; rustup install nightly
+pacman -S --needed esbuild rustup make coreutils curl tar; rustup install nightly
 git clone https://codeberg.org/metamuffin/keks-meet.git
 cd keks-meet
 make install-server # binaries will be installed to ~/.cargo/bin
-keks-meet-server config/client.example.toml
+keks-meet-server config/default.toml
 ```
 
 When changing code, use `make watch` to re-build things automatically as needed.
