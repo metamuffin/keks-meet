@@ -783,12 +783,13 @@ dependencies = [
  "bytes",
  "fastpbkdf2",
  "futures-util",
+ "hex",
  "log",
  "rand",
  "rand_chacha",
  "serde",
  "serde_json",
- "sha256",
+ "sha2",
  "tokio",
  "tokio-tungstenite 0.15.0",
  "url",
@@ -2187,7 +2188,7 @@ dependencies = [
 
 [[package]]
 name = "keks-meet-server"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "env_logger",
  "futures-util",
@@ -2326,7 +2327,7 @@ version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "62bb907fe88d54d8d9ce32a3cceab4218ed2f6b7d35617cafe9adf84e43919cb"
 dependencies = [
- "libc 0.1.12",
+ "libc 0.2.149",
 ]
 
 [[package]]
@@ -3483,26 +3484,13 @@ dependencies = [
 
 [[package]]
 name = "sha2"
-version = "0.10.7"
+version = "0.10.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "479fb9d862239e610720565ca91403019f2f00410f1864c5aa7479b950a76ed8"
+checksum = "793db75ad2bcafc3ffa7c68b215fee268f537982cd901d132f89c6343f3a3dc8"
 dependencies = [
  "cfg-if",
  "cpufeatures",
  "digest 0.10.7",
-]
-
-[[package]]
-name = "sha256"
-version = "1.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7895c8ae88588ccead14ff438b939b0c569cd619116f14b4d13fdff7b8333386"
-dependencies = [
- "async-trait",
- "bytes",
- "hex",
- "sha2",
- "tokio",
 ]
 
 [[package]]

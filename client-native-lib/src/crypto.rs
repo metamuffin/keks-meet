@@ -12,16 +12,19 @@ use log::info;
 
 pub struct Key(Aes256Gcm);
 
+const CRYPTO_SALT: &'static str = "keksmeet/cryptosaltAAA==";
+const HASH_SALT: &'static str = "keksmeet/roomhashsaltA==";
+
 impl Key {
     pub fn derive(secret: &str) -> Self {
         info!("running key generation...");
         let salt = base64::engine::general_purpose::STANDARD
-            .decode("thisisagoodsaltAAAAAAA==")
+            .decode(CRYPTO_SALT)
             .unwrap();
-        let mut key = [0u8; 32];
-        fastpbkdf2::pbkdf2_hmac_sha256(secret.as_bytes(), salt.as_slice(), 250000, &mut key);
+        let mut key = [0u8; 64];
+        fastpbkdf2::pbkdf2_hmac_sha512(secret.as_bytes(), salt.as_slice(), 250000, &mut key);
 
-        let key = Aes256Gcm::new_from_slice(key.as_slice()).unwrap();
+        let key = Aes256Gcm::new_from_slice(&key[0..32]).unwrap();
 
         info!("done");
         Self(key)
@@ -43,5 +46,10 @@ impl Key {
 }
 
 pub fn hash(secret: &str) -> String {
-    sha256::digest(format!("also-a-very-good-salt{}", secret))
+    let salt = base64::engine::general_purpose::STANDARD
+        .decode(HASH_SALT)
+        .unwrap();
+    let mut key = [0u8; 64];
+    fastpbkdf2::pbkdf2_hmac_sha512(secret.as_bytes(), salt.as_slice(), 250000, &mut key);
+    hex::encode(&key[0..32])
 }

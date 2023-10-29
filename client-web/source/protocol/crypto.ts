@@ -9,8 +9,11 @@ import { log } from "../logger.ts";
 
 const IV_LENGTH = 12
 
+const CRYPTO_SALT = base64_to_buf("keksmeet/cryptosaltAAA==")
+const HASH_SALT = base64_to_buf("keksmeet/roomhashsaltA==")
+
 export async function crypto_seeded_key(seed: string): Promise<CryptoKey> {
-    log("crypto", "importing seed…")
+    log("crypto", "deriving crytographic key...")
     const seed_key = await window.crypto.subtle.importKey(
         "raw",
         new TextEncoder().encode(seed),
@@ -18,10 +21,8 @@ export async function crypto_seeded_key(seed: string): Promise<CryptoKey> {
         false,
         ["deriveKey"]
     )
-    const salt = base64_to_buf("thisisagoodsaltAAAAAAA==") // valid "unique" 16-byte base-64 string
-    log("crypto", "deriving key…")
     const key = await window.crypto.subtle.deriveKey(
-        { name: "PBKDF2", salt, iterations: 250000, hash: "SHA-256" },
+        { name: "PBKDF2", salt: CRYPTO_SALT, iterations: 250000, hash: "SHA-512" },
         seed_key,
         { name: "AES-GCM", length: 256 },
         false,
@@ -32,9 +33,20 @@ export async function crypto_seeded_key(seed: string): Promise<CryptoKey> {
 }
 
 export async function crypto_hash(input: string): Promise<string> {
-    const buf = new TextEncoder().encode("also-a-very-good-salt" + input)
-    const h = await window.crypto.subtle.digest({ name: "SHA-512" }, buf)
-    const hex = buf_to_hex(new Uint8Array(h))
+    log("crypto", "deriving room hash...")
+    const seed_key = await window.crypto.subtle.importKey(
+        "raw",
+        new TextEncoder().encode(input),
+        "PBKDF2",
+        false,
+        ["deriveBits"]
+    )
+    const key = await window.crypto.subtle.deriveBits(
+        { name: "PBKDF2", salt: HASH_SALT, iterations: 250000, hash: "SHA-512" },
+        seed_key,
+        512
+    )
+    const hex = buf_to_hex(new Uint8Array(key.slice(0, 256 / 8)))
     return hex
 }
 
