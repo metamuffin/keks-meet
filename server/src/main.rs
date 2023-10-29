@@ -19,8 +19,6 @@ use listenfd::ListenFd;
 use log::{debug, error};
 use logic::State;
 use std::convert::Infallible;
-use std::net::SocketAddr;
-use std::str::FromStr;
 use std::sync::Arc;
 use tokio::sync::mpsc;
 use warp::{
@@ -124,10 +122,7 @@ async fn run() {
     let server = if let Some(l) = listenfd.take_tcp_listener(0).unwrap() {
         Server::from_tcp(l).unwrap()
     } else {
-        Server::bind(
-            &SocketAddr::from_str(&std::env::var("BIND").unwrap_or(String::from("127.0.0.1:8080")))
-                .unwrap(),
-        )
+        Server::bind(&config.server.bind)
     };
     let service = warp::service(routes);
     server

@@ -4,12 +4,19 @@
     Copyright (C) 2023 metamuffin <metamuffin.org>
 */
 use serde::{Deserialize, Serialize};
+use std::net::SocketAddr;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
+    pub server: ServerConfig,
     pub features: FeaturesConfig,
     pub webrtc: WebrtcConfig,
     pub appearance: AppearanceConfig,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ServerConfig {
+    pub bind: SocketAddr,
 }
 
 #[rustfmt::skip]
