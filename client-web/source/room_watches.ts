@@ -6,7 +6,7 @@
 /// <reference lib="dom" />
 import { array_swap, e } from "./helper.ts";
 import { PREFS, change_pref } from "./preferences/mod.ts";
-import { crypto_hash } from "./protocol/crypto.ts";
+import { room_hash } from "./protocol/crypto.ts";
 import { SignalingConnection } from "./protocol/mod.ts";
 
 interface Watch {
@@ -22,9 +22,15 @@ export function ui_room_watches(conn: SignalingConnection): HTMLElement {
     let watches: Watch[] = []
     const update_watches = () => (conn.send_control({ watch_rooms: watches.map(w => w.hash) }), update_listing());
 
-    const add_watch = async (secret: string) => watches.push({ name: secret.split("#")[0], secret, hash: await crypto_hash(secret), user_count: 0 })
-    const save_watches = () => change_pref("room_watches", JSON.stringify(watches.map(w => w.secret)))
-    const load_watches = async () => { for (const secret of JSON.parse(PREFS.room_watches)) { await add_watch(secret) } update_watches() }
+    const add_watch = async (secret: string, hash?: string) => watches.push({ name: secret.split("#")[0], secret, hash: hash ?? await room_hash(secret), user_count: 0 })
+    const save_watches = () => change_pref("room_watches", JSON.stringify(watches.map(w => [w.secret, w.hash])))
+    const load_watches = async () => {
+        for (const stuff of JSON.parse(PREFS.room_watches)) {
+            if (typeof stuff == "string") await add_watch(stuff) // old format
+            else await add_watch(stuff[0], stuff[1])
+        }
+        update_watches()
+    }
 
     conn.control_handler.add_listener(packet => {
         if (packet.room_info) {

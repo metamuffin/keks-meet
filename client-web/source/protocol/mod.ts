@@ -6,7 +6,7 @@
 import { ClientboundPacket, RelayMessage, RelayMessageWrapper, ServerboundPacket } from "../../../common/packets.d.ts"
 import { EventEmitter } from "../helper.ts";
 import { log } from "../logger.ts"
-import { crypto_encrypt, crypto_seeded_key, crypt_decrypt, crypto_hash } from "./crypto.ts"
+import { encrypt, derive_seeded_key, decrypt, room_hash } from "./crypto.ts"
 
 export class SignalingConnection {
     websocket!: WebSocket
@@ -48,8 +48,8 @@ export class SignalingConnection {
 
     async join(room: string) {
         this.room = room;
-        this.key = await crypto_seeded_key(room)
-        this.room_hash = await crypto_hash(room)
+        this.key = await derive_seeded_key(room)
+        this.room_hash = await room_hash(room)
         this.send_control({ join: { hash: this.room_hash } })
     }
 
@@ -67,8 +67,14 @@ export class SignalingConnection {
         this.control_handler.dispatch(packet)
         if (packet.init) this.my_id = packet.init.your_id;
         if (packet.message) {
-            const plain_json = await crypt_decrypt(this.key!, packet.message.message)
-            const plain: RelayMessageWrapper = JSON.parse(plain_json) // TODO make sure that protocol spec is met
+            const plain_json = await decrypt(this.key!, packet.message.message)
+
+            let plain: RelayMessageWrapper
+            try {
+                plain = JSON.parse(plain_json) // TODO make sure that protocol spec is met
+            } catch (_e) {
+                return log({ scope: "ws", warn: true }, "somebody sent invalid json");
+            }
             if (plain.sender == packet.message.sender)
                 this.relay_handler.dispatch([packet.message.sender, plain.inner])
             else {
@@ -83,7 +89,7 @@ export class SignalingConnection {
     async send_relay(data: RelayMessage, recipient?: number | null) {
         recipient ??= undefined // null -> undefined
         const packet: RelayMessageWrapper = { inner: data, sender: this.my_id! }
-        const message = await crypto_encrypt(this.key!, JSON.stringify(packet))
+        const message = await encrypt(this.key!, JSON.stringify(packet))
         this.send_control({ relay: { recipient, message } })
     }
 }

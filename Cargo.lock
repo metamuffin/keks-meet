@@ -2434,7 +2434,7 @@ dependencies = [
 
 [[package]]
 name = "keks-meet-server"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "env_logger 0.10.2",
  "futures-util",

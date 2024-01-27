@@ -12,7 +12,7 @@ const IV_LENGTH = 12
 const CRYPTO_SALT = base64_to_buf("keksmeet/cryptosaltAAA==")
 const HASH_SALT = base64_to_buf("keksmeet/roomhashsaltA==")
 
-export async function crypto_seeded_key(seed: string): Promise<CryptoKey> {
+export async function derive_seeded_key(seed: string): Promise<CryptoKey> {
     log("crypto", "deriving crytographic key...")
     const seed_key = await window.crypto.subtle.importKey(
         "raw",
@@ -32,7 +32,7 @@ export async function crypto_seeded_key(seed: string): Promise<CryptoKey> {
     return key
 }
 
-export async function crypto_hash(input: string): Promise<string> {
+export async function room_hash(input: string): Promise<string> {
     log("crypto", "deriving room hash...")
     const seed_key = await window.crypto.subtle.importKey(
         "raw",
@@ -50,7 +50,7 @@ export async function crypto_hash(input: string): Promise<string> {
     return hex
 }
 
-export async function crypto_encrypt(key: CryptoKey, data: string): Promise<string> {
+export async function encrypt(key: CryptoKey, data: string): Promise<string> {
     const iv = window.crypto.getRandomValues(new Uint8Array(IV_LENGTH));
     const ciphertext = new Uint8Array(await window.crypto.subtle.encrypt(
         { name: "AES-GCM", iv },
@@ -64,7 +64,7 @@ export async function crypto_encrypt(key: CryptoKey, data: string): Promise<stri
     return b64;
 }
 
-export async function crypt_decrypt(key: CryptoKey, data: string): Promise<string> {
+export async function decrypt(key: CryptoKey, data: string): Promise<string> {
     try {
         const buf = base64_to_buf(data);
         const iv = buf.slice(0, IV_LENGTH);
