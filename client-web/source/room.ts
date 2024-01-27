@@ -10,36 +10,43 @@ import { RemoteUser } from "./user/remote.ts";
 import { LocalUser } from "./user/local.ts";
 import { ClientboundPacket, RelayMessage } from "../../common/packets.d.ts";
 import { SignalingConnection } from "./protocol/mod.ts";
-import { Chat } from "./chat.ts";
 import { e } from "./helper.ts";
+import { Chat } from "./chat.ts";
 
 export class Room {
     public remote_users: Map<number, RemoteUser> = new Map()
     public local_user!: LocalUser
-    public my_id!: number
-    public chat: Chat = new Chat(this)
     public element: HTMLElement
 
     public on_ready = () => { };
+    public destroy: () => void
 
-    constructor(public signaling: SignalingConnection, public rtc_config: RTCConfiguration) {
+    constructor(public signaling: SignalingConnection, public chat: Chat, public rtc_config: RTCConfiguration) {
         this.element = e("div", { class: "room", aria_label: "user list" })
-        signaling.control_handler.add_listener(p => this.control_handler(p))
-        signaling.relay_handler.add_listener(([a, b]) => this.relay_handler(a, b))
+        const h1 = ([a, b]: [number, RelayMessage]) => this.relay_handler(a, b);
+        const h2 = (p: ClientboundPacket) => this.control_handler(p)
+        signaling.relay_handler.add_listener(h1)
+        signaling.control_handler.add_listener(h2)
+        this.destroy = () => {
+            signaling.relay_handler.remove_listener(h1)
+            signaling.control_handler.remove_listener(h2)
+            this.remote_users.forEach(v => v.leave())
+            this.local_user.resources.forEach(r => r.destroy())
+            this.remote_users = new Map()
+        }
     }
 
     control_handler(packet: ClientboundPacket) {
         if (packet.message) return // let the relay handler do that
         if (packet.init) {
             log("ws", `<- [init packet]: `, packet);
-            this.my_id = packet.init.your_id
             // no need to check compat for now because this is hosted in the same place
             log("*", `server: ${packet.init.version}`)
         } else if (packet.client_join) {
             log("ws", `<- [client join]: `, packet);
             const p = packet.client_join
             log("*", `${p.id} joined`);
-            if (p.id == this.my_id) {
+            if (p.id == this.signaling.my_id) {
                 this.local_user = new LocalUser(this, p.id);
                 this.on_ready()
             } else {

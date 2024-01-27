@@ -14,11 +14,10 @@ import { Room } from "./room.ts";
 import { LocalUser } from "./user/local.ts";
 import { User } from "./user/mod.ts";
 
-export let GLOBAL_CHAT: Chat;
-
 interface ControlMessage {
     join?: User,
     leave?: User,
+    change_room?: string,
 }
 
 export class Chat {
@@ -27,8 +26,9 @@ export class Chat {
     send_el: HTMLInputElement
     element: HTMLElement
 
-    constructor(public room: Room) {
-        GLOBAL_CHAT = this;
+    public room?: Room
+
+    constructor() {
         const send = document.createElement("input")
         send.ariaLabel = "send message"
         send.type = "text"
@@ -74,8 +74,10 @@ export class Chat {
 
     focus() { this.send_el.focus() }
     send(msg: ChatMessage) {
-        this.room.local_user.chat(msg)
-        this.add_message(this.room.local_user, msg)
+        if (this.room) {
+            this.room.local_user.chat(msg)
+            this.add_message(this.room.local_user, msg)
+        }
     }
 
     remove_oldest_message() {

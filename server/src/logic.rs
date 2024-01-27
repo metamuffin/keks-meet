@@ -106,10 +106,9 @@ impl State {
             ServerboundPacket::Join { hash } => {
                 if let Some(room) = &cstate.current_room {
                     room.leave(self, client).await;
-                    // TODO dont leak room
-                    // if room.should_remove().await {
-                    //     self.rooms.write().await.remove(üw);
-                    // }
+                    if room.should_remove().await {
+                        self.rooms.write().await.remove(&room.hash);
+                    }
                 }
                 if let Some(hash) = hash {
                     let room = self
@@ -223,10 +222,8 @@ impl Room {
     pub async fn leave(&self, state: &State, client: Client) {
         debug!("client leave {client:?}");
         for c in self.users.read().await.iter() {
-            if *c != client {
-                self.send_to_client(*c, ClientboundPacket::ClientLeave { id: client })
-                    .await;
-            }
+            self.send_to_client(*c, ClientboundPacket::ClientLeave { id: client })
+                .await;
         }
         let user_count = {
             let mut g = self.users.write().await;

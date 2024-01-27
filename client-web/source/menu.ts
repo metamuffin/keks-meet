@@ -6,11 +6,11 @@
 /// <reference lib="dom" />
 
 import { e, sleep } from "./helper.ts"
+import { AppState } from "./index.ts";
 import { VERSION } from "./index.ts"
 import { ui_preferences } from "./preferences/ui.ts"
 import { create_file_res } from "./resource/file.ts";
 import { create_camera_res, create_mic_res, create_screencast_res } from "./resource/track.ts";
-import { Room } from "./room.ts"
 import { ui_room_watches } from "./room_watches.ts";
 
 export function info_br() {
@@ -36,16 +36,16 @@ export function info_br() {
 
 export let chat_control: (s?: boolean) => void;
 
-export function control_bar(room: Room, side_ui_container: HTMLElement): HTMLElement {
+export function control_bar(state: AppState, side_ui_container: HTMLElement): HTMLElement {
     const leave = e("button", { icon: "leave", class: "abort", onclick() { window.location.href = "/" } }, "Leave")
-    const chat = side_ui(side_ui_container, room.chat.element, "chat", "Chat", room.chat)
+    const chat = side_ui(side_ui_container, state.chat.element, "chat", "Chat", state.chat)
     const prefs = side_ui(side_ui_container, ui_preferences(), "settings", "Settings")
-    const rwatches = side_ui(side_ui_container, ui_room_watches(room.signaling), "room", "Known Rooms")
+    const rwatches = side_ui(side_ui_container, ui_room_watches(state.conn), "room", "Known Rooms")
     const local_controls = [ //ediv({ class: "local-controls", aria_label: "local resources" },
-        e("button", { icon: "microphone", onclick: () => room.local_user.await_add_resource(create_mic_res()) }, "Microphone"),
-        e("button", { icon: "camera", onclick: () => room.local_user.await_add_resource(create_camera_res()) }, "Camera"),
-        e("button", { icon: "screen", onclick: () => room.local_user.await_add_resource(create_screencast_res()) }, "Screen"),
-        e("button", { icon: "file", onclick: () => room.local_user.await_add_resource(create_file_res()) }, "File"),
+        e("button", { icon: "microphone", onclick: () => state.room?.local_user.await_add_resource(create_mic_res()) }, "Microphone"),
+        e("button", { icon: "camera", onclick: () => state.room?.local_user.await_add_resource(create_camera_res()) }, "Camera"),
+        e("button", { icon: "screen", onclick: () => state.room?.local_user.await_add_resource(create_screencast_res()) }, "Screen"),
+        e("button", { icon: "file", onclick: () => state.room?.local_user.await_add_resource(create_file_res()) }, "File"),
     ]
     chat_control = chat.set_state;
     return e("nav", { class: "control-bar" }, leave, "|", chat.el, prefs.el, rwatches.el, "|", ...local_controls)

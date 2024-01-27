@@ -43,7 +43,7 @@ export class SignalingConnection {
     }
     on_open() {
         log("ws", "websocket opened");
-        setInterval(() => this.send_control({ ping: null }), 30000) // stupid workaround for nginx disconnecting inactive connections
+        setInterval(() => this.send_control({ ping: null }), 30000) // stupid workaround for reverse proxies disconnecting inactive connections
     }
 
     async join(room: string) {
@@ -57,7 +57,13 @@ export class SignalingConnection {
         log({ scope: "ws", error: true }, "websocket error occurred!")
     }
     async on_message(data: string) {
-        const packet: ClientboundPacket = JSON.parse(data) // TODO dont crash if invalid
+        let packet: ClientboundPacket
+        try {
+            packet = JSON.parse(data)
+        } catch (_e) {
+            log({ scope: "ws", warn: true }, "server sent invalid json")
+            return
+        }
         this.control_handler.dispatch(packet)
         if (packet.init) this.my_id = packet.init.your_id;
         if (packet.message) {

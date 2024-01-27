@@ -70,7 +70,14 @@ export function ui_room_watches(conn: SignalingConnection): HTMLElement {
                         update_watches()
                         input.value = ""
                     }
-                }, "Add")
+                }, "Add"),
+                e("button", {
+                    async onclick() {
+                        if (!conn.room) return
+                        await add_watch(conn.room)
+                        update_watches()
+                    }
+                }, "Add current room")
             ))
         }
     }
