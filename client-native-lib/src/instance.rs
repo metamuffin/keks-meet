@@ -105,9 +105,10 @@ impl Instance {
                 if id == self.my_id().await {
                     // we left
                 } else {
-                    let peer = self.peers.write().await.remove(&id).unwrap();
-                    peer.on_leave().await;
-                    self.event_handler.peer_leave(peer).await;
+                    if let Some(peer) = self.peers.write().await.remove(&id) {
+                        peer.on_leave().await;
+                        self.event_handler.peer_leave(peer).await;
+                    }
                 }
             }
             protocol::ClientboundPacket::Message { sender, message } => {

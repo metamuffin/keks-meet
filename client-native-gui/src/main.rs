@@ -6,6 +6,7 @@
 
 pub mod chat;
 
+use anyhow::bail;
 use async_std::task::block_on;
 use chat::Chat;
 use clap::Parser;
@@ -15,7 +16,10 @@ use client_native_lib::{
     protocol::{ProvideInfo, RelayMessage},
     webrtc::{
         rtcp::payload_feedbacks::picture_loss_indication::PictureLossIndication,
-        rtp::{codecs::h264::H264Packet, packetizer::Depacketizer},
+        rtp::{
+            codecs::{h264::H264Packet, h265::H265Packet},
+            packetizer::Depacketizer,
+        },
         track::track_remote::TrackRemote,
     },
     Config, EventHandler,
@@ -476,22 +480,47 @@ async fn track_to_raw(
     track: Arc<TrackRemote>,
     target: Arc<RwLock<VecDeque<u8>>>,
 ) -> anyhow::Result<()> {
-    let mut cached_packet = H264Packet::default();
-    loop {
-        let (packet, _) = track.read_rtp().await?;
-        if !packet.payload.is_empty() {
-            let raw_payload = cached_packet.depacketize(&packet.payload)?;
-            // let raw_payload = packet.payload;
-            if raw_payload.len() != 0 {
-                debug!("writing {} bytes", raw_payload.len());
+    match track.codec().capability.mime_type.as_str() {
+        "video/H265" => {
+            let mut cached_packet = H265Packet::default();
+            loop {
+                let (packet, _) = track.read_rtp().await?;
+                if !packet.payload.is_empty() {
+                    let raw_payload = cached_packet.depacketize(&packet.payload)?;
+                    // let raw_payload = packet.payload;
+                    if raw_payload.len() != 0 {
+                        debug!("writing {} bytes", raw_payload.len());
 
-                let mut target = target.write().unwrap();
-                if target.len() < 10_000_000 {
-                    target.extend(raw_payload.into_iter());
-                } else {
-                    warn!("buffer is getting too big, dropping some data");
+                        let mut target = target.write().unwrap();
+                        if target.len() < 10_000_000 {
+                            target.extend(raw_payload.into_iter());
+                        } else {
+                            warn!("buffer is getting too big, dropping some data");
+                        }
+                    }
                 }
             }
         }
+        "video/H264" => {
+            let mut cached_packet = H264Packet::default();
+            loop {
+                let (packet, _) = track.read_rtp().await?;
+                if !packet.payload.is_empty() {
+                    let raw_payload = cached_packet.depacketize(&packet.payload)?;
+                    // let raw_payload = packet.payload;
+                    if raw_payload.len() != 0 {
+                        debug!("writing {} bytes", raw_payload.len());
+
+                        let mut target = target.write().unwrap();
+                        if target.len() < 10_000_000 {
+                            target.extend(raw_payload.into_iter());
+                        } else {
+                            warn!("buffer is getting too big, dropping some data");
+                        }
+                    }
+                }
+            }
+        }
+        _ => bail!("codec not supported"),
     }
 }
