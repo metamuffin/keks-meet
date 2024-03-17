@@ -24,7 +24,7 @@ export function setup_keybinds(state: AppState) {
             if (ev.code == "KeyS") state.room?.local_user.await_add_resource(create_screencast_res())
             if (ev.code == "KeyC" && !ev.ctrlKey) state.room?.local_user.await_add_resource(create_camera_res())
             if (ev.code == "KeyC" && ev.ctrlKey) state.room?.local_user.resources.forEach(t => t.destroy())
-            if (ev.code == "KeyU") if (window.confirm("really update?")) update_serviceworker()
+            if (ev.code == "KeyU") if (globalThis.confirm("really update?")) update_serviceworker()
             if (ev.code == "KeyV") state.chat?.remove_oldest_message()
         }
     })

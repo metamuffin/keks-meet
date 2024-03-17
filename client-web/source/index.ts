@@ -16,7 +16,7 @@ import { control_bar, info_br } from "./menu.ts";
 import { Chat } from "./chat.ts"
 
 export const VERSION = "1.0.1"
-window.onload = () => main()
+globalThis.onload = () => main()
 
 export interface ClientConfig {
     appearance?: {
@@ -102,11 +102,11 @@ export async function main() {
     if (room_secret.length != 0) {
         set_room(state, room_secret, rtc_config)
     }
-    window.onhashchange = () => {
+    globalThis.onhashchange = () => {
         const new_secret = load_params().rsecret;
         set_room(state, new_secret, rtc_config)
     }
-    window.onbeforeunload = ev => {
+    globalThis.onbeforeunload = ev => {
         if (state.room && state.room.local_user.resources.size != 0 && PREFS.enable_onbeforeunload) {
             ev.preventDefault()
             return ev.returnValue = "You have local resources shared. Really quit?"

@@ -60,7 +60,7 @@ export function image_view(url: string, opts?: Opts<HTMLElement>): HTMLElement {
     img.src = url
     img.alt = `Image (click to open)`
     img.addEventListener("click", () => {
-        window.open(url, "_blank", `noreferrer=true,noopener=true,popup=${PREFS.image_view_popup}`)
+        globalThis.open(url, "_blank", `noreferrer=true,noopener=true,popup=${PREFS.image_view_popup}`)
     })
     return img
 }

@@ -22,7 +22,7 @@ declare global {
 export async function get_rnnoise_node(context: AudioContext): Promise<RNNoiseNode> {
     log("rnnoise", "enabled")
     //@ts-ignore asfdasfd
-    let RNNoiseNode: typeof RNNoiseNode = window.RNNoiseNode;
+    let RNNoiseNode: typeof RNNoiseNode = globalThis.RNNoiseNode;
 
     let script: HTMLScriptElement;
     if (!RNNoiseNode) {
@@ -32,9 +32,9 @@ export async function get_rnnoise_node(context: AudioContext): Promise<RNNoiseNo
         script.defer = true
         document.head.appendChild(script)
         //@ts-ignore asdfsfad
-        while (!window.RNNoiseNode) await new Promise<void>(r => setTimeout(() => r(), 100))
+        while (!globalThis.RNNoiseNode) await new Promise<void>(r => setTimeout(() => r(), 100))
         //@ts-ignore asfdsadfsafd
-        RNNoiseNode = window.RNNoiseNode;
+        RNNoiseNode = globalThis.RNNoiseNode;
         log("rnnoise", "loaded")
     }
 
