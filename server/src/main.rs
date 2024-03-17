@@ -16,7 +16,7 @@ use config::{AppearanceConfig, Config};
 use futures_util::{SinkExt, StreamExt, TryFutureExt};
 use hyper::{header, StatusCode};
 use listenfd::ListenFd;
-use log::{debug, error};
+use log::{debug, error, warn};
 use logic::State;
 use std::convert::Infallible;
 use std::sync::Arc;
@@ -163,7 +163,7 @@ fn signaling_connect(state: Arc<State>, ws: warp::ws::Ws) -> impl Reply {
                 user_ws_tx
                     .send(Message::text(serde_json::to_string(&packet).unwrap()))
                     .unwrap_or_else(|e| {
-                        eprintln!("websocket send error: {}", e);
+                        warn!("websocket send error: {}", e);
                     })
                     .await;
             }
