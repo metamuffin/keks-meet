@@ -15,7 +15,7 @@ import { Room } from "./room.ts"
 import { control_bar, info_br } from "./menu.ts";
 import { Chat } from "./chat.ts"
 
-export const VERSION = "1.0.1"
+export const VERSION = "1.0.2"
 globalThis.onload = () => main()
 
 export interface ClientConfig {

@@ -2434,7 +2434,7 @@ dependencies = [
 
 [[package]]
 name = "keks-meet-server"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "env_logger 0.10.2",
  "futures-util",
@@ -3370,7 +3370,7 @@ dependencies = [
 
 [[package]]
 name = "rift"
-version = "0.2.3"
+version = "1.0.0"
 dependencies = [
  "bytes",
  "clap",

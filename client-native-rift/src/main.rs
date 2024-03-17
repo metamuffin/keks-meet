@@ -52,7 +52,6 @@ pub struct Args {
     #[clap(short, long, default_value_t = get_username())]
     username: String,
     /// pre-shared secret (aka. room name)
-    #[clap(short, long)]
     secret: String,
     #[clap(subcommand)]
     action: Action,
