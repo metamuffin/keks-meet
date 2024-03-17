@@ -28,6 +28,7 @@ use tokio::{
     io::{stdin, stdout, AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt},
     sync::RwLock,
 };
+use users::get_current_username;
 
 fn main() {
     env_logger::builder()
@@ -47,8 +48,8 @@ pub struct Args {
     /// keks-meet server used for establishing p2p connection
     #[clap(long, default_value = "wss://meet.metamuffin.org")]
     signaling_uri: String,
-    /// username for the `identify` packet
-    #[clap(short, long, default_value = "guest")]
+    /// username override
+    #[clap(short, long, default_value_t = get_username())]
     username: String,
     /// pre-shared secret (aka. room name)
     #[clap(short, long)]
@@ -58,6 +59,13 @@ pub struct Args {
     /// end after completion of the first transfer
     #[clap(short, long)]
     one_file: bool,
+}
+
+fn get_username() -> String {
+    get_current_username()
+        .map(|u| u.to_str().unwrap().to_string())
+        .unwrap_or("guest".to_string())
+        .to_owned()
 }
 
 async fn run() {
