@@ -60,7 +60,7 @@ export function register_prefs<T extends Record<string, PrefDecl<unknown>>>(ds: 
     return { prefs, explicit }
 }
 
-window["change_pref" as "onbeforeprint"] = change_pref as () => void // TODO ugly
+globalThis["change_pref" as "onbeforeprint"] = change_pref as () => void // TODO ugly
 export function change_pref<T extends keyof typeof PREFS>(key: T, value: typeof PREFS[T]) {
     log("*", `pref changed: ${key}`)
     PREFS[key] = value
