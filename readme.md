@@ -9,7 +9,7 @@ a simple secure web conferencing application
   - Microphone
   - Screen capture
   - Files
-- End-to-end-encryption (including p2p negotiation, chat and p2p traffic)
+- End-to-end-encryption (including chat, p2p negotiation)
 - Peer-to-peer data transmission
 - Multiple streams of any type
 - Noise suppression (using RNNoise)
@@ -17,12 +17,13 @@ a simple secure web conferencing application
 - Chat (supports text and images)
 - Minimal user-interface
 - Should work with screen readers
+- Easy Installation through a single binary with a decently small resource
+  footprint. (Ca. 9MB binary and about the same memory usage.)
 
 ## Licence
 
-Licensed under the terms of the GNU Affero General Public License version 3 only
-with exception of the icons found withing `client-web/assets/icons`, which are
-Apache-2.0 licensed. See [COPYING](./COPYING).
+keks-meet is licensed under the terms of the GNU Affero General Public License
+version 3 only. See [COPYING](./COPYING).
 
 ## Usage
 
@@ -38,27 +39,28 @@ make install-server # binaries will be installed to ~/.cargo/bin
 keks-meet-server config/default.toml
 ```
 
-When changing code, use `make watch` to re-build things automatically as needed.
-(requires `cargo install systemfd cargo-watch`)
+The server's bind address can be controlled using the `BIND` environment
+variable. When compiling without debug assertions (release) all assets are
+embedded into the binary; This is a speedup and allows the server to run from
+just the binary and the configuration.
 
 The server takes a path to the configuration file as its first argument unless
 the `embed_config` feature is used. In that case, the configuration is read from
 `config/config.toml` and embedded into the server binary.
 
-The server's bind address can be controlled using the `BIND` environment
-variable. When compilin without debug assertions (release) all assets are
-embedded into the binary; This is a speedup and allows the server to run from
-just the binary.
+When changing code, use `make watch` to re-build things automatically as needed.
+(requires `cargo install systemfd cargo-watch`)
 
-If you use this project or have any suggestions, please
-[contact me](https://metamuffin.org/contact)
+If you use this project or have any suggestions, dont hesitate to
+[contact me](https://metamuffin.org/contact) or open an issue.
 
 ## _Rift_
 
 _Rift_ is similar to the
 [magic wormhole](https://github.com/magic-wormhole/magic-wormhole), except that
-it's peer-to-peer. It reuses the keks-meet signaling protocol to establish a
-WebRTC data channel.
+it's peer-to-peer and intends to provide better security. It reuses the
+keks-meet signaling protocol to establish a WebRTC data channel for the file
+transfer.
 
 ```sh
 pacman -S --needed rustup; rustup install nightly
@@ -78,9 +80,9 @@ system works as follows:
 
 - The room name is set in the section of the URL which is not sent to the
   server.
-- The server receives a salted SHA-256 hash of the room name to group clients of
+- The server receives a salted SHA-512 hash of the room name to group clients of
   a room.
-- The client uses PBKDF2 (constant salt; 250000 iterations) to derive a 256-bit
+- The client uses PBKDF2 (constant salt; 250000 iterations) to derive a 512-bit
   AES-GCM key from the room name.
 - All relayed message contents are encrypted with this key.
   - Message recipient is visible to the server
