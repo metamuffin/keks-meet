@@ -27,6 +27,7 @@ pub struct Peer {
     pub inst: Arc<Instance>,
     pub peer_connection: RTCPeerConnection,
     pub remote_provided: RwLock<HashMap<String, ProvideInfo>>,
+    pub username: RwLock<Option<String>>,
     pub id: usize,
 }
 
@@ -63,6 +64,7 @@ impl Peer {
             remote_provided: Default::default(),
             inst: inst.clone(),
             peer_connection,
+            username: Default::default(),
             id,
         });
         peer.peer_connection
@@ -199,7 +201,8 @@ impl Peer {
             }
             RelayMessage::Chat(_) => (),
             RelayMessage::Identify { username } => {
-                info!("peer {} is known as {username:?}", self.id)
+                info!("peer {} is known as {username:?}", self.id);
+                *self.username.write().await = Some(username);
             }
             RelayMessage::Request { id } => {
                 if let Some(res) = self.inst.local_resources.read().await.get(&id) {

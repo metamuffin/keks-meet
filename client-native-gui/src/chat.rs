@@ -5,7 +5,7 @@
 */
 use crate::GuiPeer;
 use async_std::task::block_on;
-use client_native_lib::{
+use libkeks::{
     instance::Instance,
     protocol::{ChatMesssage, RelayMessage},
 };

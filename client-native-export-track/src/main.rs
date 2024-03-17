@@ -5,7 +5,7 @@
 */
 
 use clap::Parser;
-use client_native_lib::{
+use libkeks::{
     instance::Instance,
     peer::{Peer, TransportChannel},
     protocol::ProvideInfo,
@@ -29,7 +29,7 @@ use std::{
 fn main() {
     env_logger::builder()
         .filter_module("keks_meet_export_track", log::LevelFilter::Info)
-        .filter_module("client_native_lib", log::LevelFilter::Info)
+        .filter_module("libkeks", log::LevelFilter::Info)
         .filter_module("webrtc", log::LevelFilter::Error)
         .parse_env("LOG")
         .init();
@@ -87,18 +87,18 @@ struct Handler {
 }
 
 impl EventHandler for Handler {
-    fn peer_join(&self, _peer: Arc<Peer>) -> client_native_lib::DynFut<()> {
+    fn peer_join(&self, _peer: Arc<Peer>) -> libkeks::DynFut<()> {
         Box::pin(async move {})
     }
 
-    fn peer_leave(&self, _peer: Arc<Peer>) -> client_native_lib::DynFut<()> {
+    fn peer_leave(&self, _peer: Arc<Peer>) -> libkeks::DynFut<()> {
         Box::pin(async move {})
     }
 
     fn resource_added(
         &self,
         peer: Arc<Peer>,
-        info: client_native_lib::protocol::ProvideInfo,
+        info: libkeks::protocol::ProvideInfo,
     ) -> DynFut<()> {
         let id = info.id.clone();
         let r = self.requested_track.clone();
@@ -120,7 +120,7 @@ impl EventHandler for Handler {
         peer: Arc<Peer>,
         _resource: &ProvideInfo,
         channel: TransportChannel,
-    ) -> client_native_lib::DynFut<()> {
+    ) -> libkeks::DynFut<()> {
         let peer = Arc::downgrade(&peer);
         let args = Arc::downgrade(&self._args);
         Box::pin(async move {

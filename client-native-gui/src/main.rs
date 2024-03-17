@@ -10,7 +10,7 @@ use anyhow::bail;
 use async_std::task::block_on;
 use chat::Chat;
 use clap::Parser;
-use client_native_lib::{
+use libkeks::{
     instance::Instance,
     peer::Peer,
     protocol::{ProvideInfo, RelayMessage},
@@ -55,7 +55,7 @@ struct Args {
 async fn main() {
     env_logger::builder()
         .filter_module("keks_meet", log::LevelFilter::Info)
-        .filter_module("client_native_lib", log::LevelFilter::Info)
+        .filter_module("libkeks", log::LevelFilter::Info)
         .parse_env("LOG")
         .init();
 
@@ -264,8 +264,8 @@ impl GuiPeer {
 impl EventHandler for Handler {
     fn peer_join(
         &self,
-        peer: std::sync::Arc<client_native_lib::peer::Peer>,
-    ) -> client_native_lib::DynFut<()> {
+        peer: std::sync::Arc<libkeks::peer::Peer>,
+    ) -> libkeks::DynFut<()> {
         self.peers.write().unwrap().insert(
             peer.id,
             Arc::new(RwLock::new(GuiPeer {
@@ -279,17 +279,17 @@ impl EventHandler for Handler {
 
     fn peer_leave(
         &self,
-        peer: std::sync::Arc<client_native_lib::peer::Peer>,
-    ) -> client_native_lib::DynFut<()> {
+        peer: std::sync::Arc<libkeks::peer::Peer>,
+    ) -> libkeks::DynFut<()> {
         self.peers.write().unwrap().remove(&peer.id);
         Box::pin(async move {})
     }
 
     fn resource_added(
         &self,
-        peer: std::sync::Arc<client_native_lib::peer::Peer>,
-        info: client_native_lib::protocol::ProvideInfo,
-    ) -> client_native_lib::DynFut<()> {
+        peer: std::sync::Arc<libkeks::peer::Peer>,
+        info: libkeks::protocol::ProvideInfo,
+    ) -> libkeks::DynFut<()> {
         if let Some(gp) = self.peers.write().unwrap().get_mut(&peer.id) {
             gp.write().unwrap().resources.insert(
                 info.id.clone(),
@@ -304,9 +304,9 @@ impl EventHandler for Handler {
 
     fn resource_removed(
         &self,
-        peer: std::sync::Arc<client_native_lib::peer::Peer>,
+        peer: std::sync::Arc<libkeks::peer::Peer>,
         id: String,
-    ) -> client_native_lib::DynFut<()> {
+    ) -> libkeks::DynFut<()> {
         if let Some(gp) = self.peers.write().unwrap().get_mut(&peer.id) {
             gp.write().unwrap().resources.remove(&id);
         }
@@ -315,10 +315,10 @@ impl EventHandler for Handler {
 
     fn resource_connected(
         &self,
-        peer: std::sync::Arc<client_native_lib::peer::Peer>,
-        resource: &client_native_lib::protocol::ProvideInfo,
-        channel: client_native_lib::peer::TransportChannel,
-    ) -> client_native_lib::DynFut<()> {
+        peer: std::sync::Arc<libkeks::peer::Peer>,
+        resource: &libkeks::protocol::ProvideInfo,
+        channel: libkeks::peer::TransportChannel,
+    ) -> libkeks::DynFut<()> {
         if let Some(gp) = self.peers.write().unwrap().get(&peer.id) {
             let mut gp = gp.write().unwrap();
             let peer = gp.peer.clone();
@@ -326,13 +326,13 @@ impl EventHandler for Handler {
                 let state = gr.state.clone();
                 *gr.state.write().unwrap() = GuiResourceState::Connected;
                 match channel {
-                    client_native_lib::peer::TransportChannel::Track(track) => {
+                    libkeks::peer::TransportChannel::Track(track) => {
                         tokio::task::spawn_blocking(move || {
                             play(peer, track);
                             *state.write().unwrap() = GuiResourceState::Available;
                         });
                     }
-                    client_native_lib::peer::TransportChannel::DataChannel(_) => {
+                    libkeks::peer::TransportChannel::DataChannel(_) => {
                         warn!("cant handle data channel yet")
                     }
                 }
@@ -344,8 +344,8 @@ impl EventHandler for Handler {
     fn on_relay(
         &self,
         peer: Arc<Peer>,
-        message: &client_native_lib::protocol::RelayMessage,
-    ) -> client_native_lib::DynFut<()> {
+        message: &libkeks::protocol::RelayMessage,
+    ) -> libkeks::DynFut<()> {
         let guard = self.peers.read().unwrap();
         let mut p = guard.get(&peer.id).unwrap().write().unwrap();
         match message.clone() {
