@@ -4,12 +4,13 @@
     Copyright (C) 2023 metamuffin <metamuffin.org>
 */
 #![allow(clippy::type_complexity)]
+pub mod command;
 pub mod file;
 pub mod port;
+pub mod repl;
 
-use anyhow::bail;
+use crate::command::dispatch_command;
 use clap::{ColorChoice, Parser};
-use file::{DownloadHandler, FileSender};
 use libkeks::{
     instance::Instance,
     peer::{Peer, TransportChannel},
@@ -18,13 +19,11 @@ use libkeks::{
     Config, DynFut, EventHandler,
 };
 use log::{error, info, trace, warn};
-use port::{ForwardHandler, PortExposer};
-use rustyline::{error::ReadlineError, DefaultEditor};
+use repl::repl;
 use std::{
-    collections::HashMap, future::Future, os::unix::prelude::MetadataExt, path::PathBuf, pin::Pin,
-    process::exit, sync::Arc,
+    collections::HashMap, future::Future, path::PathBuf, pin::Pin, process::exit, sync::Arc,
 };
-use tokio::{fs, net::TcpListener, sync::RwLock};
+use tokio::sync::RwLock;
 use users::get_current_username;
 
 fn main() {
@@ -64,6 +63,11 @@ pub struct Args {
 pub enum Command {
     /// List all peers and their services.
     List,
+    /// Stop providing a services by ID.
+    Stop {
+        // IDs of the services to stop. If ommited, all services are stopped.
+        ids: Vec<String>,
+    },
     /// Provide a file for download to other peers
     Provide { path: PathBuf, id: Option<String> },
     /// Download another peer's files.
@@ -128,142 +132,11 @@ async fn run() -> anyhow::Result<()> {
         };
         info!("done");
     }
-    let mut rl = DefaultEditor::new()?;
-    loop {
-        match rl.readline("> ") {
-            Ok(line) => match shlex::split(&line) {
-                Some(tokens) => match Command::try_parse_from(tokens) {
-                    Ok(command) => match dispatch_command(&inst, &state, command).await {
-                        Ok(()) => (),
-                        Err(err) => error!("{err}"),
-                    },
-                    Err(err) => err.print().unwrap(),
-                },
-                None => warn!("fix your quoting"),
-            },
-            Err(ReadlineError::Eof) => {
-                info!("exit");
-                break;
-            }
-            Err(ReadlineError::Interrupted) => {
-                info!("interrupted; exiting...");
-                break;
-            }
-            Err(e) => Err(e)?,
-        }
-    }
+    tokio::task::spawn_blocking(move || repl(inst, state))
+        .await?
+        .await?;
 
     Ok(())
-}
-
-async fn dispatch_command(
-    inst: &Arc<Instance>,
-    state: &Arc<RwLock<State>>,
-    command: Command,
-) -> anyhow::Result<()> {
-    match command {
-        Command::List => {
-            let peers = inst.peers.read().await;
-            println!("{} clients available", peers.len());
-            for p in peers.values() {
-                let username = p
-                    .username
-                    .read()
-                    .await
-                    .clone()
-                    .unwrap_or("<unknown>".to_string());
-                println!("{username}:");
-                for (rid, r) in p.remote_provided.read().await.iter() {
-                    println!(
-                        "\t{rid:?}: {} {:?}",
-                        r.kind,
-                        r.label.clone().unwrap_or_default()
-                    )
-                }
-            }
-        }
-        Command::Provide { path, id } => {
-            inst.add_local_resource(Box::new(FileSender {
-                info: ProvideInfo {
-                    id: id.unwrap_or("file".to_owned()),
-                    kind: "file".to_string(),
-                    track_kind: None,
-                    label: Some(path.file_name().unwrap().to_str().unwrap().to_string()),
-                    size: Some(fs::metadata(&path).await.unwrap().size() as usize),
-                },
-                path: path.into(),
-            }))
-            .await;
-        }
-        Command::Download { id, path } => {
-            let (peer, _resource) = find_id(inst, id.clone(), "file").await?;
-            state
-                .write()
-                .await
-                .requested
-                .insert(id.clone(), Box::new(DownloadHandler { path }));
-            peer.request_resource(id).await;
-        }
-        Command::Expose { port, id } => {
-            inst.add_local_resource(Box::new(PortExposer {
-                port,
-                info: ProvideInfo {
-                    kind: "port".to_string(),
-                    id: id.unwrap_or(format!("p{port}")),
-                    track_kind: None,
-                    label: Some(format!("port {port}")),
-                    size: None,
-                },
-            }))
-            .await;
-        }
-        Command::Forward { id, port } => {
-            let (peer, _resource) = find_id(inst, id.clone(), "port").await?;
-            let state = state.clone();
-            tokio::task::spawn(async move {
-                let Ok(listener) = TcpListener::bind(("127.0.0.1", port.unwrap_or(0))).await else {
-                    error!("cannot bind tcp listener");
-                    return;
-                };
-                info!("tcp listener bound to {}", listener.local_addr().unwrap());
-                while let Ok((stream, addr)) = listener.accept().await {
-                    info!("new connection from {addr:?}");
-                    state.write().await.requested.insert(
-                        id.clone(),
-                        Box::new(ForwardHandler {
-                            stream: Arc::new(RwLock::new(Some(stream))),
-                        }),
-                    );
-                    peer.request_resource(id.clone()).await;
-                }
-            });
-        }
-        Command::Chat { message } => {
-            inst.send_relay(None, RelayMessage::Chat(ChatMesssage::Text(message)))
-                .await;
-        }
-    }
-    Ok(())
-}
-
-async fn find_id(
-    inst: &Arc<Instance>,
-    id: String,
-    kind: &str,
-) -> anyhow::Result<(Arc<Peer>, ProvideInfo)> {
-    let peers = inst.peers.read().await;
-    for peer in peers.values() {
-        for (rid, r) in peer.remote_provided.read().await.iter() {
-            if rid == &id {
-                if r.kind == kind {
-                    return Ok((peer.to_owned(), r.to_owned()));
-                } else {
-                    bail!("wrong type: expected {kind:?}, found {:?}", r.kind)
-                }
-            }
-        }
-    }
-    bail!("id not found")
 }
 
 impl EventHandler for Handler {

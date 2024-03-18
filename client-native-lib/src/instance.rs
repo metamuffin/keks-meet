@@ -181,11 +181,15 @@ impl Instance {
             .await
             .insert(res.info().id, res);
     }
-    pub async fn remove_local_resource(&self, id: String) {
-        self.local_resources.write().await.remove(&id);
-        for (_pid, peer) in self.peers.read().await.iter() {
-            peer.send_relay(RelayMessage::ProvideStop { id: id.clone() })
-                .await;
+    pub async fn remove_local_resource(&self, id: String) -> bool {
+        if let Some(_) = self.local_resources.write().await.remove(&id) {
+            for (_pid, peer) in self.peers.read().await.iter() {
+                peer.send_relay(RelayMessage::ProvideStop { id: id.clone() })
+                    .await;
+            }
+            true
+        } else {
+            false
         }
     }
 }
