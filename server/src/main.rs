@@ -14,15 +14,15 @@ use crate::protocol::ClientboundPacket;
 use assets::css;
 use config::{AppearanceConfig, Config};
 use futures_util::{SinkExt, StreamExt, TryFutureExt};
-use hyper::{header, StatusCode};
 use listenfd::ListenFd;
 use log::{debug, error, warn};
 use logic::State;
 use std::convert::Infallible;
 use std::sync::Arc;
+use tokio::net::TcpListener;
 use tokio::sync::mpsc;
+use warp::http::StatusCode;
 use warp::{
-    hyper::Server,
     reply,
     ws::{Message, WebSocket},
     Filter, Rejection, Reply,
@@ -84,7 +84,7 @@ async fn run() {
     let old_format_redirect: _ = warp::path!("room" / String).map(|rsecret| {
         reply::with_header(
             StatusCode::MOVED_PERMANENTLY,
-            header::LOCATION,
+            "location",
             format!("/room#{rsecret}?warn_redirect=true"),
         )
         .into_response()
@@ -119,19 +119,19 @@ async fn run() {
 
     // if listender fd is passed from the outside world, use it.
     let mut listenfd = ListenFd::from_env();
-    let server = if let Some(l) = listenfd.take_tcp_listener(0).unwrap() {
-        Server::from_tcp(l).unwrap()
+    if let Some(l) = listenfd.take_tcp_listener(0).unwrap() {
+        l.set_nonblocking(true).unwrap();
+        let l = TcpListener::from_std(l).unwrap();
+        warp::serve(routes)
+            .run_incoming(async_stream::stream! {
+                loop {
+                    yield l.accept().await.map(|(conn,_addr)| conn);
+                }
+            })
+            .await;
     } else {
-        Server::bind(&config.server.bind)
+        warp::serve(routes).run(config.server.bind).await;
     };
-    let service = warp::service(routes);
-    server
-        .serve(hyper::service::make_service_fn(|_| {
-            let service = service.clone();
-            async move { Ok::<_, Infallible>(service) }
-        }))
-        .await
-        .unwrap();
 }
 
 async fn handle_rejection(err: Rejection) -> Result<impl Reply, Infallible> {
