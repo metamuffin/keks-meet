@@ -10,6 +10,8 @@ use anyhow::bail;
 use async_std::task::block_on;
 use chat::Chat;
 use clap::Parser;
+use crossbeam_channel::Sender;
+use egui::{ScrollArea, Ui, Visuals};
 use libkeks::{
     instance::Instance,
     peer::Peer,
@@ -24,9 +26,6 @@ use libkeks::{
     },
     Config, EventHandler,
 };
-use crossbeam_channel::Sender;
-use eframe::egui;
-use egui::{ScrollArea, Ui, Visuals};
 use log::{debug, error, warn};
 use std::{
     collections::{HashMap, VecDeque},
@@ -158,7 +157,7 @@ impl eframe::App for App {
 
 impl Inroom {
     pub async fn new(config: Config, secret: &str) -> Self {
-        let handler = Arc::new(Handler::new());
+        let handler = Arc::new(Handler::default());
         let instance = Instance::new(config, handler.clone()).await;
         instance.spawn_ping().await;
         {
@@ -244,8 +243,8 @@ impl GuiResource {
     }
 }
 
-impl Handler {
-    pub fn new() -> Self {
+impl Default for Handler {
+    fn default() -> Self {
         Self {
             k: RwLock::new(None),
             peers: Default::default(),
@@ -262,10 +261,7 @@ impl GuiPeer {
 }
 
 impl EventHandler for Handler {
-    fn peer_join(
-        &self,
-        peer: std::sync::Arc<libkeks::peer::Peer>,
-    ) -> libkeks::DynFut<()> {
+    fn peer_join(&self, peer: std::sync::Arc<libkeks::peer::Peer>) -> libkeks::DynFut<()> {
         self.peers.write().unwrap().insert(
             peer.id,
             Arc::new(RwLock::new(GuiPeer {
@@ -277,10 +273,7 @@ impl EventHandler for Handler {
         Box::pin(async move {})
     }
 
-    fn peer_leave(
-        &self,
-        peer: std::sync::Arc<libkeks::peer::Peer>,
-    ) -> libkeks::DynFut<()> {
+    fn peer_leave(&self, peer: std::sync::Arc<libkeks::peer::Peer>) -> libkeks::DynFut<()> {
         self.peers.write().unwrap().remove(&peer.id);
         Box::pin(async move {})
     }
@@ -411,6 +404,7 @@ pub fn play(peer: Arc<Peer>, track: Arc<TrackRemote>) {
         debug!("mpv open: {uri}");
         state.clone()
     }
+    #[allow(clippy::boxed_local)]
     fn close(state: Box<State>) {
         let _ = state.1.send(());
         debug!("mpv close");
@@ -488,7 +482,7 @@ async fn track_to_raw(
                 if !packet.payload.is_empty() {
                     let raw_payload = cached_packet.depacketize(&packet.payload)?;
                     // let raw_payload = packet.payload;
-                    if raw_payload.len() != 0 {
+                    if raw_payload.is_empty() {
                         debug!("writing {} bytes", raw_payload.len());
 
                         let mut target = target.write().unwrap();
@@ -508,7 +502,7 @@ async fn track_to_raw(
                 if !packet.payload.is_empty() {
                     let raw_payload = cached_packet.depacketize(&packet.payload)?;
                     // let raw_payload = packet.payload;
-                    if raw_payload.len() != 0 {
+                    if raw_payload.is_empty() {
                         debug!("writing {} bytes", raw_payload.len());
 
                         let mut target = target.write().unwrap();

@@ -17,6 +17,7 @@ use std::{
 use tokio::sync::{mpsc::Sender, RwLock};
 use warp::ws::WebSocket;
 
+#[allow(clippy::redundant_closure)]
 static CLIENTS: LazyLock<RwLock<HashMap<Client, Sender<ClientboundPacket>>>> =
     LazyLock::new(|| Default::default());
 
@@ -141,7 +142,7 @@ impl State {
                 let mut w = self.watches.write().await;
                 let r = self.rooms.read().await;
 
-                for e in list.to_owned() {
+                for e in list.iter().cloned() {
                     w.entry(e.to_string()).or_default().insert(client);
                     if let Some(r) = r.get(&e) {
                         client
@@ -170,7 +171,7 @@ impl State {
 
 impl Client {
     pub async fn send(&self, packet: ClientboundPacket) {
-        if let Some(s) = CLIENTS.read().await.get(&self) {
+        if let Some(s) = CLIENTS.read().await.get(self) {
             s.send(packet).await.unwrap();
         } else {
             warn!("invalid recipient {self:?}")

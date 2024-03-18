@@ -46,9 +46,9 @@ impl Instance {
 
     pub async fn join(&self, secret: Option<&str>) {
         info!("join room {secret:?}");
-        *self.key.write().await = secret.map(|secret| crypto::Key::derive(&secret));
+        *self.key.write().await = secret.map(crypto::Key::derive);
         self.send_packet(ServerboundPacket::Join {
-            hash: secret.map(|secret| hash(secret)),
+            hash: secret.map(hash),
         })
         .await;
     }
@@ -104,11 +104,9 @@ impl Instance {
             protocol::ClientboundPacket::ClientLeave { id } => {
                 if id == self.my_id().await {
                     // we left
-                } else {
-                    if let Some(peer) = self.peers.write().await.remove(&id) {
-                        peer.on_leave().await;
-                        self.event_handler.peer_leave(peer).await;
-                    }
+                } else if let Some(peer) = self.peers.write().await.remove(&id) {
+                    peer.on_leave().await;
+                    self.event_handler.peer_leave(peer).await;
                 }
             }
             protocol::ClientboundPacket::Message { sender, message } => {

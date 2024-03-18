@@ -12,8 +12,8 @@ use log::info;
 
 pub struct Key(Aes256Gcm);
 
-const CRYPTO_SALT: &'static str = "keksmeet/cryptosaltAAA==";
-const HASH_SALT: &'static str = "keksmeet/roomhashsaltA==";
+const CRYPTO_SALT: &str = "keksmeet/cryptosaltAAA==";
+const HASH_SALT: &str = "keksmeet/roomhashsaltA==";
 
 impl Key {
     pub fn derive(secret: &str) -> Self {

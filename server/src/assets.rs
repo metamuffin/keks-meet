@@ -63,9 +63,7 @@ struct GrassFs;
 #[cfg(debug_assertions)]
 impl GrassFs {
     pub fn map(p: &std::path::Path) -> std::path::PathBuf {
-        std::path::PathBuf::try_from("../client-web/style")
-            .unwrap()
-            .join(p.file_name().unwrap())
+        std::path::PathBuf::from("../client-web/style").join(p.file_name().unwrap())
     }
 }
 #[cfg(debug_assertions)]

@@ -3,7 +3,7 @@
     which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
     Copyright (C) 2023 metamuffin <metamuffin.org>
 */
-
+#![allow(clippy::type_complexity)]
 pub mod file;
 pub mod port;
 

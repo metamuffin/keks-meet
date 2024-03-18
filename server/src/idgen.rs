@@ -5,16 +5,9 @@
 */
 use tokio::sync::RwLock;
 
+#[derive(Default)]
 pub struct IdGenerator {
     x: RwLock<u64>,
-}
-
-impl Default for IdGenerator {
-    fn default() -> Self {
-        Self {
-            x: Default::default(),
-        }
-    }
 }
 impl IdGenerator {
     pub async fn generate(&self) -> u64 {

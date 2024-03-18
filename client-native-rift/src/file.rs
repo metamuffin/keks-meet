@@ -126,11 +126,10 @@ impl RequestHandler for DownloadHandler {
                 .label
                 .clone()
                 .unwrap_or("download".to_owned())
-                .replace("/", "_")
+                .replace('/', "_")
                 .replace("..", "_")
                 .into()
         });
-        if path.exists() {}
         Box::pin(async move {
             let pos = Arc::new(AtomicUsize::new(0));
             let writer: Arc<RwLock<Option<Pin<Box<dyn AsyncWrite + Send + Sync>>>>> =
@@ -178,9 +177,8 @@ impl RequestHandler for DownloadHandler {
                     let writer = writer.clone();
                     let pos = pos.clone();
                     Box::pin(async move {
-                        // TODO
                         if mesg.is_string {
-                            let s = String::from_utf8((&mesg.data).to_vec()).unwrap();
+                            let s = String::from_utf8(mesg.data.to_vec()).unwrap();
                             if &s == "end" {
                                 info!("transfer complete")
                             }

@@ -4,6 +4,7 @@
     Copyright (C) 2023 metamuffin <metamuffin.org>
 */
 #![feature(lazy_cell)]
+#![allow(clippy::let_with_type_underscore)]
 pub mod assets;
 pub mod config;
 pub mod idgen;
@@ -137,9 +138,12 @@ async fn run() {
 async fn handle_rejection(err: Rejection) -> Result<impl Reply, Infallible> {
     let code = if err.is_not_found() {
         StatusCode::NOT_FOUND
-    } else if let Some(_) = err.find::<warp::filters::body::BodyDeserializeError>() {
+    } else if err
+        .find::<warp::filters::body::BodyDeserializeError>()
+        .is_some()
+    {
         StatusCode::BAD_REQUEST
-    } else if let Some(_) = err.find::<warp::reject::MethodNotAllowed>() {
+    } else if err.find::<warp::reject::MethodNotAllowed>().is_some() {
         StatusCode::METHOD_NOT_ALLOWED
     } else {
         error!("unhandled rejection: {:?}", err);
