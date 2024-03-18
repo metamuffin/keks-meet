@@ -13,11 +13,11 @@ use file::{DownloadHandler, FileSender};
 use libkeks::{
     instance::Instance,
     peer::{Peer, TransportChannel},
-    protocol::ProvideInfo,
+    protocol::{ChatMesssage, ProvideInfo, RelayMessage},
     webrtc::data_channel::RTCDataChannel,
     Config, DynFut, EventHandler,
 };
-use log::{error, info, warn};
+use log::{error, info, trace, warn};
 use port::{ForwardHandler, PortExposer};
 use rustyline::{error::ReadlineError, DefaultEditor};
 use std::{
@@ -31,6 +31,7 @@ fn main() {
     pretty_env_logger::formatted_builder()
         .filter_module("rift", log::LevelFilter::Info)
         .filter_module("libkeks", log::LevelFilter::Info)
+        .filter_module("chat", log::LevelFilter::Trace)
         .parse_env("LOG")
         .init();
     tokio::runtime::Builder::new_multi_thread()
@@ -71,6 +72,8 @@ pub enum Command {
     Expose { port: u16, id: Option<String> },
     /// Forward TCP connections to local port to another peer.
     Forward { id: String, port: Option<u16> },
+    /// Send a message in the room chat.
+    Chat { message: String },
 }
 
 struct State {
@@ -128,12 +131,15 @@ async fn run() -> anyhow::Result<()> {
     let mut rl = DefaultEditor::new()?;
     loop {
         match rl.readline("> ") {
-            Ok(line) => match Command::try_parse_from(shlex::split(&line).unwrap()) {
-                Ok(command) => match dispatch_command(&inst, &state, command).await {
-                    Ok(()) => (),
-                    Err(err) => error!("{err}"),
+            Ok(line) => match shlex::split(&line) {
+                Some(tokens) => match Command::try_parse_from(tokens) {
+                    Ok(command) => match dispatch_command(&inst, &state, command).await {
+                        Ok(()) => (),
+                        Err(err) => error!("{err}"),
+                    },
+                    Err(err) => err.print().unwrap(),
                 },
-                Err(err) => err.print().unwrap(),
+                None => warn!("fix your quoting"),
             },
             Err(ReadlineError::Eof) => {
                 info!("exit");
@@ -232,6 +238,10 @@ async fn dispatch_command(
                 }
             });
         }
+        Command::Chat { message } => {
+            inst.send_relay(None, RelayMessage::Chat(ChatMesssage::Text(message)))
+                .await;
+        }
     }
     Ok(())
 }
@@ -273,7 +283,24 @@ impl EventHandler for Handler {
     fn resource_removed(&self, _peer: Arc<Peer>, _id: String) -> DynFut<()> {
         Box::pin(async move {})
     }
-
+    fn on_relay(&self, peer: Arc<Peer>, message: &RelayMessage) -> DynFut<()> {
+        let message = message.to_owned();
+        Box::pin(async move {
+            match message {
+                RelayMessage::Chat(ChatMesssage::Text(message)) => {
+                    let username = peer
+                        .username
+                        .read()
+                        .await
+                        .clone()
+                        .unwrap_or("<unknown>".to_string());
+                    let path = format!("chat::{username}");
+                    trace!(target: &path, "{message}");
+                }
+                _ => (),
+            }
+        })
+    }
     fn resource_connected(
         &self,
         _peer: Arc<Peer>,
