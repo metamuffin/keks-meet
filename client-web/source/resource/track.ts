@@ -84,7 +84,7 @@ function create_track_display(target: HTMLElement, track: TrackHandle): HTMLElem
     media_el.addEventListener("pause", () => media_el.play())
 
     if (track.local) media_el.muted = true
-    target.append(media_el)
+    target.prepend(media_el)
     track.addEventListener("ended", () => {
         media_el.srcObject = null // TODO // TODO figure out why i wrote todo here
         media_el.remove()
