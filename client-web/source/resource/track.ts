@@ -81,6 +81,7 @@ function create_track_display(target: HTMLElement, track: TrackHandle): HTMLElem
     media_el.srcObject = stream
     media_el.autoplay = true
     media_el.controls = true
+    media_el.ariaLabel = `${track.kind} stream`
     media_el.addEventListener("pause", () => media_el.play())
 
     if (track.local) media_el.muted = true

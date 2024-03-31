@@ -7,7 +7,7 @@
 
 import { e } from "./helper.ts";
 
-export const LOGGER_CONTAINER = e("div", { class: "logger-container" })
+export const LOGGER_CONTAINER = e("div", { class: "logger-container", role: "log", aria_live: "off" })
 
 const log_scope_color = {
     "*": "#ff4a7c",

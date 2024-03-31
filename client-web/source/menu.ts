@@ -48,7 +48,14 @@ export function control_bar(state: AppState, side_ui_container: HTMLElement): HT
         e("button", { icon: "file", onclick: () => state.room?.local_user.await_add_resource(create_file_res()) }, "File"),
     ]
     chat_control = chat.set_state;
-    return e("nav", { class: "control-bar" }, leave, "|", chat.el, prefs.el, rwatches.el, "|", ...local_controls)
+    return e("nav", { class: "control-bar" },
+        leave,
+        e("span", { role: "separator" }, "|"),
+        chat.el,
+        prefs.el,
+        rwatches.el,
+        e("span", { role: "separator" }, "|"),
+        ...local_controls)
 }
 
 export interface SideUI { el: HTMLElement, set_state: (s?: boolean) => void }
@@ -56,49 +63,49 @@ let close_active: (() => void) | undefined;
 let cancel_slide: number | undefined
 export function side_ui(container: HTMLElement, content: HTMLElement, icon: string, label: string, handlers = { focus() { } }): SideUI {
     const tray = e("div", { class: "side-tray" }, content)
-    let last_state = false;
-    const checkbox = e("input", {
-        type: "checkbox",
-        onchange: async () => {
-            if (last_state == checkbox.checked) return
-            if (checkbox.checked) {
-                el.classList.add("checked")
-                if (close_active) {
-                    close_active()
-                    await sleep(200)
-                }
-                close_active = () => set_state(false)
-                if (cancel_slide) {
-                    clearTimeout(cancel_slide)
-                    cancel_slide = undefined
-                    tray.classList.remove("animate-out")
-                }
-                tray.classList.add("animate-in")
-                container.appendChild(tray)
-                cancel_slide = setTimeout(() => {
-                    handlers.focus()
-                }, 200)
-            } else {
-                el.classList.remove("checked")
-                close_active = undefined
-                if (cancel_slide) {
-                    clearTimeout(cancel_slide)
-                    cancel_slide = undefined
-                }
-                tray.classList.remove("animate-in")
-                tray.classList.add("animate-out")
-                cancel_slide = setTimeout(() => {
-                    tray.classList.remove("animate-out")
-                    container.removeChild(tray)
-                }, 200)
+    let checked = false;
+    const el = e("button", {
+        class: "side-ui-control",
+        icon,
+        onclick: () => set_state()
+    }, label)
+    const set_state = async (s?: boolean) => {
+        if (s == checked) return
+        checked = s ?? !checked
+        if (checked) {
+            el.classList.add("checked")
+            el.ariaPressed = "false";
+            if (close_active) {
+                close_active()
+                await sleep(200)
             }
-            last_state = checkbox.checked;
+            close_active = () => set_state(false)
+            if (cancel_slide) {
+                clearTimeout(cancel_slide)
+                cancel_slide = undefined
+                tray.classList.remove("animate-out")
+            }
+            tray.classList.add("animate-in")
+            container.appendChild(tray)
+            cancel_slide = setTimeout(() => {
+                handlers.focus()
+            }, 200)
+        } else {
+            el.classList.remove("checked")
+            el.ariaPressed = "true";
+            close_active = undefined
+            if (cancel_slide) {
+                clearTimeout(cancel_slide)
+                cancel_slide = undefined
+            }
+            tray.classList.remove("animate-in")
+            tray.classList.add("animate-out")
+            cancel_slide = setTimeout(() => {
+                tray.classList.remove("animate-out")
+                container.removeChild(tray)
+            }, 200)
         }
-    })
-    const set_state = (s: boolean | undefined) => {
-        checkbox.checked = s ?? !checkbox.checked;
-        if (checkbox.onchange) checkbox.onchange(undefined as unknown as Event)
     }
-    const el = e("label", { class: "side-ui-control", icon }, label, checkbox)
+    el.ariaPressed = "false"
     return { el, set_state }
 }

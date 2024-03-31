@@ -94,7 +94,7 @@ export function ui_preferences(): HTMLElement {
     const table = document.createElement("table")
     table.append(...rows)
 
-    return e("div", { class: "preferences" },
+    return e("div", { class: "preferences", role: "dialog", aria_label: "settings" },
         e("h2", {}, "Settings"),
         notification_perm, e("br", {}),
         table, e("br", {}),

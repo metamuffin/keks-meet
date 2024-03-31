@@ -17,9 +17,9 @@ interface Opts<E> {
     alt?: string,
     onclick?: (e: E) => void,
     onchange?: (e: E) => void,
-    role?: "dialog"
+    role?: "dialog" | "separator" | "switch" | "button" | "log" | "group",
     aria_label?: string
-    aria_live?: "polite" | "assertive"
+    aria_live?: "polite" | "assertive" | "off",
     aria_modal?: boolean
     aria_popup?: "menu"
     icon?: string,
@@ -36,6 +36,7 @@ function apply_opts<E extends HTMLElement>(el: E, o: Opts<E>) {
     if (o.alt !== undefined && el instanceof HTMLImageElement) el.alt = o.alt;
     if (typeof o?.class == "string") el.classList.add(o.class)
     if (typeof o?.class == "object") el.classList.add(...o.class)
+    if (o.role) el.role = o.role;
     if (o.aria_modal) el.ariaModal = "true"
     if (o.aria_popup) el.ariaHasPopup = o.aria_popup
     if (o.aria_label) el.ariaLabel = o.aria_label

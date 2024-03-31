@@ -41,7 +41,7 @@ export function ui_room_watches(conn: SignalingConnection): HTMLElement {
     })
 
     let edit = false;
-
+    
     const update_listing = () => {
         listing.innerHTML = ""
         for (let wi = 0; wi < watches.length; wi++) {
@@ -96,7 +96,7 @@ export function ui_room_watches(conn: SignalingConnection): HTMLElement {
         button_finish.hidden = !e;
         edit = e;
     }
-    return e("div", { class: "room-watches" },
+    return e("div", { class: "room-watches", role: "dialog", aria_label: "known rooms" },
         e("h2", {}, "Known Rooms"),
         listing,
         button_edit = e("button", {
