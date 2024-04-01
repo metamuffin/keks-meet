@@ -17,34 +17,34 @@ const string = "", bool = false, number = 0; // example types for ts
 const optional = <T>(a: T): T | undefined => a
 
 export const PREF_DECLS = {
-    username: { type: string, default: "guest-" + hex_id(), description: "Username", allow_url: true },
-    language: { type: optional(string), possible_values: Object.keys(LOCALES), description: "Interface Language", allow_url: true },
-    warn_redirect: { type: bool, hidden: true, default: false, description: "Internal option that is set by a server redirect.", allow_url: true },
-    image_view_popup: { type: bool, default: true, description: "Open image in popup instead of new tab" },
-    webrtc_debug: { type: bool, default: false, description: "Show additional information for WebRTC related stuff" },
+    username: { type: string, default: "guest-" + hex_id(), allow_url: true },
+    language: { type: string, possible_values: ["system", ...Object.keys(LOCALES)], default: "system", allow_url: true },
+    warn_redirect: { type: bool, hidden: true, default: false, allow_url: true },
+    image_view_popup: { type: bool, default: true },
+    webrtc_debug: { type: bool, default: false },
 
     /* MEDIA */
-    microphone_enabled: { type: bool, default: false, description: "Add one microphone track on startup" },
-    screencast_enabled: { type: bool, default: false, description: "Add one screencast track on startup" },
-    camera_enabled: { type: bool, default: false, description: "Add one camera track on startup" },
-    rnnoise: { type: bool, default: true, description: "Use RNNoise for noise suppression", allow_url: true },
-    native_noise_suppression: { type: bool, default: false, description: "Suggest the browser to do noise suppression" },
-    microphone_gain: { type: number, default: 1, description: "Amplify microphone volume" },
-    video_fps: { type: number, description: "Preferred framerate (in 1/s) for screencast and camera" },
-    video_resolution: { type: number, description: "Preferred width for screencast and camera" },
-    camera_facing_mode: { type: optional(string), possible_values: ["environment", "user"], description: "Prefer user-facing or env-facing camera" },
-    auto_gain_control: { type: bool, description: "Automatically adjust mic gain" },
-    echo_cancellation: { type: bool, description: "Cancel echo", allow_url: true },
-    audio_activity_threshold: { type: number, optional: true, default: 0.003, description: "Audio activity threshold" },
+    microphone_enabled: { type: bool, default: false },
+    screencast_enabled: { type: bool, default: false },
+    camera_enabled: { type: bool, default: false },
+    rnnoise: { type: bool, default: true, allow_url: true },
+    native_noise_suppression: { type: bool, default: false },
+    microphone_gain: { type: number, default: 1 },
+    video_fps: { type: number },
+    video_resolution: { type: number },
+    camera_facing_mode: { type: optional(string), possible_values: ["environment", "user"] },
+    auto_gain_control: { type: bool },
+    echo_cancellation: { type: bool, allow_url: true },
+    audio_activity_threshold: { type: number, optional: true, default: 0.003 },
 
     // TODO differenciate between mic, cam and screen
-    optional_audio_default_enable: { type: bool, default: true, description: "Enable audio tracks by default" },
-    optional_video_default_enable: { type: bool, default: false, description: "Enable video tracks by default" },
+    optional_audio_default_enable: { type: bool, default: true },
+    optional_video_default_enable: { type: bool, default: false },
 
-    notify_chat: { type: bool, default: true, description: "Send notifications for incoming chat messages", allow_url: true },
-    notify_join: { type: bool, default: true, description: "Send notifications when users join", allow_url: true },
-    notify_leave: { type: bool, default: true, description: "Send notifications when users leave", allow_url: true },
+    notify_chat: { type: bool, default: true, allow_url: true },
+    notify_join: { type: bool, default: true, allow_url: true },
+    notify_leave: { type: bool, default: true, allow_url: true },
 
-    enable_onbeforeunload: { type: bool, default: true, description: "Prompt for confirmation when leaving the site while local resources are active" },
-    room_watches: { type: string, default: "[]", hidden: true, description: "Known rooms (as semicolon seperated list of name=secret pairs)" }
+    enable_onbeforeunload: { type: bool, default: true },
+    room_watches: { type: string, default: "[]", hidden: true }
 }

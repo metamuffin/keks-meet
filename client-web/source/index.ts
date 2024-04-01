@@ -17,7 +17,7 @@ import { Chat } from "./chat.ts"
 import { init_locale } from "./locale/mod.ts";
 import { PO } from "./locale/mod.ts";
 
-export const VERSION = "1.0.3"
+export const VERSION = "1.0.4"
 globalThis.onload = () => main()
 
 export interface ClientConfig {

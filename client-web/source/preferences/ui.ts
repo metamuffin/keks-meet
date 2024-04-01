@@ -18,7 +18,6 @@ export function ui_preferences(): HTMLElement {
         if (decl.possible_values) {
             const sel = document.createElement("select")
             sel.id = id
-            sel.value = JSON.stringify(PREFS[key])
             for (const v of decl.possible_values) {
                 const opt = document.createElement("option")
                 opt.value = opt.textContent = JSON.stringify(v ?? null)
@@ -28,6 +27,7 @@ export function ui_preferences(): HTMLElement {
                 change_pref(key, JSON.parse(sel.value) ?? undefined)
             }
             on_pref_changed(key, () => sel.value = JSON.stringify(PREFS[key] ?? null))
+            sel.value = JSON.stringify(PREFS[key])
             prim_control = sel
         } else if (typeof decl.type == "boolean") {
             const checkbox = document.createElement("input")
@@ -79,7 +79,7 @@ export function ui_preferences(): HTMLElement {
             use_opt_ = use_opt;
         }
 
-        const label = e("label", { for: id }, decl.description ?? `[${key}]`)
+        const label = e("label", { for: id }, PO.setting_descs[key] ?? `[${key}]`)
         return e("tr", { class: "pref" }, e("td", {}, label), e("td", {}, use_opt_ ?? ""), e("td", {}, prim_control ?? ""))
     })
 

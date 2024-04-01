@@ -1,13 +1,17 @@
+import { PO_DE_DE } from "./de.ts";
 import { PO_EN_US } from "./en.ts";
+import { PREF_DECLS } from "../preferences/decl.ts";
 
 export let PO: LanguageStrings;
 
 export function init_locale(lang: string) {
+    if (lang == "system") lang = navigator.language
     PO = LOCALES[lang]
 }
 
 export const LOCALES: { [key: string]: LanguageStrings } = {
-    "en-US": PO_EN_US
+    "en-US": PO_EN_US,
+    "de-DE": PO_DE_DE,
 }
 
 export interface LanguageStrings {
@@ -69,4 +73,5 @@ export interface LanguageStrings {
     grant: string,
     status_await_track: string,
     clear_prefs: string,
+    setting_descs: { [key in keyof typeof PREF_DECLS]: string },
 }

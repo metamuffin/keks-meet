@@ -10,7 +10,6 @@ import { PREF_DECLS } from "./decl.ts";
 export interface PrefDecl<T> {
     default?: T,
     type: T,
-    description?: string,
     possible_values?: T[]
     optional?: boolean,
     hidden?: boolean
