@@ -17,7 +17,9 @@ interface Opts<E> {
     alt?: string,
     onclick?: (e: E) => void,
     onchange?: (e: E) => void,
-    role?: "dialog" | "separator" | "switch" | "button" | "log" | "group",
+    onkeydown?: (e: E, ev: KeyboardEvent) => void,
+    onkeyup?: (e: E, ev: KeyboardEvent) => void,
+    role?: "dialog" | "separator" | "switch" | "button" | "log" | "group" | "toolbar",
     aria_label?: string
     aria_live?: "polite" | "assertive" | "off",
     aria_modal?: boolean
@@ -30,6 +32,8 @@ function apply_opts<E extends HTMLElement>(el: E, o: Opts<E>) {
     if (o.id) el.id = o.id
     if (o.onclick) el.onclick = () => o.onclick!(el)
     if (o.onchange) el.onchange = () => o.onchange!(el)
+    if (o.onkeydown) el.onkeydown = ev => o.onkeydown!(el, ev)
+    if (o.onkeyup) el.onkeyup = ev => o.onkeyup!(el, ev)
     if (o.for) (el as unknown as HTMLLabelElement).htmlFor = o.for
     if (o.type && el instanceof HTMLInputElement) el.type = o.type
     if (o.href && el instanceof HTMLAnchorElement) el.href = o.href;

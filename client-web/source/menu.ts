@@ -48,7 +48,22 @@ export function control_bar(state: AppState, side_ui_container: HTMLElement): HT
         e("button", { icon: "file", onclick: () => state.room?.local_user.await_add_resource(create_file_res()) }, "File"),
     ]
     chat_control = chat.set_state;
-    return e("nav", { class: "control-bar" },
+    return e("div", {
+        class: "control-bar",
+        role: "toolbar",
+        aria_label: "Controls",
+        onkeydown: (_el, ev) => {
+            if (ev.code == "ArrowLeft") {
+                let n = document.activeElement?.previousElementSibling
+                if (n instanceof HTMLElement && n.role == "separator") n = n.previousElementSibling
+                if (n instanceof HTMLElement) n.focus()
+            } else if (ev.code == "ArrowRight") {
+                let n = document.activeElement?.nextElementSibling
+                if (n instanceof HTMLElement && n.role == "separator") n = n.nextElementSibling
+                if (n instanceof HTMLElement) n.focus()
+            }
+        }
+    },
         leave,
         e("span", { role: "separator" }, "|"),
         chat.el,
