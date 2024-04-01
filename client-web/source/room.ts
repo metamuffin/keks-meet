@@ -22,7 +22,7 @@ export class Room {
     public destroy: () => void
 
     constructor(public signaling: SignalingConnection, public chat: Chat, public rtc_config: RTCConfiguration) {
-        this.element = e("div", { class: "room", aria_label: "user list" })
+        this.element = e("div", { class: "room", aria_label: "user list", aria_live: "polite" })
         const h1 = ([a, b]: [number, RelayMessage]) => this.relay_handler(a, b);
         const h2 = (p: ClientboundPacket) => this.control_handler(p)
         signaling.relay_handler.add_listener(h1)

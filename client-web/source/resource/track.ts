@@ -180,13 +180,16 @@ export async function create_mic_res() {
 
     const mute = document.createElement("input")
     mute.type = "checkbox"
-    mute.onchange = () => {
-        log("media", mute.checked ? "muted" : "unmuted")
-        if (mute.checked) gain.gain.value = Number.MIN_VALUE
-        else gain.gain.value = PREFS.microphone_gain
-    }
+
     const mute_label = e("label", { class: "check-button" }, "Mute")
     mute_label.prepend(mute)
 
-    return new_local_track({ id: t.id, kind: "track", track_kind: "audio", label: "Microphone" }, t, mute_label)
+    const res = new_local_track({ id: t.id, kind: "track", track_kind: "audio", label: "Microphone" }, t, mute_label)
+    mute.onchange = () => {
+        log("media", mute.checked ? "muted" : "unmuted")
+        gain.gain.value = mute.checked ? Number.MIN_VALUE : PREFS.microphone_gain
+        if (mute.checked) res.el.classList.add("audio-mute")
+        else res.el.classList.remove("audio-mute")
+    }
+    return res
 }

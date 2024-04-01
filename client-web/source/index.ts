@@ -78,7 +78,6 @@ export async function main() {
     if (!globalThis.navigator.serviceWorker) log({ scope: "*", warn: true }, "Your browser does not support the Service Worker API, forced automatic updates are unavoidable.")
     if (PREFS.warn_redirect) log({ scope: "crypto", warn: true }, "You were redirected from the old URL format. The server knows the room secret now - E2EE is insecure!")
 
-
     const sud = e("div", { class: "side-ui" })
     const state: AppState = {
         chat: new Chat(),
@@ -109,7 +108,7 @@ export async function main() {
     globalThis.onbeforeunload = ev => {
         if (state.room && state.room.local_user.resources.size != 0 && PREFS.enable_onbeforeunload) {
             ev.preventDefault()
-            return ev.returnValue = "You have local resources shared. Really quit?"
+            return "You have local resources shared. Really quit?"
         }
     }
 

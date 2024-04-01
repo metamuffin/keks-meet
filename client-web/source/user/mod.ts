@@ -17,7 +17,7 @@ export class User {
     name_el = e("span", {}, this.display_name)
     status_el = e("span", { class: ["connection-status", "status-neutral"] }, "")
     stats_el = e("pre", {})
-    el = e("div", { class: "user", role: "group", aria_label: `unknown user` })
+    el = e("div", { class: "user", role: "group", aria_label: `unknown user`, aria_live: "polite" })
 
     constructor(public room: Room, public id: number) {
         const info_el = e("div", { class: "info" })

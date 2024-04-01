@@ -41,7 +41,7 @@ export function control_bar(state: AppState, side_ui_container: HTMLElement): HT
     const chat = side_ui(side_ui_container, state.chat.element, "chat", "Chat", state.chat)
     const prefs = side_ui(side_ui_container, ui_preferences(), "settings", "Settings")
     const rwatches = side_ui(side_ui_container, ui_room_watches(state.conn), "room", "Known Rooms")
-    const local_controls = [ //ediv({ class: "local-controls", aria_label: "local resources" },
+    const local_controls = [
         e("button", { icon: "microphone", onclick: () => state.room?.local_user.await_add_resource(create_mic_res()) }, "Microphone"),
         e("button", { icon: "camera", onclick: () => state.room?.local_user.await_add_resource(create_camera_res()) }, "Camera"),
         e("button", { icon: "screen", onclick: () => state.room?.local_user.await_add_resource(create_screencast_res()) }, "Screen"),
