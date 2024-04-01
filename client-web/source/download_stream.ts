@@ -4,11 +4,12 @@
     Copyright (C) 2023 metamuffin <metamuffin.org>
 */
 /// <reference lib="dom" />
+import { PO } from "./locale/mod.ts";
 import { log } from "./logger.ts"
 import { send_sw_message, SW_ENABLED } from "./sw/client.ts"
 
 function FallbackStreamDownload(size: number, filename?: string, progress?: (position: number) => void) {
-    log({ scope: "*", warn: true }, "downloading to memory because serviceworker is not available")
+    log({ scope: "*", warn: true }, PO.warn_mem_download)
     let position = 0
     let buffer = new Uint8Array(size)
     return {

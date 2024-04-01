@@ -6,6 +6,7 @@
 /// <reference lib="dom" />
 import { ProvideInfo } from "../../../common/packets.d.ts";
 import { e } from "../helper.ts";
+import { PO } from "../locale/mod.ts";
 import { log } from "../logger.ts";
 import { on_pref_changed, PREFS } from "../preferences/mod.ts";
 import { get_rnnoise_node } from "../rnnoise.ts";
@@ -15,14 +16,14 @@ import { LocalResource, ResourceHandlerDecl } from "./mod.ts";
 export const resource_track: ResourceHandlerDecl = {
     kind: "track",
     new_remote: (info, _user, enable) => {
-        let enable_label = `Enable ${info.track_kind}`
+        let enable_label = PO.enable
         if (info.label) enable_label += ` "${info.label}"`
 
         const enable_button = e("button", {
             class: "center",
             onclick: self => {
                 self.disabled = true;
-                self.textContent = "Awaiting track…";
+                self.textContent = PO.status_await_track;
                 enable()
             }
         }, enable_label)
@@ -43,7 +44,7 @@ export const resource_track: ResourceHandlerDecl = {
                         enable_button.textContent = enable_label;
                         self.remove()
                     }
-                }, "Disable"))
+                }, PO.disable))
                 create_track_display(this.el, track)
             }
         }
@@ -57,7 +58,7 @@ export function new_local_track(info: ProvideInfo, track: TrackHandle, ...extra_
         info,
         el: create_track_display(
             e("div", { class: `media-${track.kind}` },
-                e("button", { class: ["abort", "topright"], onclick: () => destroy() }, "Stop sharing"),
+                e("button", { class: ["abort", "topright"], onclick: () => destroy() }, PO.stop_sharing),
                 ...extra_controls
             ),
             track
@@ -81,7 +82,7 @@ function create_track_display(target: HTMLElement, track: TrackHandle): HTMLElem
     media_el.srcObject = stream
     media_el.autoplay = true
     media_el.controls = true
-    media_el.ariaLabel = `${track.kind} stream`
+    media_el.ariaLabel = is_video ? PO.video_stream : PO.audio_stream
     media_el.addEventListener("pause", () => media_el.play())
 
     if (track.local) media_el.muted = true
@@ -181,7 +182,7 @@ export async function create_mic_res() {
     const mute = document.createElement("input")
     mute.type = "checkbox"
 
-    const mute_label = e("label", { class: "check-button" }, "Mute")
+    const mute_label = e("label", { class: "check-button" }, PO.mute)
     mute_label.prepend(mute)
 
     const res = new_local_track({ id: t.id, kind: "track", track_kind: "audio", label: "Microphone" }, t, mute_label)

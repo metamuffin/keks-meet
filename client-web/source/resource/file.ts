@@ -10,6 +10,7 @@ import { log } from "../logger.ts";
 import { StreamDownload } from "../download_stream.ts";
 import { RemoteUser } from "../user/remote.ts";
 import { LocalResource, ResourceHandlerDecl } from "./mod.ts";
+import { PO } from "../locale/mod.ts";
 
 const MAX_CHUNK_SIZE = 1 << 15;
 
@@ -19,14 +20,14 @@ export const resource_file: ResourceHandlerDecl = {
         const download_button = e("button", {
             onclick: self => {
                 enable()
-                self.textContent = "Downloading…"
+                self.textContent = PO.downloading
                 self.disabled = true
             }
-        }, "Download")
+        }, PO.download)
         return {
             info,
             el: e("div", {},
-                e("span", {}, `File: ${JSON.stringify(info.label)} (${display_filesize(info.size!)})`),
+                e("span", {}, `${PO.file}: ${JSON.stringify(info.label)} (${display_filesize(info.size!)})`),
                 download_button,
             ),
             on_statechange(_s) { },
@@ -37,7 +38,7 @@ export const resource_file: ResourceHandlerDecl = {
                 this.el.appendChild(display.el)
                 const reset = () => {
                     download_button.disabled = false
-                    download_button.textContent = "Download again"
+                    download_button.textContent = PO.download_again
                     this.el.removeChild(display.el)
                     disable()
                 }
@@ -123,7 +124,7 @@ function file_res_inner(file: File): LocalResource {
             transfers_abort.forEach(abort => abort())
         },
         el: e("div", { class: "file" },
-            e("button", { class: "abort", onclick(_) { destroy() } }, "Stop sharing"),
+            e("button", { class: "abort", onclick(_) { destroy() } }, PO.stop_sharing),
             e("span", {}, `Sharing file: ${JSON.stringify(file.name)}`),
             transfers_el
         ),
@@ -136,16 +137,16 @@ function file_res_inner(file: File): LocalResource {
             log("dc", `${user.display_name} started transfer`);
             const display = transfer_status_el(user)
             transfers_el.appendChild(display.el)
-            display.status = "Waiting for data channel to open…"
+            display.status = PO.status_await_channel_open
             let position = 0
 
             const finish = async () => {
                 channel.send("end")
                 while (channel.bufferedAmount) {
-                    display.status = `Draining buffers… (buffer: ${channel.bufferedAmount})`
+                    display.status = PO.status_drain_buffer(channel.bufferedAmount)
                     await sleep(10)
                 }
-                display.status = "Waiting for the channel to close…"
+                display.status = PO.status_await_channel_close
             }
             const feed = async () => {
                 const { value: chunk, done }: { value?: Uint8Array, done: boolean } = await reader.read()
@@ -170,7 +171,7 @@ function file_res_inner(file: File): LocalResource {
             const abort_cb = () => { channel.close(); }
             channel.onbufferedamountlow = () => feed_until_full()
             channel.onopen = _ev => {
-                display.status = "Buffering…"
+                display.status = PO.status_buffering
                 log("dc", `${user.display_name}: channel open`);
                 feed_until_full()
             }
@@ -178,7 +179,7 @@ function file_res_inner(file: File): LocalResource {
                 log("dc", `${user.display_name}: channel error`);
             }
             channel.onclosing = _ev => {
-                display.status = "Channel closing…"
+                display.status = PO.status_closing
             }
             channel.onclose = _ev => {
                 log("dc", `${user.display_name}: channel closed`);

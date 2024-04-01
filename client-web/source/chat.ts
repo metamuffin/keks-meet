@@ -7,6 +7,7 @@
 
 import { ChatMessage } from "../../common/packets.d.ts";
 import { e, image_view, notify } from "./helper.ts";
+import { PO } from "./locale/mod.ts";
 import { log } from "./logger.ts";
 import { chat_control } from "./menu.ts";
 import { PREFS } from "./preferences/mod.ts";
@@ -30,15 +31,15 @@ export class Chat {
 
     constructor() {
         const send = document.createElement("input")
-        send.ariaLabel = "send message"
+        send.ariaLabel = PO.chatbox_label
         send.type = "text"
-        send.placeholder = "Type a message"
+        send.placeholder = PO.chatbox_placeholder
 
         const messages = e("div", { class: "messages", aria_live: "polite" })
         const controls = e("div", { class: "controls" })
         controls.append(send)
 
-        this.element = e("section", { class: "chat", aria_label: "chat", role: "dialog" }, messages, controls)
+        this.element = e("section", { class: "chat", aria_label: PO.chat, role: "dialog" }, messages, controls)
         this.messages = messages
         this.controls = controls
         this.send_el = send
@@ -85,7 +86,9 @@ export class Chat {
     }
 
     add_control_message(m: ControlMessage) {
-        const el = e("div", { class: ["message", "control-message"] }, e("span", { class: "author" }, m.join?.display_name ?? m.leave?.display_name ?? ""), ` ${m.join ? "joined" : "left"} the room.`)
+        const el = e("div", { class: ["message", "control-message"] },
+            ...(m.join ? PO.join_message : PO.leave_message)(e("span", { class: "author" }, m.join?.display_name ?? m.leave?.display_name ?? ""))
+        )
         this.messages.append(el)
         el.scrollIntoView({ block: "end", behavior: "smooth", inline: "end" })
     }
@@ -100,9 +103,9 @@ export class Chat {
         this.messages.append(el)
         el.scrollIntoView({ block: "end", behavior: "smooth", inline: "end" })
 
-        let body_str = "(empty message)"
+        let body_str = PO.summary_empty_message
         if (message.text) body_str = message.text
-        if (message.image) body_str = "(image)"
+        if (message.image) body_str = PO.summery_image
         if (!(sender instanceof LocalUser) && PREFS.notify_chat) notify(body_str, sender.display_name)
     }
 }

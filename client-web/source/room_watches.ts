@@ -5,6 +5,7 @@
 */
 /// <reference lib="dom" />
 import { array_swap, e } from "./helper.ts";
+import { PO } from "./locale/mod.ts";
 import { PREFS, change_pref } from "./preferences/mod.ts";
 import { room_hash } from "./protocol/crypto.ts";
 import { SignalingConnection } from "./protocol/mod.ts";
@@ -41,7 +42,7 @@ export function ui_room_watches(conn: SignalingConnection): HTMLElement {
     })
 
     let edit = false;
-    
+
     const update_listing = () => {
         listing.innerHTML = ""
         for (let wi = 0; wi < watches.length; wi++) {
@@ -60,8 +61,8 @@ export function ui_room_watches(conn: SignalingConnection): HTMLElement {
                 e("div", { class: "users" }, ...ucont),
             ))
             if (edit) el.append(e("button", { onclick(_) { watches = watches.filter(e => e != w); update_listing() } }, "X"))
-            if (edit && wi > 0) el.append(e("button", { onclick(_) { array_swap(watches, wi, wi - 1); update_listing() } }, "Move up"))
-            if (edit && wi < watches.length - 1) el.append(e("button", { onclick(_) { array_swap(watches, wi, wi + 1); update_listing() } }, "Move down"))
+            if (edit && wi > 0) el.append(e("button", { onclick(_) { array_swap(watches, wi, wi - 1); update_listing() } }, PO.move_up))
+            if (edit && wi < watches.length - 1) el.append(e("button", { onclick(_) { array_swap(watches, wi, wi + 1); update_listing() } }, PO.move_down))
             listing.append(el)
         }
 
@@ -76,14 +77,14 @@ export function ui_room_watches(conn: SignalingConnection): HTMLElement {
                         update_watches()
                         input.value = ""
                     }
-                }, "Add"),
+                }, PO.add),
                 e("button", {
                     async onclick() {
                         if (!conn.room) return
                         await add_watch(conn.room)
                         update_watches()
                     }
-                }, "Add current room")
+                }, PO.add_current_room)
             ))
         }
     }
@@ -97,7 +98,7 @@ export function ui_room_watches(conn: SignalingConnection): HTMLElement {
         edit = e;
     }
     return e("div", { class: "room-watches", role: "dialog", aria_label: "known rooms" },
-        e("h2", {}, "Known Rooms"),
+        e("h2", {}, PO.known_rooms),
         listing,
         button_edit = e("button", {
             icon: "edit",
@@ -105,7 +106,7 @@ export function ui_room_watches(conn: SignalingConnection): HTMLElement {
                 set_edit(true)
                 update_listing()
             }
-        }, "Edit"),
+        }, PO.edit),
         button_finish = e("button", {
             icon: "check",
             hidden: true,
@@ -115,6 +116,6 @@ export function ui_room_watches(conn: SignalingConnection): HTMLElement {
                 update_watches()
                 update_listing()
             }
-        }, "Finish edit"),
+        }, PO.finish_edit),
     )
 }

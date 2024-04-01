@@ -8,6 +8,7 @@
 import { e, sleep } from "./helper.ts"
 import { AppState } from "./index.ts";
 import { VERSION } from "./index.ts"
+import { PO } from "./locale/mod.ts";
 import { ui_preferences } from "./preferences/ui.ts"
 import { create_file_res } from "./resource/file.ts";
 import { create_camera_res, create_mic_res, create_screencast_res } from "./resource/track.ts";
@@ -28,30 +29,30 @@ export function info_br() {
 
     return e("footer", { class: "info-br" },
         e("p", { class: "version" }, `keks-meet ${VERSION}`),
-        item("License", "https://codeberg.org/metamuffin/keks-meet/raw/branch/master/COPYING"),
-        item("Source code", "https://codeberg.org/metamuffin/keks-meet"),
-        item("Documentation", "https://codeberg.org/metamuffin/keks-meet/src/branch/master/readme.md"),
+        item(PO.license, "https://codeberg.org/metamuffin/keks-meet/raw/branch/master/COPYING"),
+        item(PO.source_code, "https://codeberg.org/metamuffin/keks-meet"),
+        item(PO.documentation, "https://codeberg.org/metamuffin/keks-meet/src/branch/master/readme.md"),
     )
 }
 
 export let chat_control: (s?: boolean) => void;
 
 export function control_bar(state: AppState, side_ui_container: HTMLElement): HTMLElement {
-    const leave = e("button", { icon: "leave", class: "abort", onclick() { window.location.href = "/" } }, "Leave")
-    const chat = side_ui(side_ui_container, state.chat.element, "chat", "Chat", state.chat)
-    const prefs = side_ui(side_ui_container, ui_preferences(), "settings", "Settings")
-    const rwatches = side_ui(side_ui_container, ui_room_watches(state.conn), "room", "Known Rooms")
+    const leave = e("button", { icon: "leave", class: "abort", onclick() { window.location.href = "/" } },PO.leave)
+    const chat = side_ui(side_ui_container, state.chat.element, "chat", PO.chat, state.chat)
+    const prefs = side_ui(side_ui_container, ui_preferences(), "settings", PO.settings)
+    const rwatches = side_ui(side_ui_container, ui_room_watches(state.conn), "room", PO.known_rooms)
     const local_controls = [
-        e("button", { icon: "microphone", onclick: () => state.room?.local_user.await_add_resource(create_mic_res()) }, "Microphone"),
-        e("button", { icon: "camera", onclick: () => state.room?.local_user.await_add_resource(create_camera_res()) }, "Camera"),
-        e("button", { icon: "screen", onclick: () => state.room?.local_user.await_add_resource(create_screencast_res()) }, "Screen"),
-        e("button", { icon: "file", onclick: () => state.room?.local_user.await_add_resource(create_file_res()) }, "File"),
+        e("button", { icon: "microphone", onclick: () => state.room?.local_user.await_add_resource(create_mic_res()) }, PO.microphone),
+        e("button", { icon: "camera", onclick: () => state.room?.local_user.await_add_resource(create_camera_res()) }, PO.camera),
+        e("button", { icon: "screen", onclick: () => state.room?.local_user.await_add_resource(create_screencast_res()) }, PO.screen),
+        e("button", { icon: "file", onclick: () => state.room?.local_user.await_add_resource(create_file_res()) }, PO.file),
     ]
     chat_control = chat.set_state;
     return e("div", {
         class: "control-bar",
         role: "toolbar",
-        aria_label: "Controls",
+        aria_label: PO.controls,
         onkeydown: (_el, ev) => {
             if (ev.code == "ArrowLeft") {
                 let n = document.activeElement?.previousElementSibling

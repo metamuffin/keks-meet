@@ -14,6 +14,8 @@ import { SignalingConnection } from "./protocol/mod.ts";
 import { Room } from "./room.ts"
 import { control_bar, info_br } from "./menu.ts";
 import { Chat } from "./chat.ts"
+import { init_locale } from "./locale/mod.ts";
+import { PO } from "./locale/mod.ts";
 
 export const VERSION = "1.0.3"
 globalThis.onload = () => main()
@@ -52,7 +54,7 @@ function set_room(state: AppState, secret: string, rtc_config: RTCConfiguration)
         state.center.removeChild(state.room.element)
         state.room.destroy()
     }
-    if (secret.length < 8) log({ scope: "crypto", warn: true }, "Room name is very short. E2EE is insecure!")
+    if (secret.length < 8) log({ scope: "crypto", warn: true }, PO.warn_short_secret)
     if (secret.split("#").length > 1) document.title = `${secret.split("#")[0]} | keks-meet`
     state.room = new Room(state.conn, state.chat, rtc_config)
     state.chat.room = state.room
@@ -70,13 +72,15 @@ export async function main() {
     const config: ClientConfig = await config_res.json()
     log("*", "config loaded. starting")
 
+    init_locale(PREFS.language ?? "en-US")
+
     document.body.querySelectorAll(".loading").forEach(e => e.remove())
 
-    if (!globalThis.isSecureContext) log({ scope: "*", warn: true }, "This page is not a 'Secure Context'")
-    if (!globalThis.RTCPeerConnection) return log({ scope: "webrtc", error: true }, "WebRTC not supported.")
-    if (!globalThis.crypto.subtle) return log({ scope: "crypto", error: true }, "SubtleCrypto not availible")
-    if (!globalThis.navigator.serviceWorker) log({ scope: "*", warn: true }, "Your browser does not support the Service Worker API, forced automatic updates are unavoidable.")
-    if (PREFS.warn_redirect) log({ scope: "crypto", warn: true }, "You were redirected from the old URL format. The server knows the room secret now - E2EE is insecure!")
+    if (!globalThis.isSecureContext) log({ scope: "*", warn: true }, PO.warn_secure_context)
+    if (!globalThis.RTCPeerConnection) return log({ scope: "webrtc", error: true }, PO.warn_no_webrtc)
+    if (!globalThis.crypto.subtle) return log({ scope: "crypto", error: true }, PO.warn_no_crypto)
+    if (!globalThis.navigator.serviceWorker) log({ scope: "*", warn: true }, PO.warn_no_sw)
+    if (PREFS.warn_redirect) log({ scope: "crypto", warn: true }, PO.warn_old_url)
 
     const sud = e("div", { class: "side-ui" })
     const state: AppState = {
@@ -108,7 +112,7 @@ export async function main() {
     globalThis.onbeforeunload = ev => {
         if (state.room && state.room.local_user.resources.size != 0 && PREFS.enable_onbeforeunload) {
             ev.preventDefault()
-            return "You have local resources shared. Really quit?"
+            return PO.confirm_quit
         }
     }
 

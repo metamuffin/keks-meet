@@ -5,6 +5,7 @@
 */
 /// <reference lib="dom" />
 
+import { PO } from "./locale/mod.ts";
 import { PREFS } from "./preferences/mod.ts";
 
 interface Opts<E> {
@@ -63,7 +64,7 @@ export function image_view(url: string, opts?: Opts<HTMLElement>): HTMLElement {
     const img = document.createElement("img")
     apply_opts(img, opts ?? {})
     img.src = url
-    img.alt = `Image (click to open)`
+    img.alt = PO.image_alt
     img.addEventListener("click", () => {
         globalThis.open(url, "_blank", `noreferrer=true,noopener=true,popup=${PREFS.image_view_popup}`)
     })

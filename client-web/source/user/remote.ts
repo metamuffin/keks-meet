@@ -7,6 +7,7 @@
 
 import { RelayMessage } from "../../../common/packets.d.ts";
 import { notify } from "../helper.ts";
+import { PO } from "../locale/mod.ts";
 import { log } from "../logger.ts"
 import { PREFS } from "../preferences/mod.ts";
 import { new_remote_resource, RemoteResource } from "../resource/mod.ts";
@@ -79,7 +80,7 @@ export class RemoteUser extends User {
         this.pc.close()
         this.room.remote_users.delete(this.id)
         this.room.element.removeChild(this.el)
-        if (PREFS.notify_leave) notify(`${this.display_name} left`)
+        if (PREFS.notify_leave) notify(PO.leave_message(this.display_name).join(""))
         this.room.chat.add_control_message({ leave: this })
     }
     on_relay(message: RelayMessage) {
@@ -89,7 +90,7 @@ export class RemoteUser extends User {
         if (message.answer) this.on_answer(message.answer)
         if (message.identify) {
             this.name = message.identify.username
-            if (PREFS.notify_join) notify(`${this.display_name} joined`)
+            if (PREFS.notify_join) notify(PO.join_message(this.display_name).join(""))
             this.room.chat.add_control_message({ join: this })
         }
         if (message.provide) {
@@ -167,13 +168,13 @@ export class RemoteUser extends User {
 
     async update_status() {
         const states: { [key in RTCIceConnectionState]: [string, string] } = {
-            new: ["Not connected", "neutral"],
-            checking: ["Checking...", "neutral"],
-            failed: ["Connection failed", "fail"],
-            closed: ["Disconnected", "neutral"],
-            completed: ["Connected", "good"],
-            connected: ["Connected", "good"],
-            disconnected: ["Disconnected", "neutral"]
+            new: [PO.status_no_conn, "neutral"],
+            checking: [PO.status_checking, "neutral"],
+            failed: [PO.status_failed, "fail"],
+            closed: [PO.status_disconnected, "neutral"],
+            completed: [PO.status_connected, "good"],
+            connected: [PO.status_connected, "good"],
+            disconnected: [PO.status_disconnected, "neutral"]
         }
         this.status_el.classList.value = ""
         this.status_el.classList.add("connection-status", "status-" + states[this.pc.iceConnectionState][1])

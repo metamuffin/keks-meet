@@ -6,6 +6,7 @@
 /// <reference lib="dom" />
 
 import { e } from "../helper.ts";
+import { PO } from "../locale/mod.ts";
 import { PREF_DECLS } from "./decl.ts";
 import { change_pref, on_pref_changed, PrefDecl, PREFS } from "./mod.ts";
 
@@ -83,19 +84,19 @@ export function ui_preferences(): HTMLElement {
     })
 
     const notification_perm = Notification.permission == "granted" ? e("div", {}) : e("div", {},
-        e("span", {}, "For keks-meet to send notifications, it needs you to grant permission: "),
-        e("button", { onclick: () => Notification.requestPermission() }, "Grant"),
+        e("span", {}, PO.notification_perm_explain),
+        e("button", { onclick: () => Notification.requestPermission() }, PO.grant),
     )
     const reset = e("div", {},
-        e("span", {}, "Want to clear all settings? Use this:"),
+        e("span", {}, PO.clear_prefs),
         e("button", { onclick: () => { if (confirm("really clear all preferences?")) { localStorage.clear(); window.location.reload() } } }, "RESET"),
     )
 
     const table = document.createElement("table")
     table.append(...rows)
 
-    return e("div", { class: "preferences", role: "dialog", aria_label: "settings" },
-        e("h2", {}, "Settings"),
+    return e("div", { class: "preferences", role: "dialog", aria_label: PO.settings },
+        e("h2", {}, PO.settings),
         notification_perm, e("br", {}),
         table, e("br", {}),
         reset
