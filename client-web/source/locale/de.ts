@@ -23,7 +23,7 @@ export const PO_DE_DE: LanguageStrings = {
     warn_old_url: "Du wurdest vom alten URL-Format weitergeleitet. Der Server kennt jetzt das Raumgeheimniss; Verschlüsslung ist nicht sicher.",
     confirm_quit: "Du teilst Dinge. Wirklich verlassen?",
     controls: "Steuerung",
-    license: "Lizens",
+    license: "Lizenz",
     source_code: "Quellcode",
     stop_sharing: "Teilen beenden",
     documentation: "Dokumentation",
