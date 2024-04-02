@@ -13,6 +13,7 @@ export function init_locale(lang: string) {
 export const LOCALES: { [key: string]: LanguageStrings } = {
     "en": PO_EN_US,
     "en-US": PO_EN_US,
+    "en-GB": PO_EN_US, // close enough
     "de": PO_DE_DE,
     "de-DE": PO_DE_DE,
 }
@@ -71,7 +72,7 @@ export interface LanguageStrings {
     mute: string,
     video_stream: string,
     audio_stream: string,
-    enable: string,
+    enable: (thing: string) => string,
     disable: string,
     notification_perm_explain: string,
     grant: string,

@@ -60,7 +60,7 @@ export const PO_EN_US: LanguageStrings = {
     audio_stream: "audio stream",
     local: "Local",
     disable: "Disable",
-    enable: "Enable",
+    enable: thing => `Enable ${thing}`,
     status_await_stream: "Awaiting stream…",
     notification_perm_explain: "For keks-meet to send notifications, it needs you to grant permission: ",
     grant: "Grant",

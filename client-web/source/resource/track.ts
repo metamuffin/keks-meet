@@ -15,9 +15,7 @@ import { LocalResource, ResourceHandlerDecl } from "./mod.ts";
 export const resource_track: ResourceHandlerDecl = {
     kind: "track",
     new_remote: (info, _user, enable) => {
-        let enable_label = PO.enable
-        if (info.label) enable_label += ` "${info.label}"`
-
+        const enable_label = PO.enable(`"${info.label ?? info.kind}"`)
         const enable_button = e("button", {
             class: "center",
             onclick: self => {

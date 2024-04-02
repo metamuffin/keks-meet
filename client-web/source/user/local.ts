@@ -52,7 +52,7 @@ export class LocalUser extends User {
         log("media", "awaiting local resource")
         let t!: LocalResource;
         try { t = await tp }
-        catch (e) { log("media", `failed ${e.toString()}`) }
+        catch (e) { log({ scope: "media", warn: true }, e.toString()) }
         if (!t) return
         log("media", "ok")
         this.add_resource(t)
