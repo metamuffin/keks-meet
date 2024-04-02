@@ -78,7 +78,7 @@ export const PO_EN_US: LanguageStrings = {
         native_noise_suppression: "Suggest the browser to do noise suppression",
         microphone_gain: "Amplify microphone volume",
         video_fps: "Preferred framerate (in 1/s) for screencast and camera",
-        video_resolution: "Preferred width for screencast and camera",
+        video_resolution: "Preferred horizontal resolution for screencast and camera",
         camera_facing_mode: "Prefer user-facing or env-facing camera",
         auto_gain_control: "Automatically adjust mic gain",
         echo_cancellation: "Cancel echo",
