@@ -64,7 +64,7 @@ export const PO_DE_DE: LanguageStrings = {
         warn_redirect: "Interne Option, die der Server bei einer Weiterleitung setzt.",
         image_view_popup: "Öffne Bilder in einem neuen Tab",
         webrtc_debug: "Zeige erweiterte Informationen zu WebRTC zeugs",
-
+        screencast_audio: "Anwendungsaudio bei Bildschirmübertragung aufzeichnen",
         microphone_enabled: "Füge eine Mikrofonspur beim start hinzu.",
         screencast_enabled: "Füge eine Bildschirmspur beim start hinzu.",
         camera_enabled: "Füge eine Kameraspur beim start hinzu.",

@@ -64,7 +64,7 @@ export const PO_EN_US: LanguageStrings = {
         warn_redirect: "Internal option that is set by a server redirect.",
         image_view_popup: "Open image in popup instead of new tab",
         webrtc_debug: "Show additional information for WebRTC related stuff",
-
+        screencast_audio: "Include audio when sharing your screen.",
         microphone_enabled: "Add one microphone track on startup",
         screencast_enabled: "Add one screencast track on startup",
         camera_enabled: "Add one camera track on startup",
@@ -82,7 +82,7 @@ export const PO_EN_US: LanguageStrings = {
         notify_chat: "Send notifications for incoming chat messages",
         notify_join: "Send notifications when users join",
         notify_leave: "Send notifications when users leave",
-        enable_onbeforeunload: "Prompt for confirmation when leaving the site while local resources are active",
+        enable_onbeforeunload: "Prompt for confirmation when leaving the site while local resources are shared",
         room_watches: "Known rooms (as semicolon seperated list of name=secret pairs)",
         username: "Username",
     }

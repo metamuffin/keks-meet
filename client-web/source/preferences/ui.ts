@@ -15,19 +15,22 @@ export function ui_preferences(): HTMLElement {
         const key = key_ as keyof typeof PREF_DECLS
         const id = `pref-${key}`
         let prim_control: HTMLInputElement | HTMLSelectElement | undefined;
-        if (decl.possible_values) {
+        if (decl.possible_values && typeof decl.type == "string") {
             const sel = document.createElement("select")
             sel.id = id
-            for (const v of decl.possible_values) {
+            for (const v of decl.possible_values as string[]) {
                 const opt = document.createElement("option")
-                opt.value = opt.textContent = JSON.stringify(v ?? null)
+                opt.value = opt.textContent = v ?? ""
                 sel.append(opt)
             }
             sel.onchange = () => {
-                change_pref(key, JSON.parse(sel.value) ?? undefined)
+                if (!sel.value.length) return
+                change_pref(key, sel.value ?? undefined)
             }
-            on_pref_changed(key, () => sel.value = JSON.stringify(PREFS[key] ?? null))
-            sel.value = JSON.stringify(PREFS[key])
+            on_pref_changed(key, () => {
+                sel.value = PREFS[key] as string ?? ""
+            })
+            sel.value = PREFS[key] as string
             prim_control = sel
         } else if (typeof decl.type == "boolean") {
             const checkbox = document.createElement("input")
@@ -57,7 +60,9 @@ export function ui_preferences(): HTMLElement {
             textbox.onchange = () => {
                 change_pref(key, parseFloat(textbox.value))
             }
-            on_pref_changed(key, () => textbox.value = PREFS[key] as string)
+            on_pref_changed(key, () => {
+                textbox.value = PREFS[key] as string
+            })
             prim_control = textbox
         }
 
@@ -69,6 +74,7 @@ export function ui_preferences(): HTMLElement {
             use_opt.checked = PREFS[key] !== undefined
             if (prim_control) prim_control.disabled = !use_opt.checked
             use_opt.onchange = () => {
+                if (prim_control) prim_control.disabled = !use_opt.checked
                 if (use_opt.checked) { if (prim_control?.onchange) prim_control.onchange(new Event("change")) }
                 else change_pref(key, undefined)
             }

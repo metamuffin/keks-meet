@@ -33,6 +33,7 @@ export const PREF_DECLS = {
     video_fps: { type: number },
     video_resolution: { type: number },
     camera_facing_mode: { type: optional(string), possible_values: ["environment", "user"] },
+    screencast_audio: { type: bool, default: false },
     auto_gain_control: { type: bool },
     echo_cancellation: { type: bool, allow_url: true },
     audio_activity_threshold: { type: number, optional: true, default: 0.003 },
