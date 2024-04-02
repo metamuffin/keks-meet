@@ -6,6 +6,7 @@
 /// <reference lib="dom" />
 
 import { e } from "./helper.ts";
+import { PREFS } from "./preferences/mod.ts";
 
 export const LOGGER_CONTAINER = e("div", { class: "logger-container", role: "log", aria_live: "off" })
 
@@ -35,7 +36,7 @@ export function log(k: LogScope | LogDesc, message: string, ...data: unknown[]) 
 
     (d.error ? console.error : d.warn ? console.warn : console.log)(`%c[${d.scope}] ${message}`, `color:${log_scope_color[d.scope]}`, ...data);
 
-    if (LOGGER_CONTAINER) {
+    if (LOGGER_CONTAINER && (PREFS.show_log || d.error || d.warn)) {
         const e = document.createElement("p")
         e.classList.add("logger-line")
         if (d.error) e.classList.add("logger-error")

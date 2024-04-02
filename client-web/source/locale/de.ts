@@ -91,5 +91,6 @@ export const PO_DE_DE: LanguageStrings = {
         enable_onbeforeunload: "Frage nach Bestätigung beim verlassen der Seite wenn Spuren geteilt sind.",
         room_watches: "Bekannte Räume (Als semikolongetrennte Liste von name=geheimnis Paaren)",
         username: "Benutzername",
+        show_log: "Zeige ausführlichen log."
     }
 }

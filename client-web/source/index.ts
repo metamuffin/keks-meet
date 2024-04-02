@@ -18,7 +18,7 @@ import { init_locale } from "./locale/mod.ts";
 import { PO } from "./locale/mod.ts";
 
 export const VERSION = "1.0.4"
-globalThis.onload = () => main()
+globalThis.addEventListener("DOMContentLoaded", () => main())
 
 export interface ClientConfig {
     appearance?: {

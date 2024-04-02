@@ -19,14 +19,8 @@ const optional = <T>(a: T): T | undefined => a
 export const PREF_DECLS = {
     username: { type: string, default: "guest-" + hex_id(), allow_url: true },
     language: { type: string, possible_values: ["system", ...Object.keys(LOCALES)], default: "system", allow_url: true },
-    warn_redirect: { type: bool, hidden: true, default: false, allow_url: true },
-    image_view_popup: { type: bool, default: true },
-    webrtc_debug: { type: bool, default: false },
-
+    
     /* MEDIA */
-    microphone_enabled: { type: bool, default: false },
-    screencast_enabled: { type: bool, default: false },
-    camera_enabled: { type: bool, default: false },
     rnnoise: { type: bool, default: true, allow_url: true },
     native_noise_suppression: { type: bool, default: false },
     microphone_gain: { type: number, default: 1 },
@@ -37,7 +31,11 @@ export const PREF_DECLS = {
     auto_gain_control: { type: bool },
     echo_cancellation: { type: bool, allow_url: true },
     audio_activity_threshold: { type: number, optional: true, default: 0.003 },
-
+    image_view_popup: { type: bool, default: true },
+    microphone_enabled: { type: bool, default: false },
+    screencast_enabled: { type: bool, default: false },
+    camera_enabled: { type: bool, default: false },
+    
     // TODO differenciate between mic, cam and screen
     optional_audio_default_enable: { type: bool, default: true },
     optional_video_default_enable: { type: bool, default: false },
@@ -47,5 +45,9 @@ export const PREF_DECLS = {
     notify_leave: { type: bool, default: true, allow_url: true },
 
     enable_onbeforeunload: { type: bool, default: true },
-    room_watches: { type: string, default: "[]", hidden: true }
+    webrtc_debug: { type: bool, default: false },
+    show_log: { type: bool, default: false },
+
+    warn_redirect: { type: bool, hidden: true, default: false, allow_url: true },
+    room_watches: { type: string, default: "[]", hidden: true },
 }
