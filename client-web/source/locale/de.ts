@@ -1,3 +1,8 @@
+/*
+    This file is part of keks-meet (https://codeberg.org/metamuffin/keks-meet)
+    which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
+    Copyright (C) 2024 metamuffin <metamuffin.org>
+*/
 import { LanguageStrings } from "./mod.ts";
 
 export const PO_DE_DE: LanguageStrings = {
@@ -32,6 +37,7 @@ export const PO_DE_DE: LanguageStrings = {
     settings: "Einstellungen",
     edit: "Bearbeiten",
     finish_edit: "Fertig",
+    local: "Lokal",
     add_current_room: "Aktuellen Raum hinzufügen",
     add: "Hinzufügen",
     move_down: "Runter",
@@ -55,7 +61,7 @@ export const PO_DE_DE: LanguageStrings = {
     audio_stream: "Audioübertragung",
     disable: "Deaktivieren",
     enable: "Aktivieren",
-    status_await_track: "Spur wird erwartet…",
+    status_await_stream: "Übertragung startet…",
     notification_perm_explain: "Um Benarchichtigungen zu erhalten, musst du die keks-meet die Berechtigung dafür geben. ",
     grant: "Berechtigen",
     clear_prefs: "Du willst alle Einstellungen löschen? Nimm den hier: ",

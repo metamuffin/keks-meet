@@ -1,7 +1,7 @@
 /*
     This file is part of keks-meet (https://codeberg.org/metamuffin/keks-meet)
     which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
-    Copyright (C) 2023 metamuffin <metamuffin.org>
+    Copyright (C) 2024 metamuffin <metamuffin.org>
 */
 /// <reference lib="dom" />
 
@@ -12,12 +12,11 @@ import { log } from "../logger.ts"
 import { PREFS } from "../preferences/mod.ts";
 import { new_remote_resource, RemoteResource } from "../resource/mod.ts";
 import { Room } from "../room.ts"
-import { TrackHandle } from "../track_handle.ts";
 import { User } from "./mod.ts";
 
 export class RemoteUser extends User {
     pc: RTCPeerConnection
-    senders: Map<string, RTCRtpSender> = new Map()
+    senders: Map<string, RTCRtpSender[]> = new Map()
     data_channels: Map<string, RTCDataChannel> = new Map()
     resources: Map<string, RemoteResource> = new Map()
 
@@ -36,16 +35,16 @@ export class RemoteUser extends User {
             this.update_status()
         }
         this.pc.ontrack = ev => {
-            const t = ev.track
             const id = ev.streams[0]?.id
             if (!id) { ev.transceiver.stop(); return log({ scope: "media", warn: true }, "got a track without stream") }
             const r = this.resources.get(id)
             if (!r) { ev.transceiver.stop(); return log({ scope: "media", warn: true }, "got an unassociated track") }
-            r.on_enable(new TrackHandle(t), () => {
+            r.stream = ev.streams[0]
+            r.on_enable(ev.streams[0], () => {
                 this.request_resource_stop(r)
                 ev.transceiver.stop()
             })
-            log("media", `remote track: ${this.display_name}`, t)
+            log("media", `remote stream: ${id}`, ev.streams[0])
             this.update_status()
         }
         this.pc.ondatachannel = ({ channel }) => {
@@ -104,6 +103,7 @@ export class RemoteUser extends User {
             this.resources.set(message.provide.id, d)
         }
         if (message.provide_stop) {
+            this.resources.get(message.provide_stop.id)?.stream?.dispatchEvent(new Event("ended"))
             this.resources.get(message.provide_stop.id)?.el.remove()
             this.resources.delete(message.provide_stop.id)
         }
@@ -111,9 +111,9 @@ export class RemoteUser extends User {
             const r = this.room.local_user.resources.get(message.request.id)
             if (!r) return log({ scope: "*", warn: true }, "somebody requested an unknown resource")
             const channel = r.on_request(this, () => this.pc.createDataChannel(r.info.id))
-            if (channel instanceof TrackHandle) {
-                const sender = this.pc.addTrack(channel.track, channel.stream)
-                this.senders.set(channel.id, sender)
+            if (channel instanceof MediaStream) {
+                const senders = channel.getTracks().map(t => this.pc.addTrack(t, channel))
+                this.senders.set(channel.id, senders)
                 channel.addEventListener("end", () => { this.senders.delete(r.info.id) })
             } else if (channel instanceof RTCDataChannel) {
                 this.data_channels.set(r.info.id, channel)
@@ -121,8 +121,8 @@ export class RemoteUser extends User {
             } else throw new Error("unreachable");
         }
         if (message.request_stop) {
-            const sender = this.senders.get(message.request_stop.id)
-            if (sender) this.pc.removeTrack(sender)
+            const sender = this.senders.get(message.request_stop.id) ?? []
+            sender.forEach(s => this.pc.removeTrack(s))
             const dc = this.data_channels.get(message.request_stop.id)
             if (dc) dc.close()
         }

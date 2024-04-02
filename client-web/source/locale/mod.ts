@@ -22,6 +22,7 @@ export interface LanguageStrings {
     camera: string,
     screen: string,
     file: string,
+    local: string,
     warn_short_secret: string,
     warn_no_webrtc: string,
     warn_secure_context: string,
@@ -74,7 +75,7 @@ export interface LanguageStrings {
     disable: string,
     notification_perm_explain: string,
     grant: string,
-    status_await_track: string,
+    status_await_stream: string,
     clear_prefs: string,
     setting_descs: { [key in keyof typeof PREF_DECLS]: string },
 }

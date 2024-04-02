@@ -1,7 +1,7 @@
 /*
     This file is part of keks-meet (https://codeberg.org/metamuffin/keks-meet)
     which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
-    Copyright (C) 2023 metamuffin <metamuffin.org>
+    Copyright (C) 2024 metamuffin <metamuffin.org>
 */
 /// <reference lib="dom" />
 import { ProvideInfo } from "../../../common/packets.d.ts";
@@ -10,7 +10,6 @@ import { PO } from "../locale/mod.ts";
 import { log } from "../logger.ts";
 import { on_pref_changed, PREFS } from "../preferences/mod.ts";
 import { get_rnnoise_node } from "../rnnoise.ts";
-import { TrackHandle } from "../track_handle.ts";
 import { LocalResource, ResourceHandlerDecl } from "./mod.ts";
 
 export const resource_track: ResourceHandlerDecl = {
@@ -23,17 +22,18 @@ export const resource_track: ResourceHandlerDecl = {
             class: "center",
             onclick: self => {
                 self.disabled = true;
-                self.textContent = PO.status_await_track;
+                self.textContent = PO.status_await_stream;
                 enable()
             }
         }, enable_label)
+
         return {
             info,
             el: e("div", { class: [`media-${info.track_kind}`] }, enable_button),
             on_statechange() { },
-            on_enable(track, disable) {
+            on_enable(stream, disable) {
                 this.el.removeChild(enable_button)
-                if (!(track instanceof TrackHandle)) return console.warn("aservuoivasretuoip");
+                if (!(stream instanceof MediaStream)) return console.warn("expected mediastream");
                 this.el.append(e("button", {
                     class: ["topright", "abort"],
                     onclick: (self) => {
@@ -45,36 +45,39 @@ export const resource_track: ResourceHandlerDecl = {
                         self.remove()
                     }
                 }, PO.disable))
-                create_track_display(this.el, track)
-            }
+                create_track_display(this.el, stream, false)
+            },
         }
     }
 }
 
-export function new_local_track(info: ProvideInfo, track: TrackHandle, ...extra_controls: HTMLElement[]): LocalResource {
+export function new_local_track(info: ProvideInfo, stream: MediaStream, ...extra_controls: HTMLElement[]): LocalResource {
     let destroy: () => void;
     return {
         set_destroy(cb) { destroy = cb },
         info,
         el: create_track_display(
-            e("div", { class: `media-${track.kind}` },
+            e("div", { class: `media-${stream.getVideoTracks().length > 0 ? "video" : "audio"}` },
                 e("button", { class: ["abort", "topright"], onclick: () => destroy() }, PO.stop_sharing),
                 ...extra_controls
             ),
-            track
+            stream,
+            true
         ),
-        destroy() { track.end() },
+        destroy() {
+            stream.dispatchEvent(new Event("ended"));
+            stream.getTracks().forEach(t => t.stop())
+        },
         on_request(_user, _create_channel) {
-            return track
+            return stream
         }
     }
 }
 
-function create_track_display(target: HTMLElement, track: TrackHandle): HTMLElement {
-    const is_video = track.kind == "video"
-    const is_audio = track.kind == "audio"
+function create_track_display(target: HTMLElement, stream: MediaStream, local: boolean): HTMLElement {
+    const is_video = stream.getVideoTracks().length > 0
+    const is_audio = stream.getAudioTracks().length > 0
 
-    const stream = new MediaStream([track.track])
     const media_el = is_video
         ? document.createElement("video")
         : document.createElement("audio")
@@ -85,11 +88,16 @@ function create_track_display(target: HTMLElement, track: TrackHandle): HTMLElem
     media_el.ariaLabel = is_video ? PO.video_stream : PO.audio_stream
     media_el.addEventListener("pause", () => media_el.play())
 
-    if (track.local) media_el.muted = true
+    if (local) media_el.muted = true
+
+    target.querySelectorAll("video, audio").forEach(e => e.remove())
     target.prepend(media_el)
-    track.addEventListener("ended", () => {
-        media_el.srcObject = null // TODO // TODO figure out why i wrote todo here
-        media_el.remove()
+
+    console.log(stream.getTracks());
+    const master = stream.getTracks()[0]
+    master.addEventListener("ended", () => {
+        if (is_video) media_el.controls = false
+        media_el.classList.add("media-freeze")
     })
 
     if (is_audio && PREFS.audio_activity_threshold !== undefined) check_volume(stream, vol => {
@@ -103,18 +111,21 @@ function create_track_display(target: HTMLElement, track: TrackHandle): HTMLElem
     return target
 }
 
-function check_volume(track: MediaStream, cb: (vol: number) => void) {
+function check_volume(stream: MediaStream, cb: (vol: number) => void) {
     const ctx = new AudioContext();
-    const s = ctx.createMediaStreamSource(track)
+    const s = ctx.createMediaStreamSource(stream)
     const a = ctx.createAnalyser()
     s.connect(a)
     const samples = new Float32Array(a.fftSize);
-    setInterval(() => {
+    const interval = setInterval(() => {
         a.getFloatTimeDomainData(samples);
         let sum = 0.0;
         for (const amplitude of samples) { sum += amplitude * amplitude; }
         cb(Math.sqrt(sum / samples.length))
     }, 1000 / 15)
+    stream.addEventListener("ended", () => {
+        clearInterval(interval)
+    })
 }
 
 export async function create_camera_res() {
@@ -124,10 +135,9 @@ export async function create_camera_res() {
             facingMode: { ideal: PREFS.camera_facing_mode },
             frameRate: { ideal: PREFS.video_fps },
             width: { ideal: PREFS.video_resolution }
-        }
+        },
     })
-    const t = new TrackHandle(user_media.getVideoTracks()[0], true)
-    return new_local_track({ id: t.id, kind: "track", track_kind: "video", label: "Camera" }, t)
+    return new_local_track({ id: user_media.id, kind: "track", track_kind: "video", label: "Camera" }, user_media)
 }
 
 export async function create_screencast_res() {
@@ -137,9 +147,9 @@ export async function create_screencast_res() {
             frameRate: { ideal: PREFS.video_fps },
             width: { ideal: PREFS.video_resolution }
         },
+        audio: PREFS.screencast_audio
     })
-    const t = new TrackHandle(user_media.getVideoTracks()[0], true)
-    return new_local_track({ id: t.id, kind: "track", track_kind: "video", label: "Screen" }, t)
+    return new_local_track({ id: user_media.id, kind: "track", track_kind: "video", label: "Screen" }, user_media)
 }
 
 export async function create_mic_res() {
@@ -169,28 +179,30 @@ export async function create_mic_res() {
     }
     gain.connect(destination)
 
-    const t = new TrackHandle(destination.stream.getAudioTracks()[0], true)
-    t.addEventListener("ended", () => {
-        user_media.getTracks().forEach(t => t.stop())
-        source.disconnect()
-        if (rnnoise) rnnoise.disconnect()
-        gain.disconnect()
-        clear_gain_cb()
-        destination.disconnect()
-    })
-
     const mute = document.createElement("input")
     mute.type = "checkbox"
 
     const mute_label = e("label", { class: "check-button" }, PO.mute)
     mute_label.prepend(mute)
 
-    const res = new_local_track({ id: t.id, kind: "track", track_kind: "audio", label: "Microphone" }, t, mute_label)
+    const res = new_local_track({ id: destination.stream.id, kind: "track", track_kind: "audio", label: "Microphone" }, destination.stream, mute_label)
     mute.onchange = () => {
         log("media", mute.checked ? "muted" : "unmuted")
         gain.gain.value = mute.checked ? Number.MIN_VALUE : PREFS.microphone_gain
         if (mute.checked) res.el.classList.add("audio-mute")
         else res.el.classList.remove("audio-mute")
     }
+
+    const old_destroy = res.destroy
+    res.destroy = () => {
+        user_media.getTracks().forEach(t => t.stop())
+        source.disconnect()
+        if (rnnoise) rnnoise.disconnect()
+        gain.disconnect()
+        clear_gain_cb()
+        destination.disconnect()
+        old_destroy()
+    }
+
     return res
 }

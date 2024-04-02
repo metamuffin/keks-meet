@@ -1,7 +1,7 @@
 /*
     This file is part of keks-meet (https://codeberg.org/metamuffin/keks-meet)
     which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
-    Copyright (C) 2023 metamuffin <metamuffin.org>
+    Copyright (C) 2024 metamuffin <metamuffin.org>
 */
 /// <reference lib="dom" />
 
@@ -13,6 +13,7 @@ import { User } from "./mod.ts";
 import { create_camera_res, create_mic_res, create_screencast_res } from "../resource/track.ts";
 import { LocalResource } from "../resource/mod.ts";
 import { PREFS } from "../preferences/mod.ts";
+import { PO } from "../locale/mod.ts";
 
 export class LocalUser extends User {
     resources: Map<string, LocalResource> = new Map()
@@ -20,7 +21,7 @@ export class LocalUser extends User {
     constructor(room: Room, id: number) {
         super(room, id)
         this.el.classList.add("local")
-        this.status_el.textContent = "Local"
+        this.status_el.textContent = PO.local
         this.name = PREFS.username
         log("users", `added local user: ${this.display_name}`)
         this.add_initial_tracks()

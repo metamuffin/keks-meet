@@ -1,12 +1,11 @@
 /*
     This file is part of keks-meet (https://codeberg.org/metamuffin/keks-meet)
     which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
-    Copyright (C) 2023 metamuffin <metamuffin.org>
+    Copyright (C) 2024 metamuffin <metamuffin.org>
 */
 /// <reference lib="dom" />
 
 import { ProvideInfo } from "../../../common/packets.d.ts"
-import { TrackHandle } from "../track_handle.ts";
 import { RemoteUser } from "../user/remote.ts"
 import { resource_file } from "./file.ts";
 import { resource_track } from "./track.ts";
@@ -21,13 +20,15 @@ export interface RemoteResource {
     el: HTMLElement
     info: ProvideInfo,
     on_statechange(state: RemoteResourceState): void
-    on_enable(t: TrackHandle | RTCDataChannel, disable: () => void): void
+    on_enable(t: MediaStream | RTCDataChannel, disable: () => void): void,
+
+    stream?: MediaStream
 }
 export interface LocalResource {
     el: HTMLElement
     info: ProvideInfo,
     destroy(): void
-    on_request(user: RemoteUser, create_channel: () => RTCDataChannel): TrackHandle | RTCDataChannel,
+    on_request(user: RemoteUser, create_channel: () => RTCDataChannel): MediaStream | RTCDataChannel,
     set_destroy(cb: () => void): void
 }
 

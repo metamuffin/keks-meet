@@ -1,3 +1,8 @@
+/*
+    This file is part of keks-meet (https://codeberg.org/metamuffin/keks-meet)
+    which is licensed under the GNU Affero General Public License (version 3); see /COPYING.
+    Copyright (C) 2024 metamuffin <metamuffin.org>
+*/
 import { LanguageStrings } from "./mod.ts";
 
 export const PO_EN_US: LanguageStrings = {
@@ -53,9 +58,10 @@ export const PO_EN_US: LanguageStrings = {
     mute: "Mute",
     video_stream: "video stream",
     audio_stream: "audio stream",
+    local: "Local",
     disable: "Disable",
     enable: "Enable",
-    status_await_track: "Awaiting track…",
+    status_await_stream: "Awaiting stream…",
     notification_perm_explain: "For keks-meet to send notifications, it needs you to grant permission: ",
     grant: "Grant",
     clear_prefs: "Want to clear all settings? Use this:",
