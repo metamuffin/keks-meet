@@ -6,11 +6,14 @@ export let PO: LanguageStrings;
 
 export function init_locale(lang: string) {
     if (lang == "system") lang = navigator.language
+    if (!LOCALES[lang]) lang = "en-US"
     PO = LOCALES[lang]
 }
 
 export const LOCALES: { [key: string]: LanguageStrings } = {
+    "en": PO_EN_US,
     "en-US": PO_EN_US,
+    "de": PO_DE_DE,
     "de-DE": PO_DE_DE,
 }
 
