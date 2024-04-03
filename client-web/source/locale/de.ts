@@ -5,7 +5,7 @@
 */
 import { LanguageStrings } from "./mod.ts";
 
-export const PO_DE_DE: LanguageStrings = {
+export const PO_DE: LanguageStrings = {
     microphone: "Mikrofon",
     chatbox_placeholder: "Schreibe eine nachricht",
     chatbox_label: "Sende nachricht",

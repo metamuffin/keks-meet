@@ -1,7 +1,7 @@
-import { PO_DE_DE } from "./de.ts";
-import { PO_EN_US } from "./en.ts";
+import { PO_DE } from "./de.ts";
+import { PO_EN } from "./en.ts";
 import { PREF_DECLS } from "../preferences/decl.ts";
-import { PO_JA_JA } from "./ja.ts";
+import { PO_JA } from "./ja.ts";
 
 export let PO: LanguageStrings;
 
@@ -12,12 +12,13 @@ export function init_locale(lang: string) {
 }
 
 export const LOCALES: { [key: string]: LanguageStrings } = {
-    "en": PO_EN_US,
-    "en-US": PO_EN_US,
-    "en-GB": PO_EN_US, // close enough
-    "de": PO_DE_DE,
-    "de-DE": PO_DE_DE,
-    "ja-JA": PO_JA_JA,
+    "en": PO_EN,
+    "en-US": PO_EN,
+    "en-GB": PO_EN, // close enough
+    "de": PO_DE,
+    "de-DE": PO_DE,
+    "ja": PO_JA,
+    "ja-JP": PO_JA,
 }
 
 export interface LanguageStrings {

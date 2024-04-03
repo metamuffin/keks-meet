@@ -25,3 +25,11 @@ install-native:
 	cargo +nightly install --force --path client-native-gui
 	cargo +nightly install --force --path client-native-rift 
 	cargo +nightly install --force --path client-native-export-track
+
+translate:
+	deno run -A client-web/scripts/find_missing_translations.ts \
+	| python client-web/scripts/translate.py \
+	| deno run client-web/scripts/reformat_json.ts
+
+translate-deps:
+	pip install argostranslate sentencepiece torch --break-system-packages
