@@ -28,7 +28,7 @@ install-native:
 
 translate:
 	deno run -A client-web/scripts/find_missing_translations.ts \
-	| python client-web/scripts/translate.py \
+	| python client-web/scripts/translate_argos.py \
 	| deno run client-web/scripts/reformat_json.ts
 
 translate-deps:

@@ -2,6 +2,7 @@ import { PO_DE } from "./de.ts";
 import { PO_EN } from "./en.ts";
 import { PREF_DECLS } from "../preferences/decl.ts";
 import { PO_JA } from "./ja.ts";
+import { PO_ES } from "./es.ts";
 
 export let PO: LanguageStrings;
 
@@ -19,6 +20,8 @@ export const LOCALES: { [key: string]: LanguageStrings } = {
     "de-DE": PO_DE,
     "ja": PO_JA,
     "ja-JP": PO_JA,
+    "es": PO_ES,
+    "es-ES": PO_ES,
 }
 
 export interface LanguageStrings {
