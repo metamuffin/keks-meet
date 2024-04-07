@@ -62,7 +62,7 @@ export const PO_DE: LanguageStrings = {
     disable: "Deaktivieren",
     enable: thing =>  `${thing} aktivieren`,
     status_await_stream: "Übertragung startet…",
-    notification_perm_explain: "Um Benarchichtigungen zu erhalten, musst du die keks-meet die Berechtigung dafür geben. ",
+    notification_perm_explain: "Um Benarchichtigungen zu erhalten, musst du keks-meet die Berechtigung dafür geben. ",
     grant: "Berechtigen",
     clear_prefs: "Du willst alle Einstellungen löschen? Benutz den hier: ",
     setting_descs: {
@@ -91,6 +91,6 @@ export const PO_DE: LanguageStrings = {
         enable_onbeforeunload: "Frage nach Bestätigung beim Verlassen der Seite, wenn Spuren geteilt sind",
         room_watches: "Bekannte Räume (Als semikolongetrennte Liste von name=geheimnis Paaren)",
         username: "Benutzername",
-        show_log: "Zeige ausführlichen log."
+        show_log: "Zeige ausführlichen log"
     }
 }
