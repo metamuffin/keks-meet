@@ -20,9 +20,10 @@
     margin: 0.5em
     vertical-align: top
     min-width: fit-content
-    display: inline-block
     position: relative
     flex: 1 1
+    display: flex
+    flex-direction: column
 
 .user .info .name
     font-weight: 400
@@ -35,12 +36,11 @@
 
 .user .resource
     display: inline-block
-    vertical-align: top
+    flex: 1 1 auto
 
 .resource
     position: relative
     margin: 0.5em
-    max-height: 12em
 
 .local-controls
     display: inline
@@ -82,9 +82,6 @@
 
 .media-video
     border-radius: 5px
-    background-color: black
-    height: 12em
-    width: calc(12em * 16 / 9)
     button.center
         position: absolute
         top: 50%
@@ -105,4 +102,6 @@
     filter: saturate(0%)
 
 video
-    height: 12em
+    position: absolute
+    max-width: 100%
+    max-height: 100%
