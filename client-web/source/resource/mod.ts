@@ -6,6 +6,7 @@
 /// <reference lib="dom" />
 
 import { ProvideInfo } from "../../../common/packets.d.ts"
+import { Room } from "../room.ts";
 import { RemoteUser } from "../user/remote.ts"
 import { resource_file } from "./file.ts";
 import { resource_track } from "./track.ts";
@@ -21,7 +22,7 @@ export interface RemoteResource {
     info: ProvideInfo,
     on_statechange(state: RemoteResourceState): void
     on_enable(t: MediaStream | RTCDataChannel, disable: () => void): void,
-
+    on_preview(p: string): void,
     stream?: MediaStream
 }
 export interface LocalResource {
@@ -30,6 +31,7 @@ export interface LocalResource {
     destroy(): void
     on_request(user: RemoteUser, create_channel: () => RTCDataChannel): MediaStream | RTCDataChannel,
     set_destroy(cb: () => void): void
+    set_room?: (room: Room) => void
 }
 
 const RESOURCE_HANDLERS: ResourceHandlerDecl[] = [resource_file, resource_track]

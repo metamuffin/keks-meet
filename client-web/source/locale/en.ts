@@ -91,6 +91,10 @@ export const PO_EN: LanguageStrings = {
         enable_onbeforeunload: "Prompt for confirmation when leaving the site while local resources are shared",
         room_watches: "Known rooms (as semicolon seperated list of name=secret pairs)",
         username: "Username",
-        show_log: "Show extended log"
+        show_log: "Show extended log",
+        preview_rate: "Preview rate",
+        send_previews: "Send video previews",
+        preview_resolution: "Preview resolution",
+        preview_encoding_quality: "Preview encoding quality (0 - 100)",
     }
 }

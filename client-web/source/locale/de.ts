@@ -60,7 +60,7 @@ export const PO_DE: LanguageStrings = {
     video_stream: "Videoübertragung",
     audio_stream: "Audioübertragung",
     disable: "Deaktivieren",
-    enable: thing =>  `${thing} aktivieren`,
+    enable: thing => `${thing} aktivieren`,
     status_await_stream: "Übertragung startet…",
     notification_perm_explain: "Um Benarchichtigungen zu erhalten, musst du keks-meet die Berechtigung dafür geben. ",
     grant: "Berechtigen",
@@ -91,6 +91,10 @@ export const PO_DE: LanguageStrings = {
         enable_onbeforeunload: "Frage nach Bestätigung beim Verlassen der Seite, wenn Spuren geteilt sind",
         room_watches: "Bekannte Räume (Als semikolongetrennte Liste von name=geheimnis Paaren)",
         username: "Benutzername",
-        show_log: "Zeige ausführlichen log"
+        show_log: "Zeige ausführlichen log",
+        preview_rate: "Preview rate",
+        send_previews: "Send video previews",
+        preview_resolution: "Preview resolution",
+        preview_encoding_quality: "Preview encoding quality (0 - 100)",
     }
 }

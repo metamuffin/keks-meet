@@ -43,6 +43,7 @@ export interface RelayMessage {
     offer?: Sdp
     answer?: Sdp
     ice_candidate?: F_RTCIceCandidateInit
+    preview?: { id: string, data: string }
 }
 
 export interface ChatMessage { text?: string, image?: string }

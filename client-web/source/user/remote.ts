@@ -92,6 +92,8 @@ export class RemoteUser extends User {
             if (PREFS.notify_join) notify(PO.join_message(this.display_name).join(""))
             this.room.chat.add_control_message({ join: this })
         }
+        if (message.preview)
+            this.resources.get(message.preview.id)?.on_preview(message.preview.data)
         if (message.provide) {
             const d = new_remote_resource(this, message.provide)
             if (!d) return

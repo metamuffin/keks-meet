@@ -92,6 +92,10 @@ export const PO_JA: LanguageStrings = {
         enable_onbeforeunload: "ローカルリソースが共有されている間、サイトを離れるときに確認のためのプロンプト",
         room_watches: "既知の客室(セミコロンは、name=secretペアの区切りリストとして)",
         username: "ユーザ名",
-        show_log: "拡張ログを表示します。"
+        show_log: "拡張ログを表示します。",
+        preview_rate: "Preview rate",
+        send_previews: "Send video previews",
+        preview_resolution: "Preview resolution",
+        preview_encoding_quality: "Preview encoding quality (0 - 100)",
     },
 }

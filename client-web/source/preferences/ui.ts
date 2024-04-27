@@ -57,6 +57,8 @@ export function ui_preferences(): HTMLElement {
             textbox.type = "number"
             textbox.id = id
             textbox.value = PREFS[key] as string
+            if (decl.min) textbox.min = "" + decl.min
+            if (decl.max) textbox.max = "" + decl.max
             textbox.onchange = () => {
                 change_pref(key, parseFloat(textbox.value))
             }

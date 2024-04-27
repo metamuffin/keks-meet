@@ -26,6 +26,7 @@ export const resource_file: ResourceHandlerDecl = {
         }, PO.download)
         return {
             info,
+            on_preview(_) { },
             el: e("div", {},
                 e("span", {}, `${PO.file}: ${JSON.stringify(info.label)} (${display_filesize(info.size!)})`),
                 download_button,

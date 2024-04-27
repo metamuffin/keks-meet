@@ -19,7 +19,7 @@ const optional = <T>(a: T): T | undefined => a
 export const PREF_DECLS = {
     username: { type: string, default: "guest-" + hex_id(), allow_url: true },
     language: { type: string, possible_values: ["system", ...Object.keys(LOCALES)], default: "system", allow_url: true },
-    
+
     /* MEDIA */
     rnnoise: { type: bool, default: true, allow_url: true },
     native_noise_suppression: { type: bool, default: false },
@@ -35,7 +35,11 @@ export const PREF_DECLS = {
     microphone_enabled: { type: bool, default: false },
     screencast_enabled: { type: bool, default: false },
     camera_enabled: { type: bool, default: false },
-    
+    send_previews: { type: bool, default: true },
+    preview_resolution: { type: number, default: 256, min: 16, max: 512 },
+    preview_rate: { type: number, default: 8, min: 1, max: 60 },
+    preview_encoding_quality: { type: number, default: 80, min: 10, max: 100 },
+
     // TODO differenciate between mic, cam and screen
     optional_audio_default_enable: { type: bool, default: true },
     optional_video_default_enable: { type: bool, default: false },

@@ -64,6 +64,7 @@ export class LocalUser extends User {
         this.el.append(r.el)
         this.room.signaling.send_relay({ provide })
 
+        if (r.set_room) r.set_room(this.room)
         r.set_destroy(() => {
             r.destroy()
             this.el.removeChild(r.el);
